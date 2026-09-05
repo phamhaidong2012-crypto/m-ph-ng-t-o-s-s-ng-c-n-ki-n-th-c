@@ -5,68 +5,96 @@
 int main() {
     crow::SimpleApp app;
 
-    // Route trang chủ hiển thị danh sách
-    CROW_ROUTE(app, "/")([](){
-        return R"raw(
+    struct StarInfo {
+        std::string id;
+        std::string name;
+        std::string rankClass;
+        std::string temp;
+        std::string mass;
+        std::string radius;
+        std::string lifespan;
+        std::string desc;
+        std::string colorHex;
+    };
+
+    StarInfo stars[11] = {
+        {"1", "Epsilon Eridani", "K2V", "~4,800 °C", "0.82 M☉", "735,000 km", "Hàng chục tỷ năm", "Ngôi sao chuẩn mực lớp K2 với từ trường ổn định, mức độ hoạt động vết sao thấp.", "#fbbf24"},
+        {"2", "Sigma Draconis", "K0V", "~5,290 °C", "0.91 M☉", "540,000 km", "Hàng chục tỷ năm", "Điểm chuẩn quang phổ K0 cực kỳ yên tĩnh, ít bức xạ cực tím đột ngột.", "#f59e0b"},
+        {"3", "Alpha Centauri B", "K1V", "~5,260 °C", "0.90 M☉", "593,000 km", "Hàng chục tỷ năm", "Thành phần thuộc hệ sao ba gần Trái Đất nhất, quang quyển ổn định.", "#d97706"},
+        {"4", "61 Cygni A", "K5V", "~4,350 °C", "0.70 M☉", "465,000 km", "Hàng chục tỷ năm", "Tiêu chuẩn quang phổ K5 kinh điển, chu kỳ sống siêu bền bỉ.", "#ea580c"},
+        {"5", "70 Ophiuchi A", "K0V", "~5,250 °C", "0.91 M☉", "570,000 km", "Hàng chục tỷ năm", "Ngôi sao lùn cam sáng sủa, phổ vạch kim loại rõ nét.", "#f97316"},
+        {"6", "HD 219134", "K3V", "~4,690 °C", "0.79 M☉", "600,000 km", "Hàng chục tỷ năm", "Phân khúc Mid-K chuẩn xác với bức xạ nhiệt dịu nhẹ.", "#fb923c"},
+        {"7", "Epsilon Indi", "K5V", "~4,620 °C", "0.73 M☉", "480,000 km", "Hàng chục tỷ năm", "Sao lùn cam lạnh hơn Mặt Trời một chút, nhiệt độ ổn định.", "#fdba74"},
+        {"8", "107 Piscium", "K1V", "~5,150 °C", "0.85 M☉", "610,000 km", "Hàng chục tỷ năm", "Điểm neo quang phổ đáng tin cậy với cấu trúc lõi hydro hoạt động chậm.", "#fde047"},
+        {"9", "TW Piscis Austrini", "K4V", "~4,500 °C", "0.75 M☉", "500,000 km", "Hàng chục tỷ năm", "Ngôi sao trung gian thuộc nhóm lùn cam muộn, gió sao yếu.", "#facc15"},
+        {"10", "Groombridge 1618", "K8V", "~4,000 °C", "0.60 M☉", "420,000 km", "Hàng trăm tỷ năm", "Giới hạn dưới của nhóm sao lùn K lớn, duy trì phản ứng lâu nhất.", "#ca8a04"},
+        {"11", "Mặt Trời", "G2V", "~5,500 °C", "1 M☉", "696,340 km", "~10 Tỷ năm", "Ngôi sao chủ của hệ Mặt Trời, rực rỡ và tràn đầy năng lượng.", "#ef4444"}
+    };
+
+    // Route trang chủ hiển thị danh sách 11 ngôi sao
+    CROW_ROUTE(app, "/")([&stars](){
+        std::string html = R"raw(
         <!DOCTYPE html>
         <html lang="vi">
         <head>
             <meta charset="UTF-8">
-            <title>Mô Phỏng 3D Ngôi Sao</title>
+            <title>Danh Sách 11 Ngôi Sao Mô Phỏng 3D</title>
             <script src="https://cdn.tailwindcss.com"></script>
         </head>
-        <body class="bg-slate-950 text-slate-100 p-10 font-sans">
-            <div class="max-w-2xl mx-auto text-center">
-                <h1 class="text-3xl font-bold mb-6 text-amber-400">☀️ Mô Phỏng 3D Mặt Trời (G2V) ☀️</h1>
-                <a href="/sun" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl shadow-lg inline-block transition-all">Xem Mô Phỏng 3D Ngay</a>
+        <body class="bg-slate-950 text-slate-100 p-8 font-sans">
+            <div class="max-w-5xl mx-auto">
+                <h1 class="text-3xl font-bold mb-8 text-amber-400 text-center">☀️ Khám Phá 11 Ngôi Sao Không Gian ☀️</h1>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        )raw";
+
+        for(int i = 0; i < 11; i++) {
+            html += "<a href='/star/" + stars[i].id + "' class='bg-slate-900/80 border border-slate-800 p-5 rounded-2xl hover:border-amber-500 transition-all block shadow-xl hover:scale-[1.02]'>";
+            html += "<div class='flex items-center space-x-3 mb-2'>";
+            html += "<span class='w-3 h-3 rounded-full' style='background-color: " + stars[i].colorHex + ";'></span>";
+            html += "<h2 class='text-lg font-bold text-amber-300'>" + stars[i].name + "</h2>";
+            html += "</div>";
+            html += "<p class='text-xs text-amber-400/80 font-semibold mb-1'>Loại: " + stars[i].rankClass + "</p>";
+            html += "<p class='text-xs text-slate-400 line-clamp-2'>" + stars[i].desc + "</p>";
+            html += "</a>";
+        }
+
+        html += R"raw(
+                </div>
             </div>
         </body>
         </html>
         )raw";
+        return html;
     });
 
-    // Route trang mô phỏng 3D xịn sò lấy từ code mẫu của pẹn
-    CROW_ROUTE(app, "/sun")([](){
-        return R"raw(
+    // Route chi tiết 3D cho từng ngôi sao
+    CROW_ROUTE(app, "/star/<int>")([&stars](int id){
+        if (id < 1 || id > 11) return std::string("Không tìm thấy ngôi sao!");
+        StarInfo s = stars[id - 1];
+
+        // Dùng template HTML 3D xịn sò của pẹn và nhúng dữ liệu ngôi sao vào
+        std::string html = R"raw(
         <!DOCTYPE html>
         <html lang="vi">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Mô Phỏng 3D Mặt Trời (G2V Star Simulation)</title>
+            <title>Mô Phỏng 3D - )raw" + s.name + R"raw(</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
             <style>
-                body {
-                    margin: 0;
-                    overflow: hidden;
-                    background-color: #030712;
-                    font-family: 'Inter', sans-serif;
-                    user-select: none;
-                }
-                canvas {
-                    display: block;
-                    width: 100vw;
-                    height: 100vh;
-                }
-                .glass-panel {
-                    background: rgba(15, 23, 42, 0.75);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
+                body { margin: 0; overflow: hidden; background-color: #030712; font-family: 'Inter', sans-serif; user-select: none; }
+                canvas { display: block; width: 100vw; height: 100vh; }
+                .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
             </style>
         </head>
         <body class="bg-slate-950 text-slate-100 antialiased h-screen overflow-hidden flex flex-col justify-between">
-
             <header class="absolute top-0 left-0 w-full z-10 p-4 md:p-6 flex justify-between items-center pointer-events-none">
                 <div class="pointer-events-auto flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                        <span class="text-amber-400 font-bold text-lg">☀️</span>
-                    </div>
+                    <a href="/" class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shadow-lg hover:bg-amber-500/30 transition-all text-amber-400 font-bold">⬅</a>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-tight bg-gradient-to-r from-amber-200 via-orange-400 to-yellow-500 bg-clip-text text-transparent">Mặt Trời (G2V Star)</h1>
-                        <p class="text-xs text-slate-400">Mô phỏng 3D tương tác không gian thực</p>
+                        <h1 class="text-lg md:text-xl font-bold tracking-tight bg-gradient-to-r from-amber-200 via-orange-400 to-yellow-500 bg-clip-text text-transparent">)raw" + s.name + R"raw (</h1>
+                        <p class="text-xs text-slate-400">Phân loại quang phổ: )raw" + s.rankClass + R"raw(</p>
                     </div>
                 </div>
                 <div class="pointer-events-auto hidden md:flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
@@ -81,26 +109,27 @@ int main() {
                 <div class="glass-panel rounded-2xl p-5 shadow-2xl transition-all duration-300 hover:border-amber-500/30">
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-sm font-semibold tracking-wider text-amber-400 uppercase">Thông số kỹ thuật</h2>
-                        <span class="text-[10px] bg-amber-500/20 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full font-medium">Hạng G2V</span>
+                        <span class="text-[10px] bg-amber-500/20 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full font-medium">)raw" + s.rankClass + R"raw(</span>
                     </div>
                     <div class="grid grid-cols-2 gap-3 text-xs">
                         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
                             <span class="text-slate-400 block mb-0.5">Nhiệt độ bề mặt</span>
-                            <span class="font-bold text-slate-200 text-sm">~5,500 °C</span>
+                            <span class="font-bold text-slate-200 text-sm">)raw" + s.temp + R"raw(</span>
                         </div>
                         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
                             <span class="text-slate-400 block mb-0.5">Khối lượng</span>
-                            <span class="font-bold text-slate-200 text-sm">1 M☉</span>
+                            <span class="font-bold text-slate-200 text-sm">)raw" + s.mass + R"raw(</span>
                         </div>
                         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
                             <span class="text-slate-400 block mb-0.5">Bán kính</span>
-                            <span class="font-bold text-slate-200 text-sm">696,340 km</span>
+                            <span class="font-bold text-slate-200 text-sm">)raw" + s.radius + R"raw(</span>
                         </div>
                         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
                             <span class="text-slate-400 block mb-0.5">Tuổi thọ dự kiến</span>
-                            <span class="font-bold text-slate-200 text-sm">~10 Tỷ năm</span>
+                            <span class="font-bold text-slate-200 text-sm">)raw" + s.lifespan + R"raw(</span>
                         </div>
                     </div>
+                    <p class="text-xs text-slate-300 mt-3">)raw" + s.desc + R"raw(</p>
                     <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
                         <span>Chất liệu: Plasma & Hydro</span>
                         <button id="reset-cam" class="text-amber-400 hover:text-amber-300 font-medium transition-colors cursor-pointer">Đặt lại góc nhìn</button>
@@ -142,33 +171,24 @@ int main() {
                     const starGeometry = new THREE.BufferGeometry();
                     const starCount = 2000;
                     const starPositions = new Float32Array(starCount * 3);
-
                     for (let i = 0; i < starCount * 3; i += 3) {
                         starPositions[i] = (Math.random() - 0.5) * 400;
                         starPositions[i + 1] = (Math.random() - 0.5) * 400;
                         starPositions[i + 2] = (Math.random() - 0.5) * 400;
                     }
-
                     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-                    const starMaterial = new THREE.PointsMaterial({
-                        color: 0xffffff,
-                        size: 0.8,
-                        transparent: true,
-                        opacity: 0.8
-                    });
-
+                    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, transparent: true, opacity: 0.8 });
                     starField = new THREE.Points(starGeometry, starMaterial);
                     scene.add(starField);
                 }
 
                 function createSun() {
                     const canvas = document.createElement('canvas');
-                    canvas.width = 2048;
-                    canvas.height = 1024;
+                    canvas.width = 2048; canvas.height = 1024;
                     const ctx = canvas.getContext('2d');
 
                     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    gradient.addColorStop(0, '#ffcc00');
+                    gradient.addColorStop(0, ')raw" + s.colorHex + R"raw(');
                     gradient.addColorStop(0.5, '#ff5500');
                     gradient.addColorStop(1.0, '#cc2200');
                     ctx.fillStyle = gradient;
@@ -179,26 +199,19 @@ int main() {
                         const x = Math.random() * canvas.width;
                         const y = Math.random() * canvas.height;
                         const radius = Math.random() * 25 + 5;
-                        ctx.beginPath();
-                        ctx.arc(x, y, radius, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
                     }
 
                     const sunTexture = new THREE.CanvasTexture(canvas);
-                    sunTexture.wrapS = THREE.RepeatWrapping;
-                    sunTexture.wrapT = THREE.ClampToEdgeWrapping;
+                    sunTexture.wrapS = THREE.RepeatWrapping; sunTexture.wrapT = THREE.ClampToEdgeWrapping;
 
                     const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
                     const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture });
-
                     sunSphere = new THREE.Mesh(sunGeometry, sunMaterial);
                     scene.add(sunSphere);
 
-                    const sunLight = new THREE.PointLight(0xfff5e6, 2.5, 300);
-                    scene.add(sunLight);
-
-                    const ambientLight = new THREE.AmbientLight(0x221100, 1.5);
-                    scene.add(ambientLight);
+                    scene.add(new THREE.PointLight(0xfff5e6, 2.5, 300));
+                    scene.add(new THREE.AmbientLight(0x221100, 1.5));
 
                     const coronaGeometry = new THREE.SphereGeometry(5.6, 64, 64);
                     const coronaMaterial = new THREE.ShaderMaterial({
@@ -217,44 +230,29 @@ int main() {
                                 gl_FragColor = vec4(1.0, 0.6, 0.1, 1.0) * intensity * 1.5;
                             }
                         `,
-                        blending: THREE.AdditiveBlending,
-                        side: THREE.BackSide,
-                        transparent: true
+                        blending: THREE.AdditiveBlending, side: THREE.BackSide, transparent: true
                     });
-
                     coronaMesh = new THREE.Mesh(coronaGeometry, coronaMaterial);
                     scene.add(coronaMesh);
                 }
 
                 function setupEventListeners() {
-                    window.addEventListener('mousedown', (e) => {
-                        isDragging = true;
-                        previousMousePosition = { x: e.clientX, y: e.clientY };
-                    });
-
+                    window.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
                     window.addEventListener('mousemove', (e) => {
                         if (!isDragging) return;
-                        const deltaX = e.clientX - previousMousePosition.x;
-                        const deltaY = e.clientY - previousMousePosition.y;
-                        targetRotation.y += deltaX * 0.007;
-                        targetRotation.x += deltaY * 0.007;
+                        targetRotation.y += (e.clientX - previousMousePosition.x) * 0.007;
+                        targetRotation.x += (e.clientY - previousMousePosition.y) * 0.007;
                         targetRotation.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, targetRotation.x));
                         previousMousePosition = { x: e.clientX, y: e.clientY };
                     });
-
                     window.addEventListener('mouseup', () => { isDragging = false; });
-
                     window.addEventListener('wheel', (e) => {
                         targetCameraDistance += e.deltaY * 0.005;
                         targetCameraDistance = Math.max(8, Math.min(30, targetCameraDistance));
                     });
-
                     document.getElementById('reset-cam').addEventListener('click', () => {
-                        targetRotation.x = 0;
-                        targetRotation.y = 0;
-                        targetCameraDistance = 15;
+                        targetRotation.x = 0; targetRotation.y = 0; targetCameraDistance = 15;
                     });
-
                     window.addEventListener('resize', () => {
                         camera.aspect = window.innerWidth / window.innerHeight;
                         camera.updateProjectionMatrix();
@@ -268,26 +266,21 @@ int main() {
                         sunSphere.rotation.y += 0.001;
                         sunSphere.rotation.x += (targetRotation.x - sunSphere.rotation.x) * 0.1;
                         sunSphere.rotation.y += (targetRotation.y - sunSphere.rotation.y) * 0.1;
-
                         if (coronaMesh) {
                             coronaMesh.rotation.copy(sunSphere.rotation);
                             coronaMesh.material.uniforms.time.value = timestamp * 0.001;
                         }
                     }
-
                     cameraDistance += (targetCameraDistance - cameraDistance) * 0.1;
                     camera.position.z = cameraDistance;
-
-                    if (starField) {
-                        starField.rotation.y += 0.0002;
-                    }
-
+                    if (starField) starField.rotation.y += 0.0002;
                     renderer.render(scene, camera);
                 }
             </script>
         </body>
         </html>
         )raw";
+        return html;
     });
 
     app.port(18080).multithreaded().run();
