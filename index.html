@@ -5,7 +5,6 @@
 int main() {
     crow::SimpleApp app;
 
-    // Định nghĩa dữ liệu của 11 mục (10 sao lùn cam + Mặt Trời hạng chót)
     struct StarInfo {
         std::string id;
         std::string name;
@@ -32,8 +31,7 @@ int main() {
         {"11", "Mặt Trời (Hạng 50 tỷ)", "G2V - Chót bảng", "~5,500 °C", "1 M☉", "696,340 km", "~10 Tỷ năm", "Xếp hạng chót bảng vì tuổi thọ quá ngắn ngủi và hay nổi giận phình to khi về già, nuốt chửng mọi thứ!", "#ef4444"}
     };
 
-    // Route trang chủ chọn 11 mục
-    CROW_ROUTE(app, "/")([](){
+    CROW_ROUTE(app, "/")([&stars](){
         std::string html = "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>Chọn Ngôi Sao Mô Phỏng 3D</title>";
         html += "<script src='https://cdn.tailwindcss.com'></script></head>";
         html += "<body class='bg-slate-950 text-slate-100 p-10 font-sans'><div class='max-w-4xl mx-auto'>";
@@ -52,7 +50,6 @@ int main() {
         return html;
     });
 
-    // Route chi tiết mô phỏng 3D cho từng ngôi sao
     CROW_ROUTE(app, "/star/<int>")([&stars](int id){
         if (id < 1 || id > 11) return std::string("Không tìm thấy ngôi sao!");
         StarInfo s = stars[id - 1];
@@ -64,15 +61,12 @@ int main() {
         html += "<style>body{margin:0;overflow:hidden;background-color:#030712;font-family:sans-serif;} canvas{display:block;width:100vw;height:100vh;}</style>";
         html += "</head><body class='bg-slate-950 text-slate-100 h-screen flex flex-col justify-between'>";
         
-        // Header
         html += "<header class='absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center pointer-events-none'>";
         html += "<a href='/' class='pointer-events-auto bg-slate-900/80 border border-slate-700 text-amber-400 px-4 py-2 rounded-full text-xs font-bold hover:bg-slate-800'>⬅ Quay lại danh sách</a>";
         html += "<h1 class='text-xl font-bold text-amber-400'>" + s.name + " (" + s.rankClass + ")</h1></header>";
         
-        // Canvas Container
         html += "<div id='canvas-container' class='absolute inset-0 z-0'></div>";
 
-        // Panel thông số kỹ thuật
         html += "<div class='absolute bottom-6 left-6 w-96 z-10 bg-slate-900/80 backdrop-blur-md border border-slate-800 p-5 rounded-2xl shadow-2xl'>";
         html += "<h2 class='text-sm font-semibold text-amber-400 uppercase mb-3'>Thông số kỹ thuật</h2>";
         html += "<div class='grid grid-cols-2 gap-3 text-xs'>";
@@ -84,22 +78,19 @@ int main() {
         html += "<p class='text-xs text-slate-300 mt-3'>" + s.desc + "</p>";
         html += "</div>";
 
-        // Three.js Script mô phỏng 3D
         html += "<script>";
         html += "let scene = new THREE.Scene();";
         html += "let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);";
         html += "camera.position.z = 15;";
         html += "let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });";
         html += "renderer.setSize(window.innerWidth, window.innerHeight);";
-        html += "document.getElementById('canvas-keyword') || document.getElementById('canvas-container').appendChild(renderer.domElement);";
+        html += "document.getElementById('canvas-container').appendChild(renderer.domElement);";
         
-        // Vẽ quả cầu sao với màu đặc trưng
         html += "let geometry = new THREE.SphereGeometry(5, 64, 64);";
         html += "let material = new THREE.MeshBasicMaterial({ color: '" + s.colorHex + "' });";
         html += "let starMesh = new THREE.Mesh(geometry, material);";
         html += "scene.add(starMesh);";
         
-        // Ánh sáng và vòng lặp render
         html += "let light = new THREE.PointLight(0xffffff, 2, 100); scene.add(light);";
         html += "function animate() { requestAnimationFrame(animate); starMesh.rotation.y += 0.005; renderer.render(scene, camera); }";
         html += "animate();";
