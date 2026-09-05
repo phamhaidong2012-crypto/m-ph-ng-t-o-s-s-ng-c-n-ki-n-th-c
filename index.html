@@ -1,518 +1,157 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá 11 Ngôi Sao 3D - Tiềm Năng Sự Sống</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #030712; font-family: 'Inter', sans-serif; user-select: none; }
-        canvas { display: block; width: 100vw; height: 100vh; }
-        .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.5); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
-        
-        .sidebar-transition {
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
-        }
-        .sidebar-hidden {
-            transform: translateX(-120%);
-            opacity: 0;
-            pointer-events: none;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá 11 Ngôi Sao 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #030712; font-family: 'Inter', sans-serif; user-select: none; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        
+        /* Hiệu ứng trượt mượt mà cho Sidebar */
+        .sidebar-transition { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease; }
+        .sidebar-hidden { transform: translateX(-120%); opacity: 0; pointer-events: none; }
 
-        #fireworks-canvas {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 30;
-        }
+        /* Hiệu ứng pháo hoa overlay */
+        #fireworks-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
 
-        .congrats-modal {
-            animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-    </style>
+        /* Modal chúc mừng */
+        .congrats-modal { animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex relative">
 
-    <canvas id="fireworks-canvas"></canvas>
+    <!-- Canvas pháo hoa khi bấm chúc mừng -->
+    <canvas id="fireworks-canvas"></canvas>
 
-    <div id="congrats-overlay" class="absolute inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden">
-        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center max-w-md mx-4">
-            <div class="text-5xl mb-3">🎉⭐✨</div>
-            <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
-            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã khám phá và chọn thành công ngôi sao tuyệt đẹp này.</p>
-            <div class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 animate-pulse">
-                Đang chuyển sang chế độ không gian 3D...
-            </div>
-        </div>
-    </div>
+    <!-- Modal chúc mừng tạm thời -->
+    <div id="congrats-overlay" class="absolute inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🎉⭐✨</div>
+            <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
+            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã khám phá và chọn thành công ngôi sao tuyệt đẹp này.</p>
+            <div class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 animate-pulse">
+                Đang chuyển sang chế độ không gian 3D...
+            </div>
+        </div>
+    </div>
 
-    <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-20 glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800/80">
-        <div>
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-                <div class="flex items-center space-x-2.5">
-                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
-                    <h1 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Hệ Thống 11 Ngôi Sao</h1>
-                </div>
-            </div>
-            <p class="text-xs text-slate-400 mb-3">Chọn ngôi sao bạn muốn khám phá:</p>
-            
-            <div id="star-list" class="space-y-2 max-h-[calc(100vh-270px)] overflow-y-auto pr-1"></div>
-        </div>
+    <!-- Sidebar danh sách ngôi sao bên trái -->
+    <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-20 glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800/80">
+        <div>
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                    <h1 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Hệ Thống 11 Ngôi Sao</h1>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Chọn ngôi sao bạn muốn khám phá:</p>
+            
+            <!-- Danh sách sao cuộn được -->
+            <div id="star-list" class="space-y-2 max-h-[calc(100vh-270px)] overflow-y-auto pr-1">
+                <!-- Được tạo tự động bằng JavaScript -->
+            </div>
+        </div>
 
-        <div class="pt-4 border-t border-slate-800">
-            <button id="btn-select" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs py-3.5 px-4 rounded-2xl shadow-lg shadow-cyan-500/25 border border-cyan-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
-                <span>⭐ Chọn Ngôi Sao Này</span>
-            </button>
-            <div class="mt-2.5 text-center text-[10px] text-slate-500">
-                Bấm để xem pháo hoa chúc mừng & tối ưu không gian 3D
-            </div>
-        </div>
-    </aside>
+        <!-- Nút xác nhận chọn ngôi sao -->
+        <div class="pt-4 border-t border-slate-800">
+            <button id="btn-select" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs py-3.5 px-4 rounded-2xl shadow-lg shadow-cyan-500/25 border border-cyan-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
+                <span>⭐ Chọn Ngôi Sao Này</span>
+            </button>
+            <div class="mt-2.5 text-center text-[10px] text-slate-500">
+                Bấm để xem pháo hoa chúc mừng & tối ưu không gian 3D
+            </div>
+        </div>
+    </aside>
 
-    <main class="w-full h-full relative flex flex-col justify-between">
-        <header class="absolute top-6 right-8 z-10 pointer-events-none text-right">
-            <div class="inline-block glass-panel px-5 py-3 rounded-2xl border border-slate-800 shadow-xl max-w-sm">
-                <h2 id="star-title" class="text-base font-bold tracking-tight text-white">Mặt Trời (G2V Star)</h2>
-                <p id="star-subtitle" class="text-xs text-cyan-400 mt-0.5">Ngôi sao trung tâm hệ mặt trời của chúng ta.</p>
-            </div>
-        </header>
+    <!-- Khung nhìn chính 3D -->
+    <main class="w-full h-full relative flex flex-col justify-between">
+        <!-- Thông số kỹ thuật ngôi sao đang chọn ở góc phải trên -->
+        <header class="absolute top-6 right-8 z-10 pointer-events-none text-right">
+            <div class="inline-block glass-panel px-5 py-3 rounded-2xl border border-slate-800 shadow-xl max-w-sm">
+                <h2 id="star-title" class="text-base font-bold tracking-tight text-white">Mặt Trời (G2V Star)</h2>
+                <p id="star-subtitle" class="text-xs text-cyan-400 mt-0.5">Ngôi sao trung tâm hệ mặt trời của chúng ta.</p>
+            </div>
+        </header>
 
-        <!-- BẢNG 5 CHỈ SỐ CHI TIẾT (Đã bổ sung Xác suất xuất hiện sự sống) -->
-        <div class="absolute top-28 right-8 z-10 pointer-events-none">
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl grid grid-cols-2 gap-3 w-88">
-                <!-- Chỉ số 1: Nhiệt độ -->
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                    <div class="flex items-center space-x-1.5 text-orange-400 text-[11px] font-semibold mb-1">
-                        <span>🌡️</span>
-                        <span>Nhiệt Độ</span>
-                    </div>
-                    <div id="metric-temp" class="text-sm font-bold text-slate-100">~5,500 °C</div>
-                </div>
-                <!-- Chỉ số 2: Khối lượng -->
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                    <div class="flex items-center space-x-1.5 text-blue-400 text-[11px] font-semibold mb-1">
-                        <span>⚖️</span>
-                        <span>Khối Lượng</span>
-                    </div>
-                    <div id="metric-mass" class="text-sm font-bold text-slate-100">~1.989 × 10³⁰ kg</div>
-                </div>
-                <!-- Chỉ số 3: Bán kính -->
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                    <div class="flex items-center space-x-1.5 text-emerald-400 text-[11px] font-semibold mb-1">
-                        <span>⚪</span>
-                        <span>Bán Kính</span>
-                    </div>
-                    <div id="metric-radius" class="text-sm font-bold text-slate-100">696,340 km</div>
-                </div>
-                <!-- Chỉ số 4: Khoảng cách -->
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                    <div class="flex items-center space-x-1.5 text-purple-400 text-[11px] font-semibold mb-1">
-                        <span>🌌</span>
-                        <span>Khoảng Cách</span>
-                    </div>
-                    <div id="metric-dist" class="text-sm font-bold text-slate-100">149.6 triệu km</div>
-                </div>
-                <!-- Chỉ số 5 (MỚI): Xác suất xuất hiện sự sống tiềm năng -->
-                <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3.5 rounded-xl border border-cyan-500/30">
-                    <div class="flex items-center justify-between mb-1.5">
-                        <div class="flex items-center space-x-1.5 text-cyan-300 text-[11px] font-bold">
-                            <span>🧬</span>
-                            <span>Xác Suất Sự Sống Tiềm Năng</span>
-                        </div>
-                        <div id="metric-life-val" class="text-xs font-black text-cyan-400">82.5%</div>
-                    </div>
-                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 82.5%"></div>
-                    </div>
-                    <div id="metric-life-desc" class="text-[10px] text-slate-400 mt-1 italic">Đặc tính quang phổ G2V cân bằng, tuổi thọ ổn định cao.</div>
-                </div>
-            </div>
-        </div>
+        <!-- BẢNG 5 CHỈ SỐ CHI TIẾT (bao gồm chỉ số sinh học mới) -->
+        <div class="absolute top-28 right-8 z-10 pointer-events-none">
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl grid grid-cols-2 gap-3 w-80">
+                <!-- Chỉ số 1: Nhiệt độ -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-orange-400 text-[11px] font-semibold mb-1">
+                        <span>🌡️</span>
+                        <span>Nhiệt Độ Bề Mặt</span>
+                    </div>
+                    <div id="metric-temp" class="text-sm font-bold text-slate-100">~5,500 °C</div>
+                </div>
+                <!-- Chỉ số 2: Khối lượng -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-blue-400 text-[11px] font-semibold mb-1">
+                        <span>⚖️</span>
+                        <span>Khối Lượng</span>
+                    </div>
+                    <div id="metric-mass" class="text-sm font-bold text-slate-100">~1.989 × 10³⁰ kg</div>
+                </div>
+                <!-- Chỉ số 3: Bán kính -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-emerald-400 text-[11px] font-semibold mb-1">
+                        <span>⚪</span>
+                        <span>Bán Kính</span>
+                    </div>
+                    <div id="metric-radius" class="text-sm font-bold text-slate-100">696,340 km</div>
+                </div>
+                <!-- Chỉ số 4: Độ Ổn Định Bức Xạ (thay thế Khoảng Cách) -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-cyan-400 text-[11px] font-semibold mb-1">
+                        <span>🛡️</span>
+                        <span>Độ Ổn Định Bức Xạ</span>
+                    </div>
+                    <div id="metric-rad-stability" class="text-sm font-bold text-slate-100">Rất Cao (Loại G2V)</div>
+                </div>
+                <!-- Chỉ số 5: Xác Suất Sự Sống (mới) -->
+                <div class="col-span-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center space-x-1.5 text-pink-400 text-[11px] font-semibold">
+                            <span>🦠</span>
+                            <span>Xác Suất Sự Sống (Không phụ thuộc Vùng Ở Được)</span>
+                        </div>
+                        <div id="metric-life-prob" class="text-xs font-black text-pink-300 px-2 py-0.5 rounded-md bg-pink-500/20 border border-pink-500/30">58.2%</div>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                        <div id="metric-life-bar" class="bg-pink-500 h-full rounded-full transition-all duration-500" style="width: 58.2%"></div>
+                    </div>
+                    <p id="metric-life-desc" class="mt-2 text-[10px] text-slate-400 leading-relaxed">Dựa trên bức xạ cực tím thấp & độ ổn định từ tính cao của sao loại G.</p>
+                </div>
+            </div>
+        </div>
 
-        <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"></div>
+        <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"></div>
 
-        <div class="absolute bottom-6 right-8 z-10 pointer-events-none">
-            <div class="flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-full text-slate-300 shadow-lg backdrop-blur-md">
-                <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span>Kéo chuột để xoay • Cuộn để phóng to</span>
-            </div>
-        </div>
-    </main>
+        <!-- Hướng dẫn điều khiển ở góc dưới phải -->
+        <div class="absolute bottom-6 right-8 z-10 pointer-events-none">
+            <div class="flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-full text-slate-300 shadow-lg backdrop-blur-md">
+                <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span>Kéo chuột để xoay • Cuộn để phóng to</span>
+            </div>
+        </div>
+    </main>
 
-    <script>
-        const starsData = [
-            { 
-                id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", 
-                desc: "Ngôi sao trung tâm hệ mặt trời của chúng ta.",
-                // Xác suất theo tiêu chuẩn sinh học thiên văn dựa trên quang phổ G2V, tính ổn định bức xạ và thời gian sống (Không để 100% tuyệt đối)
-                lifeProb: 88.5, lifeDesc: "Quang phổ G2V lý tưởng, phát xạ tia cực tím ở mức vừa phải, chu kỳ ổn định lâu dài." 
-            },
-            { 
-                id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", 
-                desc: "Hệ sao lân cận có đĩa bụi sao.",
-                lifeProb: 81.2, lifeDesc: "Lùn cam K2V tuổi thọ cao (>10 tỷ năm), tiềm năng giữ vùng sinh sống ổn định rất tốt." 
-            },
-            { 
-                id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", dist: "18.8 năm ánh sáng", color: "#f59e0b", 
-                desc: "Ngôi sao dạng lùn cam ổn định.",
-                lifeProb: 85.0, lifeDesc: "Độ sáng cực kỳ ổn định, ít biến động từ tính đột ngột, rất thuận lợi cho hóa học tiền sinh học." 
-            },
-            { 
-                id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", dist: "4.37 năm ánh sáng", color: "#d97706", 
-                desc: "Thành viên trong hệ sao ba gần nhất.",
-                lifeProb: 79.4, lifeDesc: "Nằm trong hệ đa sao nhưng quỹ đạo thành phần B tách biệt đủ để duy trì môi trường bức xạ ổn định." 
-            },
-            { 
-                id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", dist: "11.4 năm ánh sáng", color: "#ea580c", 
-                desc: "Ngôi sao nổi tiếng với chuyển động riêng lớn.",
-                lifeProb: 74.8, lifeDesc: "Nhiệt độ bề mặt hơi thấp, vùng sinh sống dịch sát sao hơn nhưng thời gian sống kéo dài vượt trội." 
-            },
-            { 
-                id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", dist: "16.6 năm ánh sáng", color: "#f97316", 
-                desc: "Hệ sao đôi quang phổ.",
-                lifeProb: 77.1, lifeDesc: "Hệ sao đôi quang phổ loại K0V với các đặc trưng hóa học giàu nguyên tố nặng kiến tạo đá." 
-            },
-            { 
-                id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", dist: "21.3 năm ánh sáng", color: "#fb923c", 
-                desc: "Ngôi sao lùn chứa các hành tinh đất đá.",
-                lifeProb: 83.6, lifeDesc: "Bức xạ hồng ngoại và quang học hài hòa, lý tưởng cho việc hấp thụ nhiệt trên bề mặt vật chất." 
-            },
-            { 
-                id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", dist: "11.8 năm ánh sáng", color: "#fdba74", 
-                desc: "Ngôi sao có tốc độ dịch chuyển cao trên bầu trời.",
-                lifeProb: 76.5, lifeDesc: "Hoạt động sao tương đối ôn hòa, tuổi thọ ước tính cao hơn nhiều so với các sao loại G." 
-            },
-            { 
-                id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", dist: "24.4 năm ánh sáng", color: "#fde047", 
-                desc: "Ngôi sao có đặc tính tương đồng với mặt trời trẻ.",
-                lifeProb: 80.9, lifeDesc: "Kim loại học (Metallicity) phù hợp giúp hình thành các hợp chất hữu cơ phức tạp." 
-            },
-            { 
-                id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", dist: "24.9 năm ánh sáng", color: "#facc15", 
-                desc: "Thành viên gần cụm sao lân cận.",
-                lifeProb: 72.3, lifeDesc: "Cường độ phát xạ tia X vừa phải, năng lượng quang phổ ổn định trong dải sóng quang học." 
-            },
-            { 
-                id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", 
-                desc: "Ngôi sao lùn cam hoạt động từ tính.",
-                lifeProb: 68.4, lifeDesc: "Nhiệt độ thấp hơn làm vùng sinh sống thu hẹp, tuy nhiên độ bền vững cao kéo dài hàng chục tỷ năm." 
-            }
-        ];
-
-        let currentSelectedIndex = 0;
-        let scene, camera, renderer, sunSphere, orbitRing1, starField, starGroup;
-        let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
-
-        function initApp() {
-            buildStarListUI();
-            init3D();
-            setupEventListeners();
-        }
-
-        function buildStarListUI() {
-            const listContainer = document.getElementById('star-list');
-            listContainer.innerHTML = '';
-            
-            starsData.forEach((star, idx) => {
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${idx === currentSelectedIndex ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-200 shadow-md shadow-cyan-500/10' : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/80 hover:border-slate-700'}`;
-                item.innerHTML = `
-                    <div class="flex items-center space-x-2.5">
-                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${star.color}; box-shadow: 0 0 8px ${star.color}"></span>
-                        <div>
-                            <span class="font-bold text-xs block">${star.name}</span>
-                            <span class="text-[10px] text-slate-400">Hạng ${star.rank} • <span class="text-cyan-400 font-bold">${star.lifeProb}%</span></span>
-                        </div>
-                    </div>
-                    <span class="text-xs font-semibold ${idx === currentSelectedIndex ? 'text-cyan-400' : 'text-slate-500'}">${idx === currentSelectedIndex ? '●' : '○'}</span>
-                `;
-                item.addEventListener('click', () => {
-                    currentSelectedIndex = idx;
-                    buildStarListUI();
-                    updateStarContent(currentSelectedIndex);
-                });
-                listContainer.appendChild(item);
-            });
-        }
-
-        function init3D() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = camDist;
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-            const starGeo = new THREE.BufferGeometry();
-            const starPos = new Float32Array(2500 * 3);
-            for(let i=0; i<7500; i+=3) {
-                starPos[i] = (Math.random()-0.5)*400;
-                starPos[i+1] = (Math.random()-0.5)*400;
-                starPos[i+2] = (Math.random()-0.5)*400;
-            }
-            starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-            starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.8, transparent: true, opacity: 0.8}));
-            scene.add(starField);
-
-            scene.add(new THREE.PointLight(0xffffff, 2.2, 300));
-            scene.add(new THREE.AmbientLight(0x332211, 1.5));
-
-            starGroup = new THREE.Group();
-            scene.add(starGroup);
-
-            updateStarContent(0);
-            animate();
-        }
-
-        function updateStarContent(idx) {
-            const s = starsData[idx];
-            document.getElementById('star-title').innerText = `${s.name} (${s.rank} Star)`;
-            document.getElementById('star-subtitle').innerText = s.desc;
-
-            document.getElementById('metric-temp').innerText = s.temp;
-            document.getElementById('metric-mass').innerText = s.mass;
-            document.getElementById('metric-radius').innerText = s.radius;
-            document.getElementById('metric-dist').innerText = s.dist;
-
-            // Cập nhật thông số xác suất sự sống mới
-            document.getElementById('metric-life-val').innerText = `${s.lifeProb}%`;
-            document.getElementById('metric-life-bar').style.width = `${s.lifeProb}%`;
-            document.getElementById('metric-life-desc').innerText = s.lifeDesc;
-
-            while(starGroup.children.length > 0){ 
-                starGroup.remove(starGroup.children[0]); 
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = 1024; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-            const grad = ctx.createLinearGradient(0, 0, 0, 512);
-            grad.addColorStop(0, s.color);
-            grad.addColorStop(0.5, '#ff5500');
-            grad.addColorStop(1.0, '#cc2200');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 1024, 512);
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-            for(let i=0; i<900; i++) {
-                ctx.beginPath();
-                ctx.arc(Math.random()*1024, Math.random()*512, Math.random()*22 + 4, 0, Math.PI*2);
-                ctx.fill();
-            }
-
-            const texture = new THREE.CanvasTexture(canvas);
-            sunSphere = new THREE.Mesh(new THREE.SphereGeometry(4.8, 64, 64), new THREE.MeshBasicMaterial({ map: texture }));
-            starGroup.add(sunSphere);
-
-            orbitRing1 = createOrbit(6.6, 0xffffff, 0.35);
-            starGroup.add(orbitRing1);
-        }
-
-        function createOrbit(radius, color, opacity) {
-            const group = new THREE.Group();
-            const ringGeo = new THREE.RingGeometry(radius - 0.03, radius + 0.03, 64);
-            const ringMat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: opacity });
-            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-            ringMesh.rotation.x = Math.PI / 2;
-            group.add(ringMesh);
-
-            const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
-            const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const dot = new THREE.Mesh(dotGeo, dotMat);
-            dot.position.set(radius, 0, 0);
-            group.add(dot);
-            group.userData = { dot: dot, radius: radius };
-
-            group.rotation.x = 0.35;
-            group.rotation.z = 0.25;
-            return group;
-        }
-
-        function triggerFireworksAndRemoveSidebar() {
-            const selectedStar = starsData[currentSelectedIndex];
-            document.getElementById('congrats-title').innerText = `Đã Chọn: ${selectedStar.name}!`;
-            document.getElementById('congrats-desc').innerText = `Xác suất sự sống tiềm năng tại đây là ${selectedStar.lifeProb}%. Tuyệt vời!`;
-            
-            const overlay = document.getElementById('congrats-overlay');
-            overlay.classList.remove('hidden');
-
-            startFireworksAnimation();
-
-            setTimeout(() => {
-                overlay.classList.add('transition-opacity', 'duration-500', 'opacity-0');
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) sidebar.remove();
-
-                setTimeout(() => {
-                    overlay.remove();
-                }, 500);
-            }, 3000);
-        }
-
-        function startFireworksAnimation() {
-            const canvas = document.getElementById('fireworks-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            let particles = [];
-            const colors = ['#22d3ee', '#3b82f6', '#f43f5e', '#fbbf24', '#10b981', '#a855f7'];
-
-            for (let i = 0; i < 5; i++) {
-                createFireworkBurst(
-                    Math.random() * canvas.width * 0.6 + canvas.width * 0.2,
-                    Math.random() * canvas.height * 0.5 + canvas.height * 0.2,
-                    colors
-                );
-            }
-
-            let animationId;
-            function loop() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach((p, index) => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.05;
-                    p.alpha -= 0.015;
-
-                    ctx.save();
-                    ctx.globalAlpha = Math.max(0, p.alpha);
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-
-                    if (p.alpha <= 0) {
-                        particles.splice(index, 1);
-                    }
-                });
-
-                if (particles.length > 0) {
-                    animationId = requestAnimationFrame(loop);
-                } else {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
-            }
-            loop();
-        }
-
-        function createFireworkBurst(x, y, colors) {
-            const particleCount = 70;
-            const canvas = document.getElementById('fireworks-canvas');
-            const ctx = canvas.getContext('2d');
-            for (let i = 0; i < particleCount; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 6 + 2;
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    size: Math.random() * 3 + 1.5,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    alpha: 1
-                });
-            }
-        }
-
-        function setupEventListeners() {
-            const container = document.getElementById('canvas-container');
-            
-            container.addEventListener('mousedown', e => { 
-                isDragging = true; 
-                prevMouse = {x: e.clientX, y: e.clientY}; 
-            });
-
-            window.addEventListener('mousemove', e => {
-                if(!isDragging) return;
-                const dx = e.clientX - prevMouse.x;
-                const dy = e.clientY - prevMouse.y;
-
-                targetRot.y += dx * 0.007;
-                targetRot.x += dy * 0.007;
-                targetRot.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRot.x));
-                prevMouse = {x: e.clientX, y: e.clientY};
-            });
-
-            window.addEventListener('mouseup', () => { isDragging = false; });
-            
-            container.addEventListener('touchstart', e => {
-                if(e.touches.length === 1) { 
-                    isDragging = true; 
-                    prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY}; 
-                }
-            });
-
-            window.addEventListener('touchmove', e => {
-                if(!isDragging || e.touches.length !== 1) return;
-                const dx = e.touches[0].clientX - prevMouse.x;
-                const dy = e.touches[0].clientY - prevMouse.y;
-
-                targetRot.y += dx * 0.007;
-                targetRot.x += dy * 0.007;
-                targetRot.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRot.x));
-                prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
-            });
-
-            window.addEventListener('touchend', () => { isDragging = false; });
-
-            container.addEventListener('wheel', e => {
-                targetCamDist = Math.max(7, Math.min(25, targetCamDist + e.deltaY * 0.005));
-            });
-
-            const selectBtn = document.getElementById('btn-select');
-            if(selectBtn) {
-                selectBtn.addEventListener('click', triggerFireworksAndRemoveSidebar);
-            }
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                const fwCanvas = document.getElementById('fireworks-canvas');
-                if(fwCanvas) {
-                    fwCanvas.width = window.innerWidth;
-                    fwCanvas.height = window.innerHeight;
-                }
-            });
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if(starGroup) {
-                starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.1;
-                starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.1;
-            }
-            if(sunSphere) {
-                sunSphere.rotation.y += 0.0012;
-            }
-            if(orbitRing1) {
-                orbitRing1.rotation.y += 0.006;
-                const t = Date.now() * 0.002;
-                orbitRing1.userData.dot.position.x = Math.cos(t) * orbitRing1.userData.radius;
-                orbitRing1.userData.dot.position.z = Math.sin(t) * orbitRing1.userData.radius;
-            }
-
-            camDist += (targetCamDist - camDist) * 0.1;
-            camera.position.z = camDist;
-            if(starField) starField.rotation.y += 0.0002;
-            renderer.render(scene, camera);
-        }
-
-        window.onload = () => {
-            initApp();
-        };
-    </script>
-</body>
-</html>
+    <script>
+        // Thuật toán tính xác suất sự sống mới: 
+        // Dựa hoàn toàn trên: Loại quang phổ (tương quan với bức xạ XUV), Độ ổn định hoạt động (Flare rate), Tuổi thọ.
+        // KO TÍNH VÙNG Ở ĐƯỢC (Habitable Zone)
+        const starsData = [
+            { id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", radStability: "Rất Cao", color: "#ef4444", desc: "Ngôi sao trung tâm hệ mặt trời của chúng ta.", lifeProb: 58.2, lifeDesc: "Cao nhất: Lớp G2V rất ổn định, bức xạ cực tím thấp & bão từ không quá khắc nghiệt." },
+            { id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", radStability: "Cao", color: "#fbbf24", desc: "Hệ sao lân cận có đĩa bụi sao.", lifeProb: 45.5, lifeDesc: "Khá: Lớp K2V ổn định, nhưng hoạt động từ tính mạnh hơn Mặt Trời một chút." },
+            { id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", radStability: "Cao", color: "#f59e0b", desc: "Ngôi sao dạng lùn cam ổn định.", lifeProb: 51.8, lifeDesc: "Rất Khá: Lớp K0V rất ổn định, hoạt động từ tính tương đương Mặt Trời." },
+            { id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", radStability: "Cao", color: "#d97706", desc: "Thành viên trong hệ sao ba gần nhất.", lifeProb: 49.6, lifeDesc: "Rất Khá: Lớp K1V với đặc điểm bức xạ & bão từ thuận lợi cho sự sống." },
+            { id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", radStability: "Trung Bình", color: "#ea580c", desc: "Ngôi sao nổi tiếng với chuyển động riêng lớn.", lifeProb: 38.0, lifeDesc: "Trung Bình: Hoạt động từ tính cao, bão mặt trời mạnh & bức xạ biến thiên." },
+            { id: 5, name: "70 Ophiuchi A
