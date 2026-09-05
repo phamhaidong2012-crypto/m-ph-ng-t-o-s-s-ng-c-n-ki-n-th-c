@@ -1,3 +1,4 @@
+#define CROW_MAIN
 #include "crow.h"
 #include <string>
 
@@ -20,7 +21,7 @@ int main() {
     StarInfo stars[11] = {
         {"1", "Epsilon Eridani", "K2V", "~4,800 °C", "0.82 M☉", "735,000 km", "Hàng chục tỷ năm", "Ngôi sao chuẩn mực lớp K2 với từ trường ổn định, mức độ hoạt động vết sao thấp và tuổi thọ kéo dài hàng chục tỷ năm.", "#fbbf24"},
         {"2", "Sigma Draconis", "K0V", "~5,290 °C", "0.91 M☉", "540,000 km", "Hàng chục tỷ năm", "Điểm chuẩn quang phổ K0 cực kỳ yên tĩnh, ít bức xạ cực tím đột ngột, giữ nhịp năng lượng phát ra đều đặn qua các kỷ nguyên.", "#f59e0b"},
-        {"3", "Alpha Centauri B", "K1V", "~5,260 °C", "0.90 M☉", "593,000 km", "Hàng chục tỷ năm", "Thành phần thuộc hệ sao ba gần Trái Đất nhất, nổi bật με vùng quang quyển ổn định và khối lượng gần ngưỡng lý tưởng.", "#d97706"},
+        {"3", "Alpha Centauri B", "K1V", "~5,260 °C", "0.90 M☉", "593,000 km", "Hàng chục tỷ năm", "Thành phần thuộc hệ sao ba gần Trái Đất nhất, nổi bật với vùng quang quyển ổn định và khối lượng gần ngưỡng lý tưởng.", "#d97706"},
         {"4", "61 Cygni A", "K5V", "~4,350 °C", "0.70 M☉", "465,000 km", "Hàng chục tỷ năm", "Tiêu chuẩn quang phổ K5 kinh điển, sở hữu chu kỳ sống siêu bền bỉ lên đến hàng chục tỷ năm với mật độ năng lượng thuần nhất.", "#ea580c"},
         {"5", "70 Ophiuchi A", "K0V", "~5,250 °C", "0.91 M☉", "570,000 km", "Hàng chục tỷ năm", "Ngôi sao lùn cam sáng sủa, có phổ vạch kim loại rõ nét và hoạt động bề mặt ít biến động mạnh.", "#f97316"},
         {"6", "HD 219134", "K3V", "~4,690 °C", "0.79 M☉", "600,000 km", "Hàng chục tỷ năm", "Thuộc phân khúc Mid-K chuẩn xác với bức xạ nhiệt dịu nhẹ, không xảy ra các đợt bùng nổ từ trường cực đoan.", "#fb923c"},
@@ -33,7 +34,7 @@ int main() {
 
     // Route trang chủ chọn 11 mục
     CROW_ROUTE(app, "/")([](){
-        std::string html = "<DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>Chọn Ngôi Sao Mô Phỏng 3D</title>";
+        std::string html = "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>Chọn Ngôi Sao Mô Phỏng 3D</title>";
         html += "<script src='https://cdn.tailwindcss.com'></script></head>";
         html += "<body class='bg-slate-950 text-slate-100 p-10 font-sans'><div class='max-w-4xl mx-auto'>";
         html += "<h1 class='text-3xl font-bold mb-6 text-amber-400 text-center'>☀️ Danh Sách 11 Ngôi Sao Mô Phỏng 3D ☀️</h1>";
@@ -43,7 +44,7 @@ int main() {
             html += "<a href='/star/" + std::to_string(i+1) + "' class='bg-slate-900 border border-slate-800 p-4 rounded-xl hover:border-amber-500 transition-all block shadow-lg'>";
             html += "<h2 class='text-lg font-bold text-amber-300'>" + std::to_string(i+1) + ". " + stars[i].name + "</h2>";
             html += "<p class='text-xs text-slate-400 mt-1'>Loại: " + stars[i].rankClass + "</p>";
-            html += "<p class='text-xs text-slate-300 mt-2 line-clamp-2'>" + stars[i].desc + "</p>";
+            html += "<p class='text-xs text-slate-300 mt-2'>" + stars[i].desc + "</p>";
             html += "</a>";
         }
         
@@ -56,7 +57,7 @@ int main() {
         if (id < 1 || id > 11) return std::string("Không tìm thấy ngôi sao!");
         StarInfo s = stars[id - 1];
 
-        std::string html = "<DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'>";
+        std::string html = "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'>";
         html += "<title>Mô Phỏng 3D - " + s.name + "</title>";
         html += "<script src='https://cdn.tailwindcss.com'></script>";
         html += "<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'></script>";
@@ -90,7 +91,7 @@ int main() {
         html += "camera.position.z = 15;";
         html += "let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });";
         html += "renderer.setSize(window.innerWidth, window.innerHeight);";
-        html += "document.getElementById('canvas-container').appendChild(renderer.domElement);";
+        html += "document.getElementById('canvas-keyword') || document.getElementById('canvas-container').appendChild(renderer.domElement);";
         
         // Vẽ quả cầu sao với màu đặc trưng
         html += "let geometry = new THREE.SphereGeometry(5, 64, 64);";
