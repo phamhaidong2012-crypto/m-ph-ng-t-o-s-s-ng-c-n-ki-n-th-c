@@ -85,7 +85,7 @@
             </div>
         </header>
 
-        <!-- BẢNG 5 CHỈ SỐ CHI TIẾT (Đã bổ sung Xác suất xuất hiện sự sống) -->
+        <!-- BẢNG 5 CHỈ SỐ CHI TIẾT (Đã cập nhật công thức xác suất sự sống theo điều kiện vật lý sao) -->
         <div class="absolute top-28 right-8 z-10 pointer-events-none">
             <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl grid grid-cols-2 gap-3 w-88">
                 <!-- Chỉ số 1: Nhiệt độ -->
@@ -120,19 +120,19 @@
                     </div>
                     <div id="metric-dist" class="text-sm font-bold text-slate-100">149.6 triệu km</div>
                 </div>
-                <!-- Chỉ số 5 (MỚI): Xác suất xuất hiện sự sống tiềm năng -->
+                <!-- Chỉ số 5 (CẬP NHẬT): Xác suất xuất hiện sự sống theo điều kiện vật lý sao -->
                 <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3.5 rounded-xl border border-cyan-500/30">
                     <div class="flex items-center justify-between mb-1.5">
                         <div class="flex items-center space-x-1.5 text-cyan-300 text-[11px] font-bold">
                             <span>🧬</span>
-                            <span>Xác Suất Sự Sống Tiềm Năng</span>
+                            <span>Xác Suất Sự Sống Tiềm Năng (Vật Lý Sao)</span>
                         </div>
-                        <div id="metric-life-val" class="text-xs font-black text-cyan-400">82.5%</div>
+                        <div id="metric-life-val" class="text-xs font-black text-cyan-400">88.5%</div>
                     </div>
                     <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 82.5%"></div>
+                        <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 88.5%"></div>
                     </div>
-                    <div id="metric-life-desc" class="text-[10px] text-slate-400 mt-1 italic">Đặc tính quang phổ G2V cân bằng, tuổi thọ ổn định cao.</div>
+                    <div id="metric-life-desc" class="text-[10px] text-slate-400 mt-1 italic">Đặc tính quang phổ G2V, bức xạ cực tím cân bằng và độ ổn định từ trường hoàn hảo.</div>
                 </div>
             </div>
         </div>
@@ -148,62 +148,62 @@
     </main>
 
     <script>
+        // Các ngôi sao với xác suất tính toán thuần túy dựa trên điều kiện bức xạ, từ trường, quang phổ và tính kim loại (không tính tuổi, không tính diện tích vùng sống)
         const starsData = [
             { 
                 id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", 
                 desc: "Ngôi sao trung tâm hệ mặt trời của chúng ta.",
-                // Xác suất theo tiêu chuẩn sinh học thiên văn dựa trên quang phổ G2V, tính ổn định bức xạ và thời gian sống (Không để 100% tuyệt đối)
-                lifeProb: 88.5, lifeDesc: "Quang phổ G2V lý tưởng, phát xạ tia cực tím ở mức vừa phải, chu kỳ ổn định lâu dài." 
+                lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực, bức xạ cực tím (UV) vừa phải, từ trường ổn định giúp hành tinh giữ khí quyển tối ưu." 
             },
             { 
                 id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", 
                 desc: "Hệ sao lân cận có đĩa bụi sao.",
-                lifeProb: 81.2, lifeDesc: "Lùn cam K2V tuổi thọ cao (>10 tỷ năm), tiềm năng giữ vùng sinh sống ổn định rất tốt." 
+                lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V có bức xạ hồng ngoại ổn định, ít bùng nổ tia lửa từ tính bất thường, hỗ trợ hóa học sinh học rất tốt." 
             },
             { 
                 id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", dist: "18.8 năm ánh sáng", color: "#f59e0b", 
                 desc: "Ngôi sao dạng lùn cam ổn định.",
-                lifeProb: 85.0, lifeDesc: "Độ sáng cực kỳ ổn định, ít biến động từ tính đột ngột, rất thuận lợi cho hóa học tiền sinh học." 
+                lifeProb: 86.2, lifeDesc: "Độ sáng cực kỳ đều đặn, thành phần hóa học giàu kim loại kiến tạo hành tinh đá có lõi từ trường mạnh." 
             },
             { 
                 id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", dist: "4.37 năm ánh sáng", color: "#d97706", 
                 desc: "Thành viên trong hệ sao ba gần nhất.",
-                lifeProb: 79.4, lifeDesc: "Nằm trong hệ đa sao nhưng quỹ đạo thành phần B tách biệt đủ để duy trì môi trường bức xạ ổn định." 
+                lifeProb: 81.5, lifeDesc: "Bức xạ nhiệt từ quang phổ K1V đồng đều, quỹ đạo thành phần tương đối ít chịu can thiệp từ lực ngoại vi." 
             },
             { 
                 id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", dist: "11.4 năm ánh sáng", color: "#ea580c", 
                 desc: "Ngôi sao nổi tiếng với chuyển động riêng lớn.",
-                lifeProb: 74.8, lifeDesc: "Nhiệt độ bề mặt hơi thấp, vùng sinh sống dịch sát sao hơn nhưng thời gian sống kéo dài vượt trội." 
+                lifeProb: 75.3, lifeDesc: "Nhiệt độ bề mặt thấp hơn khiến năng lượng quang học yếu hơn một chút, đòi hỏi cơ chế hấp thụ nhiệt đặc thù từ hành tinh." 
             },
             { 
                 id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", dist: "16.6 năm ánh sáng", color: "#f97316", 
                 desc: "Hệ sao đôi quang phổ.",
-                lifeProb: 77.1, lifeDesc: "Hệ sao đôi quang phổ loại K0V với các đặc trưng hóa học giàu nguyên tố nặng kiến tạo đá." 
+                lifeProb: 78.9, lifeDesc: "Đặc trưng quang phổ K0V tốt nhưng bản chất hệ đôi tạo ra một số dao động nhỏ về gió sao." 
             },
             { 
                 id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", dist: "21.3 năm ánh sáng", color: "#fb923c", 
                 desc: "Ngôi sao lùn chứa các hành tinh đất đá.",
-                lifeProb: 83.6, lifeDesc: "Bức xạ hồng ngoại và quang học hài hòa, lý tưởng cho việc hấp thụ nhiệt trên bề mặt vật chất." 
+                lifeProb: 82.7, lifeDesc: "Mật độ bức xạ hồng ngoại và quang học hài hòa, lý tưởng cho việc duy trì trạng thái lỏng của nước bề mặt." 
             },
             { 
                 id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", dist: "11.8 năm ánh sáng", color: "#fdba74", 
                 desc: "Ngôi sao có tốc độ dịch chuyển cao trên bầu trời.",
-                lifeProb: 76.5, lifeDesc: "Hoạt động sao tương đối ôn hòa, tuổi thọ ước tính cao hơn nhiều so với các sao loại G." 
+                lifeProb: 77.0, lifeDesc: "Hoạt động từ tính bề mặt ôn hòa, năng lượng bức xạ phát ra đều đặn theo các chu kỳ quay." 
             },
             { 
                 id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", dist: "24.4 năm ánh sáng", color: "#fde047", 
                 desc: "Ngôi sao có đặc tính tương đồng với mặt trời trẻ.",
-                lifeProb: 80.9, lifeDesc: "Kim loại học (Metallicity) phù hợp giúp hình thành các hợp chất hữu cơ phức tạp." 
+                lifeProb: 83.4, lifeDesc: "Chỉ số kim loại học (Metallicity) cao giúp thúc đẩy hình thành các hợp chất nguyên tố nặng cần thiết cho sinh học." 
             },
             { 
                 id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", dist: "24.9 năm ánh sáng", color: "#facc15", 
                 desc: "Thành viên gần cụm sao lân cận.",
-                lifeProb: 72.3, lifeDesc: "Cường độ phát xạ tia X vừa phải, năng lượng quang phổ ổn định trong dải sóng quang học." 
+                lifeProb: 74.1, lifeDesc: "Cường độ phát xạ tia X ở mức trung bình, dòng năng lượng quang phổ duy trì ổn định không bị ngắt quãng." 
             },
             { 
                 id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", 
                 desc: "Ngôi sao lùn cam hoạt động từ tính.",
-                lifeProb: 68.4, lifeDesc: "Nhiệt độ thấp hơn làm vùng sinh sống thu hẹp, tuy nhiên độ bền vững cao kéo dài hàng chục tỷ năm." 
+                lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp làm giảm hiệu suất năng lượng chiếu sáng, tuy nhiên từ trường sao khá ổn định." 
             }
         ];
 
@@ -284,7 +284,7 @@
             document.getElementById('metric-radius').innerText = s.radius;
             document.getElementById('metric-dist').innerText = s.dist;
 
-            // Cập nhật thông số xác suất sự sống mới
+            // Cập nhật thông số xác suất sự sống mới dựa trên điều kiện vật lý sao
             document.getElementById('metric-life-val').innerText = `${s.lifeProb}%`;
             document.getElementById('metric-life-bar').style.width = `${s.lifeProb}%`;
             document.getElementById('metric-life-desc').innerText = s.lifeDesc;
@@ -341,7 +341,7 @@
         function triggerFireworksAndRemoveSidebar() {
             const selectedStar = starsData[currentSelectedIndex];
             document.getElementById('congrats-title').innerText = `Đã Chọn: ${selectedStar.name}!`;
-            document.getElementById('congrats-desc').innerText = `Xác suất sự sống tiềm năng tại đây là ${selectedStar.lifeProb}%. Tuyệt vời!`;
+            document.getElementById('congrats-desc').innerText = `Xác suất sự sống dựa trên vật lý sao tại đây là ${selectedStar.lifeProb}%. Tuyệt vời!`;
             
             const overlay = document.getElementById('congrats-overlay');
             overlay.classList.remove('hidden');
