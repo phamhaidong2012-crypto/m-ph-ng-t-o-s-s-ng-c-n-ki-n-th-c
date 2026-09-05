@@ -1,253 +1,518 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mô Phỏng 3D Mặt Trời (G2V Star Simulation)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #030712;
-            font-family: 'Inter', sans-serif;
-            user-select: none;
-        }
-        canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-        }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    
-#star-menu{position:fixed;top:78px;left:12px;bottom:18px;width:270px;z-index:20;padding:10px;overflow-y:auto;background:rgba(15,23,42,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
-#star-menu-title{font-size:11px;letter-spacing:.12em;color:#fbbf24;font-weight:700;padding:7px 9px 10px;text-transform:uppercase}
-.star-item{width:100%;display:flex;align-items:center;gap:9px;padding:10px 9px;margin-bottom:6px;border:1px solid rgba(255,255,255,.06);border-radius:12px;background:rgba(2,6,23,.5);color:#cbd5e1;cursor:pointer;text-align:left;transition:.2s}
-.star-item:hover{background:rgba(51,65,85,.7);border-color:rgba(251,191,36,.3)}
-.star-item.active{background:rgba(245,158,11,.16);border-color:rgba(251,191,36,.55);color:#fef3c7}
-.star-dot{width:10px;height:10px;flex:0 0 10px;border-radius:50%;box-shadow:0 0 12px currentColor}
-.star-number{font-size:10px;color:#64748b;width:16px}.star-item.active .star-number{color:#fbbf24}
-.star-label{display:flex;flex-direction:column;min-width:0}.star-item-name{display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.star-item-type{display:block;font-size:10px;color:#94a3b8;margin-top:2px}
-@media(max-width:800px){#star-menu{width:190px;left:8px;top:75px;bottom:8px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá 11 Ngôi Sao 3D - Tiềm Năng Sự Sống</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #030712; font-family: 'Inter', sans-serif; user-select: none; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        
+        .sidebar-transition {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+        }
+        .sidebar-hidden {
+            transform: translateX(-120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #fireworks-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .congrats-modal {
+            animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased h-screen overflow-hidden flex flex-col justify-between"><aside id="star-menu"><div id="star-menu-title">DANH SÁCH 11 SAO</div><div id="star-list"><button type="button" class="star-item" data-star-index="0">
-        <span class="star-number">1</span>
-        <span class="star-dot" style="background:#ffb52e;color:#ffb52e"></span>
-        <span class="star-label">
-            <span class="star-item-name">Mặt Trời</span>
-            <span class="star-item-type">G2V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="1">
-        <span class="star-number">2</span>
-        <span class="star-dot" style="background:#d18b50;color:#d18b50"></span>
-        <span class="star-label">
-            <span class="star-item-name">Kepler-442</span>
-            <span class="star-item-type">K5V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="2">
-        <span class="star-number">3</span>
-        <span class="star-dot" style="background:#e0a66b;color:#e0a66b"></span>
-        <span class="star-label">
-            <span class="star-item-name">Epsilon Eridani</span>
-            <span class="star-item-type">K2V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="3">
-        <span class="star-number">4</span>
-        <span class="star-dot" style="background:#d99b62;color:#d99b62"></span>
-        <span class="star-label">
-            <span class="star-item-name">Kepler-62</span>
-            <span class="star-item-type">K2V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="4">
-        <span class="star-number">5</span>
-        <span class="star-dot" style="background:#c9824b;color:#c9824b"></span>
-        <span class="star-label">
-            <span class="star-item-name">61 Cygni B</span>
-            <span class="star-item-type">K5V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="5">
-        <span class="star-number">6</span>
-        <span class="star-dot" style="background:#d69a60;color:#d69a60"></span>
-        <span class="star-label">
-            <span class="star-item-name">HD 219134</span>
-            <span class="star-item-type">K3V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="6">
-        <span class="star-number">7</span>
-        <span class="star-dot" style="background:#c47e4b;color:#c47e4b"></span>
-        <span class="star-label">
-            <span class="star-item-name">HD 85512</span>
-            <span class="star-item-type">K5V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="7">
-        <span class="star-number">8</span>
-        <span class="star-dot" style="background:#dda05f;color:#dda05f"></span>
-        <span class="star-label">
-            <span class="star-item-name">Kepler-1544</span>
-            <span class="star-item-type">K2V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="8">
-        <span class="star-number">9</span>
-        <span class="star-dot" style="background:#d18e58;color:#d18e58"></span>
-        <span class="star-label">
-            <span class="star-item-name">Kepler-1229</span>
-            <span class="star-item-type">K-dwarf</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="9">
-        <span class="star-number">10</span>
-        <span class="star-dot" style="background:#edbd82;color:#edbd82"></span>
-        <span class="star-label">
-            <span class="star-item-name">Alpha Centauri B</span>
-            <span class="star-item-type">K1V</span>
-        </span>
-    </button><button type="button" class="star-item" data-star-index="10">
-        <span class="star-number">11</span>
-        <span class="star-dot" style="background:#b96f42;color:#b96f42"></span>
-        <span class="star-label">
-            <span class="star-item-name">Kepler-296</span>
-            <span class="star-item-type">K7V</span>
-        </span>
-    </button></div></aside>
+<body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex relative">
 
-    <header class="absolute top-0 left-0 w-full z-10 p-4 md:p-6 flex justify-between items-center pointer-events-none">
-        <div class="pointer-events-auto flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <span class="text-amber-400 font-bold text-lg">☀️</span>
-            </div>
-            <div>
-                <h1 id="star-name" class="text-lg md:text-xl font-bold tracking-tight bg-gradient-to-r from-amber-200 via-orange-400 to-yellow-500 bg-clip-text text-transparent">Mặt Trời (G2V Star)</h1>
-                <p class="text-xs text-slate-400">Mô phỏng 3D tương tác không gian thực</p>
-            </div>
-        </div>
-        <div class="pointer-events-auto hidden md:flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
-            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Kéo chuột để xoay • Cuộn bánh xe để phóng to/thu nhỏ</span>
-        </div>
-    </header>
+    <canvas id="fireworks-canvas"></canvas>
 
-    <div id="canvas-container" class="absolute inset-0 z-0">
-        <div id="star-ring"></div>
-        <div id="star-ring-2"></div>
-    </div>
+    <div id="congrats-overlay" class="absolute inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🎉⭐✨</div>
+            <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
+            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã khám phá và chọn thành công ngôi sao tuyệt đẹp này.</p>
+            <div class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 animate-pulse">
+                Đang chuyển sang chế độ không gian 3D...
+            </div>
+        </div>
+    </div>
 
-    <div class="absolute bottom-6 right-6 md:right-6 md:w-96 z-10 pointer-events-auto">
-        <div class="glass-panel rounded-2xl p-5 shadow-2xl">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="text-sm font-semibold tracking-wider text-amber-400 uppercase">Thông số kỹ thuật</h2>
-                <span id="star-class" class="text-[10px] bg-amber-500/20 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full font-medium">Hạng G2V</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 text-xs">
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Nhiệt độ bề mặt</span><span id="star-temp" class="font-bold text-slate-200 text-sm"></span></div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khối lượng (M☉)</span><span id="star-mass" class="font-bold text-slate-200 text-sm"></span></div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Bán kính</span><span id="star-radius" class="font-bold text-slate-200 text-sm"></span></div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khoảng cách đến Trái Đất</span><span id="star-distance" class="font-bold text-slate-200 text-sm"></span></div>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80">
-                <div class="text-xs text-slate-400 mb-1">Điểm sáng</div>
-                <p id="star-highlight" class="text-xs leading-relaxed text-slate-200"></p>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                <span>Chất liệu: Plasma & Hydro</span>
-                <button id="reset-cam" class="text-amber-400 hover:text-amber-300 font-medium">Đặt lại góc nhìn</button>
-            </div>
-        </div>
-    </div>
+    <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-20 glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800/80">
+        <div>
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                    <h1 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Hệ Thống 11 Ngôi Sao</h1>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Chọn ngôi sao bạn muốn khám phá:</p>
+            
+            <div id="star-list" class="space-y-2 max-h-[calc(100vh-270px)] overflow-y-auto pr-1"></div>
+        </div>
 
+        <div class="pt-4 border-t border-slate-800">
+            <button id="btn-select" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs py-3.5 px-4 rounded-2xl shadow-lg shadow-cyan-500/25 border border-cyan-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
+                <span>⭐ Chọn Ngôi Sao Này</span>
+            </button>
+            <div class="mt-2.5 text-center text-[10px] text-slate-500">
+                Bấm để xem pháo hoa chúc mừng & tối ưu không gian 3D
+            </div>
+        </div>
+    </aside>
 
-    <script>
-    const STAR_DATA=[{"name": "Mặt Trời", "type": "G2V", "temp": "~5,500 °C", "mass": "1 M☉", "radius": "696,340 km", "distance": "149.6 triệu km", "highlight": "Ngôi sao trung tâm của Hệ Mặt Trời, cung cấp năng lượng cho các hành tinh.", "color": "#ffb52e"}, {"name": "Kepler-442", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.61 M☉", "radius": "~0.60 R☉", "distance": "~1,200 ly", "highlight": "Nhà của Kepler-442b, một ngoại hành tinh nổi tiếng trong các nghiên cứu về khả năng ở được.", "color": "#d18b50"}, {"name": "Epsilon Eridani", "type": "K2V", "temp": "~5,080 °C", "mass": "~0.82 M☉", "radius": "~0.74 R☉", "distance": "10.5 ly", "highlight": "Một sao lùn cam rất gần, có đĩa mảnh vụn và hệ hành tinh được nghiên cứu lâu năm.", "color": "#e0a66b"}, {"name": "Kepler-62", "type": "K2V", "temp": "~4,900 °C", "mass": "~0.69 M☉", "radius": "~0.64 R☉", "distance": "~1,200 ly", "highlight": "Sở hữu Kepler-62f, một hành tinh nằm trong vùng có thể ở được theo mô hình quỹ đạo.", "color": "#d99b62"}, {"name": "61 Cygni B", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.59 M☉", "radius": "~0.60 R☉", "distance": "11.4 ly", "highlight": "Một sao lùn cam kinh điển trong hệ 61 Cygni, được nghiên cứu từ thế kỷ 19.", "color": "#c9824b"}, {"name": "HD 219134", "type": "K3V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.78 R☉", "distance": "21.3 ly", "highlight": "Hệ sao gần có nhiều hành tinh, trong đó có các thế giới đá được nghiên cứu chi tiết.", "color": "#d69a60"}, {"name": "HD 85512", "type": "K5V", "temp": "~4,700 °C", "mass": "~0.69 M☉", "radius": "~0.53 R☉", "distance": "36 ly", "highlight": "Hệ sao nổi tiếng nhờ HD 85512 b, từng được nghiên cứu như một ứng viên vùng có thể ở được.", "color": "#c47e4b"}, {"name": "Kepler-1544", "type": "K2V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.74 R☉", "distance": "~1,100 ly", "highlight": "Chủ nhân của Kepler-1544b, một ứng viên ngoại hành tinh vùng có thể ở được.", "color": "#dda05f"}, {"name": "Kepler-1229", "type": "K-dwarf", "temp": "~4,800 °C", "mass": "~0.69 M☉", "radius": "~0.63 R☉", "distance": "~2,900 ly", "highlight": "Sở hữu Kepler-1229b, một hành tinh có kích thước gần Trái Đất.", "color": "#d18e58"}, {"name": "Alpha Centauri B", "type": "K1V", "temp": "~5,230 °C", "mass": "~0.91 M☉", "radius": "~0.86 R☉", "distance": "4.37 ly", "highlight": "Một sao lùn cam rất gần Hệ Mặt Trời, là thành viên của hệ Alpha Centauri.", "color": "#edbd82"}, {"name": "Kepler-296", "type": "K7V", "temp": "~4,000 °C", "mass": "~0.50 M☉", "radius": "~0.48 R☉", "distance": "~1,700 ly", "highlight": "Sao lùn cam muộn có hệ nhiều hành tinh, một số được nghiên cứu về vùng có thể ở được.", "color": "#b96f42"}];
-    let scene,camera,renderer,sunSphere,coronaMesh,starField,starLight;
-    let isDragging=false,previousMousePosition={x:0,y:0};
-    let targetRotation={x:0,y:0},cameraDistance=15,targetCameraDistance=15; let ringAngle=0;
+    <main class="w-full h-full relative flex flex-col justify-between">
+        <header class="absolute top-6 right-8 z-10 pointer-events-none text-right">
+            <div class="inline-block glass-panel px-5 py-3 rounded-2xl border border-slate-800 shadow-xl max-w-sm">
+                <h2 id="star-title" class="text-base font-bold tracking-tight text-white">Mặt Trời (G2V Star)</h2>
+                <p id="star-subtitle" class="text-xs text-cyan-400 mt-0.5">Ngôi sao trung tâm hệ mặt trời của chúng ta.</p>
+            </div>
+        </header>
 
-    window.onload=()=>{initScene();createStarField();createStar();buildStarMenu();selectStar(0);setupEvents();animate(0)};
+        <!-- BẢNG 5 CHỈ SỐ CHI TIẾT (Đã bổ sung Xác suất xuất hiện sự sống) -->
+        <div class="absolute top-28 right-8 z-10 pointer-events-none">
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl grid grid-cols-2 gap-3 w-88">
+                <!-- Chỉ số 1: Nhiệt độ -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-orange-400 text-[11px] font-semibold mb-1">
+                        <span>🌡️</span>
+                        <span>Nhiệt Độ</span>
+                    </div>
+                    <div id="metric-temp" class="text-sm font-bold text-slate-100">~5,500 °C</div>
+                </div>
+                <!-- Chỉ số 2: Khối lượng -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-blue-400 text-[11px] font-semibold mb-1">
+                        <span>⚖️</span>
+                        <span>Khối Lượng</span>
+                    </div>
+                    <div id="metric-mass" class="text-sm font-bold text-slate-100">~1.989 × 10³⁰ kg</div>
+                </div>
+                <!-- Chỉ số 3: Bán kính -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-emerald-400 text-[11px] font-semibold mb-1">
+                        <span>⚪</span>
+                        <span>Bán Kính</span>
+                    </div>
+                    <div id="metric-radius" class="text-sm font-bold text-slate-100">696,340 km</div>
+                </div>
+                <!-- Chỉ số 4: Khoảng cách -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-purple-400 text-[11px] font-semibold mb-1">
+                        <span>🌌</span>
+                        <span>Khoảng Cách</span>
+                    </div>
+                    <div id="metric-dist" class="text-sm font-bold text-slate-100">149.6 triệu km</div>
+                </div>
+                <!-- Chỉ số 5 (MỚI): Xác suất xuất hiện sự sống tiềm năng -->
+                <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3.5 rounded-xl border border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center space-x-1.5 text-cyan-300 text-[11px] font-bold">
+                            <span>🧬</span>
+                            <span>Xác Suất Sự Sống Tiềm Năng</span>
+                        </div>
+                        <div id="metric-life-val" class="text-xs font-black text-cyan-400">82.5%</div>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden p-0.5 border border-slate-700">
+                        <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 82.5%"></div>
+                    </div>
+                    <div id="metric-life-desc" class="text-[10px] text-slate-400 mt-1 italic">Đặc tính quang phổ G2V cân bằng, tuổi thọ ổn định cao.</div>
+                </div>
+            </div>
+        </div>
 
-    function initScene(){
-        scene=new THREE.Scene();
-        scene.fog=new THREE.FogExp2(0x030712,.015);
-        camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,1000);
-        camera.position.z=cameraDistance;
-        renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-        renderer.setSize(innerWidth,innerHeight);
-        renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-        renderer.toneMapping=THREE.ACESFilmicToneMapping;
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-    }
-    function createStarField(){
-        const g=new THREE.BufferGeometry(), count=2000, p=new Float32Array(count*3);
-        for(let i=0;i<p.length;i+=3){p[i]=(Math.random()-.5)*400;p[i+1]=(Math.random()-.5)*400;p[i+2]=(Math.random()-.5)*400}
-        g.setAttribute('position',new THREE.BufferAttribute(p,3));
-        starField=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.8,transparent:true,opacity:.8}));
-        scene.add(starField);
-    }
-    function createStar(){
-        sunSphere=new THREE.Mesh(new THREE.SphereGeometry(5,64,64),new THREE.MeshBasicMaterial({color:0xffb52e}));
-        scene.add(sunSphere);
-        starLight=new THREE.PointLight(0xfff5e6,2.5,300);scene.add(starLight);
-        scene.add(new THREE.AmbientLight(0x221100,1.5));
-        const mat=new THREE.ShaderMaterial({
-            uniforms:{glowColor:{value:new THREE.Color(0xff8a00)}},
-            vertexShader:`varying vec3 vNormal;void main(){vNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-            fragmentShader:`varying vec3 vNormal;uniform vec3 glowColor;void main(){float x=pow(0.6-dot(vNormal,vec3(0,0,1)),2.2);gl_FragColor=vec4(glowColor,1.0)*x*1.5;}`,
-            blending:THREE.AdditiveBlending,side:THREE.BackSide,transparent:true
-        });
-        coronaMesh=new THREE.Mesh(new THREE.SphereGeometry(5.6,64,64),mat);scene.add(coronaMesh);
-    }
-    function buildStarMenu(){
-        document.querySelectorAll('.star-item').forEach((button)=>{
-            button.addEventListener('click',()=>selectStar(Number(button.dataset.starIndex)));
-        });
-    }
-    function selectStar(i){
-        const s=STAR_DATA[i];
-        document.getElementById('star-name').textContent=`${s.name} (${s.type})`;
-        document.getElementById('star-class').textContent=`Hạng ${s.type}`;
-        document.getElementById('star-temp').textContent=s.temp;
-        document.getElementById('star-mass').textContent=s.mass;
-        document.getElementById('star-radius').textContent=s.radius;
-        document.getElementById('star-distance').textContent=s.distance;
-        document.getElementById('star-highlight').textContent=s.highlight;
-        document.querySelectorAll('.star-item').forEach((b,j)=>b.classList.toggle('active',j===i));
-        sunSphere.material.color.set(s.color);
-        sunSphere.scale.setScalar(i===0?1:.9+(i%4)*.05);
-        coronaMesh.scale.copy(sunSphere.scale);
-        coronaMesh.material.uniforms.glowColor.value.set(s.color);
-        starLight.color.set(s.color);starLight.intensity=i===0?2.5:1.9;
-    }
-    function setupEvents(){
-        addEventListener('mousedown',e=>{isDragging=true;previousMousePosition={x:e.clientX,y:e.clientY}});
-        addEventListener('mousemove',e=>{
-            if(!isDragging)return;let dx=e.clientX-previousMousePosition.x,dy=e.clientY-previousMousePosition.y;
-            targetRotation.y+=dx*.007;targetRotation.x+=dy*.007;
-            targetRotation.x=Math.max(-Math.PI/2.2,Math.min(Math.PI/2.2,targetRotation.x));
-            previousMousePosition={x:e.clientX,y:e.clientY};
-        });
-        addEventListener('mouseup',()=>isDragging=false);
-        addEventListener('wheel',e=>{targetCameraDistance=Math.max(8,Math.min(30,targetCameraDistance+e.deltaY*.005))});
-        document.getElementById('reset-cam').onclick=()=>{targetRotation.x=targetRotation.y=0;targetCameraDistance=15};
-        addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-    }
-    function animate(t){
-        requestAnimationFrame(animate);
-        ringAngle += 0.008;
-        const ring1=document.getElementById('star-ring');
-        const ring2=document.getElementById('star-ring-2');
-        if(ring1) ring1.style.transform=`rotateX(68deg) rotateZ(${12 + ringAngle*20}deg)`;
-        if(ring2) ring2.style.transform=`rotateX(68deg) rotateZ(${-25 - ringAngle*14}deg)`;
-        sunSphere.rotation.y+=.001;
-        sunSphere.rotation.x+=(targetRotation.x-sunSphere.rotation.x)*.1;
-        sunSphere.rotation.y+=(targetRotation.y-sunSphere.rotation.y)*.1;
-        coronaMesh.rotation.copy(sunSphere.rotation);
-        cameraDistance+=(targetCameraDistance-cameraDistance)*.1;camera.position.z=cameraDistance;
-        starField.rotation.y+=.0002;renderer.render(scene,camera);
-    }
-    </script>
+        <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"></div>
+
+        <div class="absolute bottom-6 right-8 z-10 pointer-events-none">
+            <div class="flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-full text-slate-300 shadow-lg backdrop-blur-md">
+                <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span>Kéo chuột để xoay • Cuộn để phóng to</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const starsData = [
+            { 
+                id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", 
+                desc: "Ngôi sao trung tâm hệ mặt trời của chúng ta.",
+                // Xác suất theo tiêu chuẩn sinh học thiên văn dựa trên quang phổ G2V, tính ổn định bức xạ và thời gian sống (Không để 100% tuyệt đối)
+                lifeProb: 88.5, lifeDesc: "Quang phổ G2V lý tưởng, phát xạ tia cực tím ở mức vừa phải, chu kỳ ổn định lâu dài." 
+            },
+            { 
+                id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", 
+                desc: "Hệ sao lân cận có đĩa bụi sao.",
+                lifeProb: 81.2, lifeDesc: "Lùn cam K2V tuổi thọ cao (>10 tỷ năm), tiềm năng giữ vùng sinh sống ổn định rất tốt." 
+            },
+            { 
+                id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", dist: "18.8 năm ánh sáng", color: "#f59e0b", 
+                desc: "Ngôi sao dạng lùn cam ổn định.",
+                lifeProb: 85.0, lifeDesc: "Độ sáng cực kỳ ổn định, ít biến động từ tính đột ngột, rất thuận lợi cho hóa học tiền sinh học." 
+            },
+            { 
+                id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", dist: "4.37 năm ánh sáng", color: "#d97706", 
+                desc: "Thành viên trong hệ sao ba gần nhất.",
+                lifeProb: 79.4, lifeDesc: "Nằm trong hệ đa sao nhưng quỹ đạo thành phần B tách biệt đủ để duy trì môi trường bức xạ ổn định." 
+            },
+            { 
+                id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", dist: "11.4 năm ánh sáng", color: "#ea580c", 
+                desc: "Ngôi sao nổi tiếng với chuyển động riêng lớn.",
+                lifeProb: 74.8, lifeDesc: "Nhiệt độ bề mặt hơi thấp, vùng sinh sống dịch sát sao hơn nhưng thời gian sống kéo dài vượt trội." 
+            },
+            { 
+                id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", dist: "16.6 năm ánh sáng", color: "#f97316", 
+                desc: "Hệ sao đôi quang phổ.",
+                lifeProb: 77.1, lifeDesc: "Hệ sao đôi quang phổ loại K0V với các đặc trưng hóa học giàu nguyên tố nặng kiến tạo đá." 
+            },
+            { 
+                id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", dist: "21.3 năm ánh sáng", color: "#fb923c", 
+                desc: "Ngôi sao lùn chứa các hành tinh đất đá.",
+                lifeProb: 83.6, lifeDesc: "Bức xạ hồng ngoại và quang học hài hòa, lý tưởng cho việc hấp thụ nhiệt trên bề mặt vật chất." 
+            },
+            { 
+                id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", dist: "11.8 năm ánh sáng", color: "#fdba74", 
+                desc: "Ngôi sao có tốc độ dịch chuyển cao trên bầu trời.",
+                lifeProb: 76.5, lifeDesc: "Hoạt động sao tương đối ôn hòa, tuổi thọ ước tính cao hơn nhiều so với các sao loại G." 
+            },
+            { 
+                id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", dist: "24.4 năm ánh sáng", color: "#fde047", 
+                desc: "Ngôi sao có đặc tính tương đồng với mặt trời trẻ.",
+                lifeProb: 80.9, lifeDesc: "Kim loại học (Metallicity) phù hợp giúp hình thành các hợp chất hữu cơ phức tạp." 
+            },
+            { 
+                id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", dist: "24.9 năm ánh sáng", color: "#facc15", 
+                desc: "Thành viên gần cụm sao lân cận.",
+                lifeProb: 72.3, lifeDesc: "Cường độ phát xạ tia X vừa phải, năng lượng quang phổ ổn định trong dải sóng quang học." 
+            },
+            { 
+                id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", 
+                desc: "Ngôi sao lùn cam hoạt động từ tính.",
+                lifeProb: 68.4, lifeDesc: "Nhiệt độ thấp hơn làm vùng sinh sống thu hẹp, tuy nhiên độ bền vững cao kéo dài hàng chục tỷ năm." 
+            }
+        ];
+
+        let currentSelectedIndex = 0;
+        let scene, camera, renderer, sunSphere, orbitRing1, starField, starGroup;
+        let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
+
+        function initApp() {
+            buildStarListUI();
+            init3D();
+            setupEventListeners();
+        }
+
+        function buildStarListUI() {
+            const listContainer = document.getElementById('star-list');
+            listContainer.innerHTML = '';
+            
+            starsData.forEach((star, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${idx === currentSelectedIndex ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-200 shadow-md shadow-cyan-500/10' : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/80 hover:border-slate-700'}`;
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${star.color}; box-shadow: 0 0 8px ${star.color}"></span>
+                        <div>
+                            <span class="font-bold text-xs block">${star.name}</span>
+                            <span class="text-[10px] text-slate-400">Hạng ${star.rank} • <span class="text-cyan-400 font-bold">${star.lifeProb}%</span></span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold ${idx === currentSelectedIndex ? 'text-cyan-400' : 'text-slate-500'}">${idx === currentSelectedIndex ? '●' : '○'}</span>
+                `;
+                item.addEventListener('click', () => {
+                    currentSelectedIndex = idx;
+                    buildStarListUI();
+                    updateStarContent(currentSelectedIndex);
+                });
+                listContainer.appendChild(item);
+            });
+        }
+
+        function init3D() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = camDist;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            const starGeo = new THREE.BufferGeometry();
+            const starPos = new Float32Array(2500 * 3);
+            for(let i=0; i<7500; i+=3) {
+                starPos[i] = (Math.random()-0.5)*400;
+                starPos[i+1] = (Math.random()-0.5)*400;
+                starPos[i+2] = (Math.random()-0.5)*400;
+            }
+            starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+            starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.8, transparent: true, opacity: 0.8}));
+            scene.add(starField);
+
+            scene.add(new THREE.PointLight(0xffffff, 2.2, 300));
+            scene.add(new THREE.AmbientLight(0x332211, 1.5));
+
+            starGroup = new THREE.Group();
+            scene.add(starGroup);
+
+            updateStarContent(0);
+            animate();
+        }
+
+        function updateStarContent(idx) {
+            const s = starsData[idx];
+            document.getElementById('star-title').innerText = `${s.name} (${s.rank} Star)`;
+            document.getElementById('star-subtitle').innerText = s.desc;
+
+            document.getElementById('metric-temp').innerText = s.temp;
+            document.getElementById('metric-mass').innerText = s.mass;
+            document.getElementById('metric-radius').innerText = s.radius;
+            document.getElementById('metric-dist').innerText = s.dist;
+
+            // Cập nhật thông số xác suất sự sống mới
+            document.getElementById('metric-life-val').innerText = `${s.lifeProb}%`;
+            document.getElementById('metric-life-bar').style.width = `${s.lifeProb}%`;
+            document.getElementById('metric-life-desc').innerText = s.lifeDesc;
+
+            while(starGroup.children.length > 0){ 
+                starGroup.remove(starGroup.children[0]); 
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 0, 512);
+            grad.addColorStop(0, s.color);
+            grad.addColorStop(0.5, '#ff5500');
+            grad.addColorStop(1.0, '#cc2200');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1024, 512);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
+            for(let i=0; i<900; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random()*1024, Math.random()*512, Math.random()*22 + 4, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            sunSphere = new THREE.Mesh(new THREE.SphereGeometry(4.8, 64, 64), new THREE.MeshBasicMaterial({ map: texture }));
+            starGroup.add(sunSphere);
+
+            orbitRing1 = createOrbit(6.6, 0xffffff, 0.35);
+            starGroup.add(orbitRing1);
+        }
+
+        function createOrbit(radius, color, opacity) {
+            const group = new THREE.Group();
+            const ringGeo = new THREE.RingGeometry(radius - 0.03, radius + 0.03, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: opacity });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI / 2;
+            group.add(ringMesh);
+
+            const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
+            const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const dot = new THREE.Mesh(dotGeo, dotMat);
+            dot.position.set(radius, 0, 0);
+            group.add(dot);
+            group.userData = { dot: dot, radius: radius };
+
+            group.rotation.x = 0.35;
+            group.rotation.z = 0.25;
+            return group;
+        }
+
+        function triggerFireworksAndRemoveSidebar() {
+            const selectedStar = starsData[currentSelectedIndex];
+            document.getElementById('congrats-title').innerText = `Đã Chọn: ${selectedStar.name}!`;
+            document.getElementById('congrats-desc').innerText = `Xác suất sự sống tiềm năng tại đây là ${selectedStar.lifeProb}%. Tuyệt vời!`;
+            
+            const overlay = document.getElementById('congrats-overlay');
+            overlay.classList.remove('hidden');
+
+            startFireworksAnimation();
+
+            setTimeout(() => {
+                overlay.classList.add('transition-opacity', 'duration-500', 'opacity-0');
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.remove();
+
+                setTimeout(() => {
+                    overlay.remove();
+                }, 500);
+            }, 3000);
+        }
+
+        function startFireworksAnimation() {
+            const canvas = document.getElementById('fireworks-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            const colors = ['#22d3ee', '#3b82f6', '#f43f5e', '#fbbf24', '#10b981', '#a855f7'];
+
+            for (let i = 0; i < 5; i++) {
+                createFireworkBurst(
+                    Math.random() * canvas.width * 0.6 + canvas.width * 0.2,
+                    Math.random() * canvas.height * 0.5 + canvas.height * 0.2,
+                    colors
+                );
+            }
+
+            let animationId;
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05;
+                    p.alpha -= 0.015;
+
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.alpha);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    if (p.alpha <= 0) {
+                        particles.splice(index, 1);
+                    }
+                });
+
+                if (particles.length > 0) {
+                    animationId = requestAnimationFrame(loop);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            loop();
+        }
+
+        function createFireworkBurst(x, y, colors) {
+            const particleCount = 70;
+            const canvas = document.getElementById('fireworks-canvas');
+            const ctx = canvas.getContext('2d');
+            for (let i = 0; i < particleCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 3 + 1.5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1
+                });
+            }
+        }
+
+        function setupEventListeners() {
+            const container = document.getElementById('canvas-container');
+            
+            container.addEventListener('mousedown', e => { 
+                isDragging = true; 
+                prevMouse = {x: e.clientX, y: e.clientY}; 
+            });
+
+            window.addEventListener('mousemove', e => {
+                if(!isDragging) return;
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+
+                targetRot.y += dx * 0.007;
+                targetRot.x += dy * 0.007;
+                targetRot.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRot.x));
+                prevMouse = {x: e.clientX, y: e.clientY};
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            
+            container.addEventListener('touchstart', e => {
+                if(e.touches.length === 1) { 
+                    isDragging = true; 
+                    prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY}; 
+                }
+            });
+
+            window.addEventListener('touchmove', e => {
+                if(!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - prevMouse.x;
+                const dy = e.touches[0].clientY - prevMouse.y;
+
+                targetRot.y += dx * 0.007;
+                targetRot.x += dy * 0.007;
+                targetRot.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRot.x));
+                prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+            });
+
+            window.addEventListener('touchend', () => { isDragging = false; });
+
+            container.addEventListener('wheel', e => {
+                targetCamDist = Math.max(7, Math.min(25, targetCamDist + e.deltaY * 0.005));
+            });
+
+            const selectBtn = document.getElementById('btn-select');
+            if(selectBtn) {
+                selectBtn.addEventListener('click', triggerFireworksAndRemoveSidebar);
+            }
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                const fwCanvas = document.getElementById('fireworks-canvas');
+                if(fwCanvas) {
+                    fwCanvas.width = window.innerWidth;
+                    fwCanvas.height = window.innerHeight;
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(starGroup) {
+                starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.1;
+                starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.1;
+            }
+            if(sunSphere) {
+                sunSphere.rotation.y += 0.0012;
+            }
+            if(orbitRing1) {
+                orbitRing1.rotation.y += 0.006;
+                const t = Date.now() * 0.002;
+                orbitRing1.userData.dot.position.x = Math.cos(t) * orbitRing1.userData.radius;
+                orbitRing1.userData.dot.position.z = Math.sin(t) * orbitRing1.userData.radius;
+            }
+
+            camDist += (targetCamDist - camDist) * 0.1;
+            camera.position.z = camDist;
+            if(starField) starField.rotation.y += 0.0002;
+            renderer.render(scene, camera);
+        }
+
+        window.onload = () => {
+            initApp();
+        };
+    </script>
 </body>
 </html>
