@@ -1,113 +1,183 @@
-#define CROW_MAIN
-#include "crow.h"
-#include <string>
-
-int main() {
-    crow::SimpleApp app;
-
-    struct StarInfo {
-        std::string id;
-        std::string name;
-        std::string rankClass;
-        std::string temp;
-        std::string mass;
-        std::string radius;
-        std::string lifespan;
-        std::string desc;
-        std::string colorHex;
-    };
-
-    StarInfo stars[11] = {
-        {"1", "Epsilon Eridani", "K2V", "~4,800 °C", "0.82 M☉", "735,000 km", "Hàng chục tỷ năm", "Ngôi sao chuẩn mực lớp K2 với từ trường ổn định, mức độ hoạt động vết sao thấp.", "#fbbf24"},
-        {"2", "Sigma Draconis", "K0V", "~5,290 °C", "0.91 M☉", "540,000 km", "Hàng chục tỷ năm", "Điểm chuẩn quang phổ K0 cực kỳ yên tĩnh, ít bức xạ cực tím đột ngột.", "#f59e0b"},
-        {"3", "Alpha Centauri B", "K1V", "~5,260 °C", "0.90 M☉", "593,000 km", "Hàng chục tỷ năm", "Thành phần thuộc hệ sao ba gần Trái Đất nhất, quang quyển ổn định.", "#d97706"},
-        {"4", "61 Cygni A", "K5V", "~4,350 °C", "0.70 M☉", "465,000 km", "Hàng chục tỷ năm", "Tiêu chuẩn quang phổ K5 kinh điển, chu kỳ sống siêu bền bỉ.", "#ea580c"},
-        {"5", "70 Ophiuchi A", "K0V", "~5,250 °C", "0.91 M☉", "570,000 km", "Hàng chục tỷ năm", "Ngôi sao lùn cam sáng sủa, phổ vạch kim loại rõ nét.", "#f97316"},
-        {"6", "HD 219134", "K3V", "~4,690 °C", "0.79 M☉", "600,000 km", "Hàng chục tỷ năm", "Phân khúc Mid-K chuẩn xác với bức xạ nhiệt dịu nhẹ.", "#fb923c"},
-        {"7", "Epsilon Indi", "K5V", "~4,620 °C", "0.73 M☉", "480,000 km", "Hàng chục tỷ năm", "Sao lùn cam lạnh hơn Mặt Trời một chút, nhiệt độ ổn định.", "#fdba74"},
-        {"8", "107 Piscium", "K1V", "~5,150 °C", "0.85 M☉", "610,000 km", "Hàng chục tỷ năm", "Điểm neo quang phổ đáng tin cậy với cấu trúc lõi hydro hoạt động chậm.", "#fde047"},
-        {"9", "TW Piscis Austrini", "K4V", "~4,500 °C", "0.75 M☉", "500,000 km", "Hàng chục tỷ năm", "Ngôi sao trung gian thuộc nhóm lùn cam muộn, gió sao yếu.", "#facc15"},
-        {"10", "Groombridge 1618", "K8V", "~4,000 °C", "0.60 M☉", "420,000 km", "Hàng trăm tỷ năm", "Giới hạn dưới của nhóm sao lùn K lớn, duy trì phản ứng lâu nhất.", "#ca8a04"},
-        {"11", "Mặt Trời", "G2V", "~5,500 °C", "1 M☉", "696,340 km", "~10 Tỷ năm", "Ngôi sao chủ của hệ Mặt Trời, rực rỡ và tràn đầy năng lượng.", "#ef4444"}
-    };
-
-    CROW_ROUTE(app, "/")([&stars](){
-        std::string html = "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>Danh Sách 11 Ngôi Sao</title><script src='https://cdn.tailwindcss.com'></script></head>";
-        html += "<body class='bg-slate-950 text-slate-100 p-8 font-sans'><div class='max-w-5xl mx-auto'>";
-        html += "<h1 class='text-3xl font-bold mb-8 text-amber-400 text-center'>☀️ Khám Phá 11 Ngôi Sao Không Gian ☀️</h1>";
-        html += "<div class='grid grid-cols-1 md:grid-cols-3 gap-4'>";
-        
-        for(int i = 0; i < 11; i++) {
-            html += "<a href='/star/" + stars[i].id + "' class='bg-slate-900/80 border border-slate-800 p-5 rounded-2xl hover:border-amber-500 transition-all block shadow-xl'>";
-            html += "<div class='flex items-center space-x-3 mb-2'><span class='w-3 h-3 rounded-full' style='background-color: " + stars[i].colorHex + ";'></span>";
-            html += "<h2 class='text-lg font-bold text-amber-300'>" + stars[i].name + "</h2></div>";
-            html += "<p class='text-xs text-amber-400/80 font-semibold mb-1'>Loại: " + stars[i].rankClass + "</p>";
-            html += "<p class='text-xs text-slate-400'>" + stars[i].desc + "</p></a>";
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng 3D Mặt Trời (G2V Star Simulation)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #030712;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
         }
-        html += "</div></div></body></html>";
-        return html;
-    });
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    
+#star-menu{position:fixed;top:78px;left:12px;bottom:18px;width:270px;z-index:20;padding:10px;overflow-y:auto;background:rgba(15,23,42,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+#star-menu-title{font-size:11px;letter-spacing:.12em;color:#fbbf24;font-weight:700;padding:7px 9px 10px;text-transform:uppercase}
+.star-item{width:100%;display:flex;align-items:center;gap:9px;padding:10px 9px;margin-bottom:6px;border:1px solid rgba(255,255,255,.06);border-radius:12px;background:rgba(2,6,23,.5);color:#cbd5e1;cursor:pointer;text-align:left;transition:.2s}
+.star-item:hover{background:rgba(51,65,85,.7);border-color:rgba(251,191,36,.3)}
+.star-item.active{background:rgba(245,158,11,.16);border-color:rgba(251,191,36,.55);color:#fef3c7}
+.star-dot{width:10px;height:10px;flex:0 0 10px;border-radius:50%;box-shadow:0 0 12px currentColor}
+.star-number{font-size:10px;color:#64748b;width:16px}.star-item.active .star-number{color:#fbbf24}
+.star-label{display:flex;flex-direction:column;min-width:0}.star-item-name{display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.star-item-type{display:block;font-size:10px;color:#94a3b8;margin-top:2px}
+@media(max-width:800px){#star-menu{width:190px;left:8px;top:75px;bottom:8px}}
+</style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased h-screen overflow-hidden flex flex-col justify-between"><aside id="star-menu"><div id="star-menu-title">DANH SÁCH HỆ SAO</div><div id="star-list"></div></aside>
 
-    CROW_ROUTE(app, "/star/<int>")([&stars](int id){
-        if (id < 1 || id > 11) return std::string("Không tìm thấy ngôi sao!");
-        StarInfo s = stars[id - 1];
+    <header class="absolute top-0 left-0 w-full z-10 p-4 md:p-6 flex justify-between items-center pointer-events-none">
+        <div class="pointer-events-auto flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <span class="text-amber-400 font-bold text-lg">☀️</span>
+            </div>
+            <div>
+                <h1 id="star-name" class="text-lg md:text-xl font-bold tracking-tight bg-gradient-to-r from-amber-200 via-orange-400 to-yellow-500 bg-clip-text text-transparent">Mặt Trời (G2V Star)</h1>
+                <p class="text-xs text-slate-400">Mô phỏng 3D tương tác không gian thực</p>
+            </div>
+        </div>
+        <div class="pointer-events-auto hidden md:flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Kéo chuột để xoay • Cuộn bánh xe để phóng to/thu nhỏ</span>
+        </div>
+    </header>
 
-        std::string html = "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-        html += "<title>Mô Phỏng 3D - " + s.name + "</title>";
-        html += "<script src='https://cdn.tailwindcss.com'></script>";
-        html += "<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'></script>";
-        html += "<style>body { margin: 0; overflow: hidden; background-color: #030712; font-family: sans-serif; } canvas { display: block; width: 100vw; height: 100vh; } .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }</style></head>";
-        html += "<body class='bg-slate-950 text-slate-100 h-screen overflow-hidden flex flex-col justify-between'>";
-        html += "<header class='absolute top-0 left-0 w-full z-10 p-6 flex justify-between items-center pointer-events-none'>";
-        html += "<div class='pointer-events-auto flex items-center space-x-3'><a href='/' class='w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold'>⬅</a>";
-        html += "<div><h1 class='text-xl font-bold text-amber-300'>" + s.name + "</h1><p class='text-xs text-slate-400'>Phân loại: " + s.rankClass + "</p></div></div></header>";
-        html += "<div id='canvas-container' class='absolute inset-0 z-0'></div>";
-        html += "<div class='absolute bottom-6 left-6 w-96 z-10 pointer-events-auto glass rounded-2xl p-5 shadow-2xl'>";
-        html += "<h2 class='text-sm font-semibold text-amber-400 uppercase mb-3'>Thông số kỹ thuật</h2>";
-        html += "<div class='grid grid-cols-2 gap-3 text-xs'>";
-        html += "<div class='bg-slate-900/60 p-2.5 rounded-xl border border-slate-800'><span class='text-slate-400 block'>Nhiệt độ</span><span class='font-bold text-slate-200'>" + s.temp + "</span></div>";
-        html += "<div class='bg-slate-900/60 p-2.5 rounded-xl border border-slate-800'><span class='text-slate-400 block'>Khối lượng</span><span class='font-bold text-slate-200'>" + s.mass + "</span></div>";
-        html += "<div class='bg-slate-900/60 p-2.5 rounded-xl border border-slate-800'><span class='text-slate-400 block'>Bán kính</span><span class='font-bold text-slate-200'>" + s.radius + "</span></div>";
-        html += "<div class='bg-slate-900/60 p-2.5 rounded-xl border border-slate-800'><span class='text-slate-400 block'>Tuổi thọ</span><span class='font-bold text-slate-200'>" + s.lifespan + "</span></div>";
-        html += "</div><p class='text-xs text-slate-300 mt-3'>" + s.desc + "</p></div>";
-        html += "<script>";
-        html += "let scene, camera, renderer, sunSphere, starField; let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 15, targetCamDist = 15;";
-        html += "window.onload = () => {";
-        html += "  scene = new THREE.Scene();";
-        html += "  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000); camera.position.z = camDist;";
-        html += "  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setSize(window.innerWidth, window.innerHeight); document.getElementById('canvas-container').appendChild(renderer.domElement);";
-        
-        // Tạo sao nền
-        html += "  const starGeo = new THREE.BufferGeometry(); const starPos = new Float32Array(1500 * 3);";
-        html += "  for(let i=0; i<4500; i+=3) { starPos[i] = (Math.random()-0.5)*400; starPos[i+1] = (Math.random()-0.5)*400; starPos[i+2] = (Math.random()-0.5)*400; }";
-        html += "  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3)); starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.8})); scene.add(starField);";
-        
-        // Tạo mặt trời 3D
-        html += "  const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 512;";
-        html += "  const ctx = canvas.getContext('2d'); const grad = ctx.createLinearGradient(0,0,0,512);";
-        html += "  grad.addColorStop(0, '" + s.colorHex + "'); grad.addColorStop(0.5, '#ff5500'); grad.addColorStop(1, '#cc2200');";
-        html += "  ctx.fillStyle = grad; ctx.fillRect(0,0,1024,512);";
-        html += "  const texture = new THREE.CanvasTexture(canvas);";
-        html += "  sunSphere = new THREE.Mesh(new THREE.SphereGeometry(5, 64, 64), new THREE.MeshBasicMaterial({map: texture})); scene.add(sunSphere);";
-        html += "  scene.add(new THREE.PointLight(0xffffff, 2, 300)); scene.add(new THREE.AmbientLight(0x332211, 2));";
-        
-        // Event tương tác
-        html += "  window.addEventListener('mousedown', e => { isDragging = true; prevMouse = {x: e.clientX, y: e.clientY}; });";
-        html += "  window.addEventListener('mousemove', e => { if(!isDragging) return; targetRot.y += (e.clientX - prevMouse.x)*0.007; targetRot.x += (e.clientY - prevMouse.y)*0.007; prevMouse = {x: e.clientX, y: e.clientY}; });";
-        html += "  window.addEventListener('mouseup', () => isDragging = false);";
-        html += "  window.addEventListener('wheel', e => { targetCamDist = Math.max(8, Math.min(30, targetCamDist + e.deltaY*0.005)); });";
-        html += "  animate();";
-        html += "};";
-        html += "function animate() {";
-        html += "  requestAnimationFrame(animate);";
-        html += "  if(sunSphere) { sunSphere.rotation.y += 0.001; sunSphere.rotation.x += (targetRot.x - sunSphere.rotation.x)*0.1; sunSphere.rotation.y += (targetRot.y - sunSphere.rotation.y)*0.1; }";
-        html += "  camDist += (targetCamDist - camDist)*0.1; camera.position.z = camDist;";
-        html += "  if(starField) starField.rotation.y += 0.0002;";
-        html += "  renderer.render(scene, camera);";
-        html += "}";
-        html += "</script></body></html>";
-        return html;
-    });
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
 
-    app.port(18080).multithreaded().run();
-}
+    <div class="absolute bottom-6 right-6 md:right-6 md:w-96 z-10 pointer-events-auto">
+        <div class="glass-panel rounded-2xl p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-sm font-semibold tracking-wider text-amber-400 uppercase">Thông số kỹ thuật</h2>
+                <span id="star-class" class="text-[10px] bg-amber-500/20 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full font-medium">Hạng G2V</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Nhiệt độ bề mặt</span><span id="star-temp" class="font-bold text-slate-200 text-sm"></span></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khối lượng</span><span id="star-mass" class="font-bold text-slate-200 text-sm"></span></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Bán kính</span><span id="star-radius" class="font-bold text-slate-200 text-sm"></span></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khoảng cách</span><span id="star-distance" class="font-bold text-slate-200 text-sm"></span></div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80">
+                <div class="text-xs text-slate-400 mb-1">Điểm sáng</div>
+                <p id="star-highlight" class="text-xs leading-relaxed text-slate-200"></p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                <span>Chất liệu: Plasma & Hydro</span>
+                <button id="reset-cam" class="text-amber-400 hover:text-amber-300 font-medium">Đặt lại góc nhìn</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    const STAR_DATA=[{"name": "Mặt Trời", "type": "G2V", "temp": "~5,500 °C", "mass": "1 M☉", "radius": "696,340 km", "distance": "0 ly", "highlight": "Ngôi sao trung tâm của Hệ Mặt Trời, cung cấp năng lượng cho các hành tinh.", "color": "#ffb52e"}, {"name": "Kepler-442", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.61 M☉", "radius": "~0.60 R☉", "distance": "~1,200 ly", "highlight": "Nhà của Kepler-442b, một ngoại hành tinh nổi tiếng trong các nghiên cứu về khả năng ở được.", "color": "#d18b50"}, {"name": "Epsilon Eridani", "type": "K2V", "temp": "~5,080 °C", "mass": "~0.82 M☉", "radius": "~0.74 R☉", "distance": "10.5 ly", "highlight": "Một sao lùn cam rất gần, có đĩa mảnh vụn và hệ hành tinh được nghiên cứu lâu năm.", "color": "#e0a66b"}, {"name": "Kepler-62", "type": "K2V", "temp": "~4,900 °C", "mass": "~0.69 M☉", "radius": "~0.64 R☉", "distance": "~1,200 ly", "highlight": "Sở hữu Kepler-62f, một hành tinh nằm trong vùng có thể ở được theo mô hình quỹ đạo.", "color": "#d99b62"}, {"name": "61 Cygni B", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.59 M☉", "radius": "~0.60 R☉", "distance": "11.4 ly", "highlight": "Một sao lùn cam kinh điển trong hệ 61 Cygni, được nghiên cứu từ thế kỷ 19.", "color": "#c9824b"}, {"name": "HD 219134", "type": "K3V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.78 R☉", "distance": "21.3 ly", "highlight": "Hệ sao gần có nhiều hành tinh, trong đó có các thế giới đá được nghiên cứu chi tiết.", "color": "#d69a60"}, {"name": "HD 85512", "type": "K5V", "temp": "~4,700 °C", "mass": "~0.69 M☉", "radius": "~0.53 R☉", "distance": "36 ly", "highlight": "Hệ sao nổi tiếng nhờ HD 85512 b, từng được nghiên cứu như một ứng viên vùng có thể ở được.", "color": "#c47e4b"}, {"name": "Kepler-1544", "type": "K2V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.74 R☉", "distance": "~1,100 ly", "highlight": "Chủ nhân của Kepler-1544b, một ứng viên ngoại hành tinh vùng có thể ở được.", "color": "#dda05f"}, {"name": "Kepler-1229", "type": "K-dwarf", "temp": "~4,800 °C", "mass": "~0.69 M☉", "radius": "~0.63 R☉", "distance": "~2,900 ly", "highlight": "Sở hữu Kepler-1229b, một hành tinh có kích thước gần Trái Đất.", "color": "#d18e58"}, {"name": "Alpha Centauri B", "type": "K1V", "temp": "~5,230 °C", "mass": "~0.91 M☉", "radius": "~0.86 R☉", "distance": "4.37 ly", "highlight": "Một sao lùn cam rất gần Hệ Mặt Trời, là thành viên của hệ Alpha Centauri.", "color": "#edbd82"}, {"name": "Kepler-296", "type": "K7V", "temp": "~4,000 °C", "mass": "~0.50 M☉", "radius": "~0.48 R☉", "distance": "~1,700 ly", "highlight": "Sao lùn cam muộn có hệ nhiều hành tinh, một số được nghiên cứu về vùng có thể ở được.", "color": "#b96f42"}];
+    let scene,camera,renderer,sunSphere,coronaMesh,starField,starLight;
+    let isDragging=false,previousMousePosition={x:0,y:0};
+    let targetRotation={x:0,y:0},cameraDistance=15,targetCameraDistance=15;
+
+    window.onload=()=>{initScene();createStarField();createStar();buildStarMenu();selectStar(0);setupEvents();animate(0)};
+
+    function initScene(){
+        scene=new THREE.Scene();
+        scene.fog=new THREE.FogExp2(0x030712,.015);
+        camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,1000);
+        camera.position.z=cameraDistance;
+        renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+        renderer.setSize(innerWidth,innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+        renderer.toneMapping=THREE.ACESFilmicToneMapping;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+    }
+    function createStarField(){
+        const g=new THREE.BufferGeometry(), count=2000, p=new Float32Array(count*3);
+        for(let i=0;i<p.length;i+=3){p[i]=(Math.random()-.5)*400;p[i+1]=(Math.random()-.5)*400;p[i+2]=(Math.random()-.5)*400}
+        g.setAttribute('position',new THREE.BufferAttribute(p,3));
+        starField=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.8,transparent:true,opacity:.8}));
+        scene.add(starField);
+    }
+    function createStar(){
+        sunSphere=new THREE.Mesh(new THREE.SphereGeometry(5,64,64),new THREE.MeshBasicMaterial({color:0xffb52e}));
+        scene.add(sunSphere);
+        starLight=new THREE.PointLight(0xfff5e6,2.5,300);scene.add(starLight);
+        scene.add(new THREE.AmbientLight(0x221100,1.5));
+        const mat=new THREE.ShaderMaterial({
+            uniforms:{glowColor:{value:new THREE.Color(0xff8a00)}},
+            vertexShader:`varying vec3 vNormal;void main(){vNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+            fragmentShader:`varying vec3 vNormal;uniform vec3 glowColor;void main(){float x=pow(0.6-dot(vNormal,vec3(0,0,1)),2.2);gl_FragColor=vec4(glowColor,1.0)*x*1.5;}`,
+            blending:THREE.AdditiveBlending,side:THREE.BackSide,transparent:true
+        });
+        coronaMesh=new THREE.Mesh(new THREE.SphereGeometry(5.6,64,64),mat);scene.add(coronaMesh);
+    }
+    function buildStarMenu(){
+        const list=document.getElementById('star-list');
+        list.innerHTML='';
+        STAR_DATA.forEach((s,i)=>{
+            const b=document.createElement('button');
+            b.type='button';
+            b.className='star-item';
+            b.innerHTML =
+                '<span class="star-number">'+(i+1)+'</span>'+
+                '<span class="star-dot"></span>'+
+                '<span class="star-label">'+
+                    '<span class="star-item-name">'+s.name+'</span>'+
+                    '<span class="star-item-type">'+s.type+'</span>'+
+                '</span>';
+            b.querySelector('.star-dot').style.background=s.color;
+            b.querySelector('.star-dot').style.color=s.color;
+            b.addEventListener('click',()=>selectStar(i));
+            list.appendChild(b);
+        });
+    }
+    function selectStar(i){
+        const s=STAR_DATA[i];
+        document.getElementById('star-name').textContent=`${s.name} (${s.type})`;
+        document.getElementById('star-class').textContent=`Hạng ${s.type}`;
+        document.getElementById('star-temp').textContent=s.temp;
+        document.getElementById('star-mass').textContent=s.mass;
+        document.getElementById('star-radius').textContent=s.radius;
+        document.getElementById('star-distance').textContent=s.distance;
+        document.getElementById('star-highlight').textContent=s.highlight;
+        document.querySelectorAll('.star-item').forEach((b,j)=>b.classList.toggle('active',j===i));
+        sunSphere.material.color.set(s.color);
+        sunSphere.scale.setScalar(i===0?1:.9+(i%4)*.05);
+        coronaMesh.scale.copy(sunSphere.scale);
+        coronaMesh.material.uniforms.glowColor.value.set(s.color);
+        starLight.color.set(s.color);starLight.intensity=i===0?2.5:1.9;
+    }
+    function setupEvents(){
+        addEventListener('mousedown',e=>{isDragging=true;previousMousePosition={x:e.clientX,y:e.clientY}});
+        addEventListener('mousemove',e=>{
+            if(!isDragging)return;let dx=e.clientX-previousMousePosition.x,dy=e.clientY-previousMousePosition.y;
+            targetRotation.y+=dx*.007;targetRotation.x+=dy*.007;
+            targetRotation.x=Math.max(-Math.PI/2.2,Math.min(Math.PI/2.2,targetRotation.x));
+            previousMousePosition={x:e.clientX,y:e.clientY};
+        });
+        addEventListener('mouseup',()=>isDragging=false);
+        addEventListener('wheel',e=>{targetCameraDistance=Math.max(8,Math.min(30,targetCameraDistance+e.deltaY*.005))});
+        document.getElementById('reset-cam').onclick=()=>{targetRotation.x=targetRotation.y=0;targetCameraDistance=15};
+        addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+    }
+    function animate(t){
+        requestAnimationFrame(animate);
+        sunSphere.rotation.y+=.001;
+        sunSphere.rotation.x+=(targetRotation.x-sunSphere.rotation.x)*.1;
+        sunSphere.rotation.y+=(targetRotation.y-sunSphere.rotation.y)*.1;
+        coronaMesh.rotation.copy(sunSphere.rotation);
+        cameraDistance+=(targetCameraDistance-cameraDistance)*.1;camera.position.z=cameraDistance;
+        starField.rotation.y+=.0002;renderer.render(scene,camera);
+    }
+    </script>
+</body>
+</html>
