@@ -37,7 +37,84 @@
 @media(max-width:800px){#star-menu{width:190px;left:8px;top:75px;bottom:8px}}
 </style>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased h-screen overflow-hidden flex flex-col justify-between"><aside id="star-menu"><div id="star-menu-title">DANH SÁCH HỆ SAO</div><div id="star-list"></div></aside>
+<body class="bg-slate-950 text-slate-100 antialiased h-screen overflow-hidden flex flex-col justify-between"><aside id="star-menu"><div id="star-menu-title">DANH SÁCH 11 SAO</div><div id="star-list"><button type="button" class="star-item" data-star-index="0">
+        <span class="star-number">1</span>
+        <span class="star-dot" style="background:#ffb52e;color:#ffb52e"></span>
+        <span class="star-label">
+            <span class="star-item-name">Mặt Trời</span>
+            <span class="star-item-type">G2V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="1">
+        <span class="star-number">2</span>
+        <span class="star-dot" style="background:#d18b50;color:#d18b50"></span>
+        <span class="star-label">
+            <span class="star-item-name">Kepler-442</span>
+            <span class="star-item-type">K5V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="2">
+        <span class="star-number">3</span>
+        <span class="star-dot" style="background:#e0a66b;color:#e0a66b"></span>
+        <span class="star-label">
+            <span class="star-item-name">Epsilon Eridani</span>
+            <span class="star-item-type">K2V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="3">
+        <span class="star-number">4</span>
+        <span class="star-dot" style="background:#d99b62;color:#d99b62"></span>
+        <span class="star-label">
+            <span class="star-item-name">Kepler-62</span>
+            <span class="star-item-type">K2V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="4">
+        <span class="star-number">5</span>
+        <span class="star-dot" style="background:#c9824b;color:#c9824b"></span>
+        <span class="star-label">
+            <span class="star-item-name">61 Cygni B</span>
+            <span class="star-item-type">K5V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="5">
+        <span class="star-number">6</span>
+        <span class="star-dot" style="background:#d69a60;color:#d69a60"></span>
+        <span class="star-label">
+            <span class="star-item-name">HD 219134</span>
+            <span class="star-item-type">K3V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="6">
+        <span class="star-number">7</span>
+        <span class="star-dot" style="background:#c47e4b;color:#c47e4b"></span>
+        <span class="star-label">
+            <span class="star-item-name">HD 85512</span>
+            <span class="star-item-type">K5V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="7">
+        <span class="star-number">8</span>
+        <span class="star-dot" style="background:#dda05f;color:#dda05f"></span>
+        <span class="star-label">
+            <span class="star-item-name">Kepler-1544</span>
+            <span class="star-item-type">K2V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="8">
+        <span class="star-number">9</span>
+        <span class="star-dot" style="background:#d18e58;color:#d18e58"></span>
+        <span class="star-label">
+            <span class="star-item-name">Kepler-1229</span>
+            <span class="star-item-type">K-dwarf</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="9">
+        <span class="star-number">10</span>
+        <span class="star-dot" style="background:#edbd82;color:#edbd82"></span>
+        <span class="star-label">
+            <span class="star-item-name">Alpha Centauri B</span>
+            <span class="star-item-type">K1V</span>
+        </span>
+    </button><button type="button" class="star-item" data-star-index="10">
+        <span class="star-number">11</span>
+        <span class="star-dot" style="background:#b96f42;color:#b96f42"></span>
+        <span class="star-label">
+            <span class="star-item-name">Kepler-296</span>
+            <span class="star-item-type">K7V</span>
+        </span>
+    </button></div></aside>
 
     <header class="absolute top-0 left-0 w-full z-10 p-4 md:p-6 flex justify-between items-center pointer-events-none">
         <div class="pointer-events-auto flex items-center space-x-3">
@@ -55,7 +132,10 @@
         </div>
     </header>
 
-    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+    <div id="canvas-container" class="absolute inset-0 z-0">
+        <div id="star-ring"></div>
+        <div id="star-ring-2"></div>
+    </div>
 
     <div class="absolute bottom-6 right-6 md:right-6 md:w-96 z-10 pointer-events-auto">
         <div class="glass-panel rounded-2xl p-5 shadow-2xl">
@@ -65,9 +145,9 @@
             </div>
             <div class="grid grid-cols-2 gap-3 text-xs">
                 <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Nhiệt độ bề mặt</span><span id="star-temp" class="font-bold text-slate-200 text-sm"></span></div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khối lượng</span><span id="star-mass" class="font-bold text-slate-200 text-sm"></span></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khối lượng (M☉)</span><span id="star-mass" class="font-bold text-slate-200 text-sm"></span></div>
                 <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Bán kính</span><span id="star-radius" class="font-bold text-slate-200 text-sm"></span></div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khoảng cách</span><span id="star-distance" class="font-bold text-slate-200 text-sm"></span></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80"><span class="text-slate-400 block mb-0.5">Khoảng cách đến Trái Đất</span><span id="star-distance" class="font-bold text-slate-200 text-sm"></span></div>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-800/80">
                 <div class="text-xs text-slate-400 mb-1">Điểm sáng</div>
@@ -82,10 +162,10 @@
 
 
     <script>
-    const STAR_DATA=[{"name": "Mặt Trời", "type": "G2V", "temp": "~5,500 °C", "mass": "1 M☉", "radius": "696,340 km", "distance": "0 ly", "highlight": "Ngôi sao trung tâm của Hệ Mặt Trời, cung cấp năng lượng cho các hành tinh.", "color": "#ffb52e"}, {"name": "Kepler-442", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.61 M☉", "radius": "~0.60 R☉", "distance": "~1,200 ly", "highlight": "Nhà của Kepler-442b, một ngoại hành tinh nổi tiếng trong các nghiên cứu về khả năng ở được.", "color": "#d18b50"}, {"name": "Epsilon Eridani", "type": "K2V", "temp": "~5,080 °C", "mass": "~0.82 M☉", "radius": "~0.74 R☉", "distance": "10.5 ly", "highlight": "Một sao lùn cam rất gần, có đĩa mảnh vụn và hệ hành tinh được nghiên cứu lâu năm.", "color": "#e0a66b"}, {"name": "Kepler-62", "type": "K2V", "temp": "~4,900 °C", "mass": "~0.69 M☉", "radius": "~0.64 R☉", "distance": "~1,200 ly", "highlight": "Sở hữu Kepler-62f, một hành tinh nằm trong vùng có thể ở được theo mô hình quỹ đạo.", "color": "#d99b62"}, {"name": "61 Cygni B", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.59 M☉", "radius": "~0.60 R☉", "distance": "11.4 ly", "highlight": "Một sao lùn cam kinh điển trong hệ 61 Cygni, được nghiên cứu từ thế kỷ 19.", "color": "#c9824b"}, {"name": "HD 219134", "type": "K3V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.78 R☉", "distance": "21.3 ly", "highlight": "Hệ sao gần có nhiều hành tinh, trong đó có các thế giới đá được nghiên cứu chi tiết.", "color": "#d69a60"}, {"name": "HD 85512", "type": "K5V", "temp": "~4,700 °C", "mass": "~0.69 M☉", "radius": "~0.53 R☉", "distance": "36 ly", "highlight": "Hệ sao nổi tiếng nhờ HD 85512 b, từng được nghiên cứu như một ứng viên vùng có thể ở được.", "color": "#c47e4b"}, {"name": "Kepler-1544", "type": "K2V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.74 R☉", "distance": "~1,100 ly", "highlight": "Chủ nhân của Kepler-1544b, một ứng viên ngoại hành tinh vùng có thể ở được.", "color": "#dda05f"}, {"name": "Kepler-1229", "type": "K-dwarf", "temp": "~4,800 °C", "mass": "~0.69 M☉", "radius": "~0.63 R☉", "distance": "~2,900 ly", "highlight": "Sở hữu Kepler-1229b, một hành tinh có kích thước gần Trái Đất.", "color": "#d18e58"}, {"name": "Alpha Centauri B", "type": "K1V", "temp": "~5,230 °C", "mass": "~0.91 M☉", "radius": "~0.86 R☉", "distance": "4.37 ly", "highlight": "Một sao lùn cam rất gần Hệ Mặt Trời, là thành viên của hệ Alpha Centauri.", "color": "#edbd82"}, {"name": "Kepler-296", "type": "K7V", "temp": "~4,000 °C", "mass": "~0.50 M☉", "radius": "~0.48 R☉", "distance": "~1,700 ly", "highlight": "Sao lùn cam muộn có hệ nhiều hành tinh, một số được nghiên cứu về vùng có thể ở được.", "color": "#b96f42"}];
+    const STAR_DATA=[{"name": "Mặt Trời", "type": "G2V", "temp": "~5,500 °C", "mass": "1 M☉", "radius": "696,340 km", "distance": "149.6 triệu km", "highlight": "Ngôi sao trung tâm của Hệ Mặt Trời, cung cấp năng lượng cho các hành tinh.", "color": "#ffb52e"}, {"name": "Kepler-442", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.61 M☉", "radius": "~0.60 R☉", "distance": "~1,200 ly", "highlight": "Nhà của Kepler-442b, một ngoại hành tinh nổi tiếng trong các nghiên cứu về khả năng ở được.", "color": "#d18b50"}, {"name": "Epsilon Eridani", "type": "K2V", "temp": "~5,080 °C", "mass": "~0.82 M☉", "radius": "~0.74 R☉", "distance": "10.5 ly", "highlight": "Một sao lùn cam rất gần, có đĩa mảnh vụn và hệ hành tinh được nghiên cứu lâu năm.", "color": "#e0a66b"}, {"name": "Kepler-62", "type": "K2V", "temp": "~4,900 °C", "mass": "~0.69 M☉", "radius": "~0.64 R☉", "distance": "~1,200 ly", "highlight": "Sở hữu Kepler-62f, một hành tinh nằm trong vùng có thể ở được theo mô hình quỹ đạo.", "color": "#d99b62"}, {"name": "61 Cygni B", "type": "K5V", "temp": "~4,400 °C", "mass": "~0.59 M☉", "radius": "~0.60 R☉", "distance": "11.4 ly", "highlight": "Một sao lùn cam kinh điển trong hệ 61 Cygni, được nghiên cứu từ thế kỷ 19.", "color": "#c9824b"}, {"name": "HD 219134", "type": "K3V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.78 R☉", "distance": "21.3 ly", "highlight": "Hệ sao gần có nhiều hành tinh, trong đó có các thế giới đá được nghiên cứu chi tiết.", "color": "#d69a60"}, {"name": "HD 85512", "type": "K5V", "temp": "~4,700 °C", "mass": "~0.69 M☉", "radius": "~0.53 R☉", "distance": "36 ly", "highlight": "Hệ sao nổi tiếng nhờ HD 85512 b, từng được nghiên cứu như một ứng viên vùng có thể ở được.", "color": "#c47e4b"}, {"name": "Kepler-1544", "type": "K2V", "temp": "~4,700 °C", "mass": "~0.81 M☉", "radius": "~0.74 R☉", "distance": "~1,100 ly", "highlight": "Chủ nhân của Kepler-1544b, một ứng viên ngoại hành tinh vùng có thể ở được.", "color": "#dda05f"}, {"name": "Kepler-1229", "type": "K-dwarf", "temp": "~4,800 °C", "mass": "~0.69 M☉", "radius": "~0.63 R☉", "distance": "~2,900 ly", "highlight": "Sở hữu Kepler-1229b, một hành tinh có kích thước gần Trái Đất.", "color": "#d18e58"}, {"name": "Alpha Centauri B", "type": "K1V", "temp": "~5,230 °C", "mass": "~0.91 M☉", "radius": "~0.86 R☉", "distance": "4.37 ly", "highlight": "Một sao lùn cam rất gần Hệ Mặt Trời, là thành viên của hệ Alpha Centauri.", "color": "#edbd82"}, {"name": "Kepler-296", "type": "K7V", "temp": "~4,000 °C", "mass": "~0.50 M☉", "radius": "~0.48 R☉", "distance": "~1,700 ly", "highlight": "Sao lùn cam muộn có hệ nhiều hành tinh, một số được nghiên cứu về vùng có thể ở được.", "color": "#b96f42"}];
     let scene,camera,renderer,sunSphere,coronaMesh,starField,starLight;
     let isDragging=false,previousMousePosition={x:0,y:0};
-    let targetRotation={x:0,y:0},cameraDistance=15,targetCameraDistance=15;
+    let targetRotation={x:0,y:0},cameraDistance=15,targetCameraDistance=15; let ringAngle=0;
 
     window.onload=()=>{initScene();createStarField();createStar();buildStarMenu();selectStar(0);setupEvents();animate(0)};
 
@@ -121,23 +201,8 @@
         coronaMesh=new THREE.Mesh(new THREE.SphereGeometry(5.6,64,64),mat);scene.add(coronaMesh);
     }
     function buildStarMenu(){
-        const list=document.getElementById('star-list');
-        list.innerHTML='';
-        STAR_DATA.forEach((s,i)=>{
-            const b=document.createElement('button');
-            b.type='button';
-            b.className='star-item';
-            b.innerHTML =
-                '<span class="star-number">'+(i+1)+'</span>'+
-                '<span class="star-dot"></span>'+
-                '<span class="star-label">'+
-                    '<span class="star-item-name">'+s.name+'</span>'+
-                    '<span class="star-item-type">'+s.type+'</span>'+
-                '</span>';
-            b.querySelector('.star-dot').style.background=s.color;
-            b.querySelector('.star-dot').style.color=s.color;
-            b.addEventListener('click',()=>selectStar(i));
-            list.appendChild(b);
+        document.querySelectorAll('.star-item').forEach((button)=>{
+            button.addEventListener('click',()=>selectStar(Number(button.dataset.starIndex)));
         });
     }
     function selectStar(i){
@@ -171,6 +236,11 @@
     }
     function animate(t){
         requestAnimationFrame(animate);
+        ringAngle += 0.008;
+        const ring1=document.getElementById('star-ring');
+        const ring2=document.getElementById('star-ring-2');
+        if(ring1) ring1.style.transform=`rotateX(68deg) rotateZ(${12 + ringAngle*20}deg)`;
+        if(ring2) ring2.style.transform=`rotateX(68deg) rotateZ(${-25 - ringAngle*14}deg)`;
         sunSphere.rotation.y+=.001;
         sunSphere.rotation.x+=(targetRotation.x-sunSphere.rotation.x)*.1;
         sunSphere.rotation.y+=(targetRotation.y-sunSphere.rotation.y)*.1;
