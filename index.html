@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá 11 Ngôi Sao 3D1 - Tiềm Năng Sự Sống</title>
+    <title>Khám Phá 11 Ngôi Sao 3D2 - Tiềm Năng Sự Sống</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -379,7 +379,6 @@
             startFireworksAnimation();
 
             setTimeout(() => {
-                // Chuyển ngay sang trang 2
                 isPageTwo = true;
                 document.getElementById('main-header').classList.add('hidden');
                 document.getElementById('metrics-panel').classList.add('hidden');
@@ -395,7 +394,6 @@
                 updateStarContent(currentSelectedIndex);
                 targetCamDist = 15;
 
-                // Ẩn hẳn khung modal chúc mừng
                 overlay.classList.add('hidden');
             }, 2500);
         }
@@ -409,11 +407,12 @@
             let particles = [];
             const colors = ['#22d3ee', '#3b82f6', '#f43f5e', '#fbbf24', '#10b981', '#a855f7'];
 
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 6; i++) {
                 createFireworkBurst(
                     Math.random() * canvas.width * 0.6 + canvas.width * 0.2,
                     Math.random() * canvas.height * 0.5 + canvas.height * 0.2,
-                    colors
+                    colors,
+                    particles
                 );
             }
 
@@ -447,10 +446,21 @@
             loop();
         }
 
-        function createFireworkBurst(x, y, colors) {
+        function createFireworkBurst(x, y, colors, particlesArray) {
             const particleCount = 60;
-            const particles = []; // Fix biến cục bộ pháo hoa
-            // Dùng mảng tạm chạy hoạt ảnh pháo hoa
+            for (let i = 0; i < particleCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 2;
+                particlesArray.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 3 + 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1.0
+                });
+            }
         }
 
         function setupEventListeners() {
