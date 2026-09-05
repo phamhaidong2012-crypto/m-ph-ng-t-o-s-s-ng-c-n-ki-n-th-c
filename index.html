@@ -78,22 +78,59 @@ int main() {
         html += "<p class='text-xs text-slate-300 mt-3'>" + s.desc + "</p>";
         html += "</div>";
 
+        // Đoạn script Three.js đầy đủ mô phỏng 3D tương tác
         html += "<script>";
-        html += "let scene = new THREE.Scene();";
-        html += "let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);";
-        html += "camera.position.z = 15;";
-        html += "let renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });";
-        html += "renderer.setSize(window.innerWidth, window.innerHeight);";
-        html += "document.getElementById('canvas-container').appendChild(renderer.domElement);";
+        html += "let scene, camera, renderer, starMesh;";
+        html += "let isDragging = false, prevMouse = {x: 0, y: 0}, targetRot = {x: 0, y: 0}, camDist = 15;";
         
-        html += "let geometry = new THREE.SphereGeometry(5, 64, 64);";
-        html += "let material = new THREE.MeshBasicMaterial({ color: '" + s.colorHex + "' });";
-        html += "let starMesh = new THREE.Mesh(geometry, material);";
-        html += "scene.add(starMesh);";
-        
-        html += "let light = new THREE.PointLight(0xffffff, 2, 100); scene.add(light);";
-        html += "function animate() { requestAnimationFrame(animate); starMesh.rotation.y += 0.005; renderer.render(scene, camera); }";
-        html += "animate();";
+        html += "function init() {";
+        html += "  scene = new THREE.Scene();";
+        html += "  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);";
+        html += "  camera.position.z = camDist;";
+        html += "  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });";
+        html += "  renderer.setSize(window.innerWidth, window.innerHeight);";
+        html += "  document.getElementById('canvas-container').appendChild(renderer.domElement);";
+
+        // Tạo hình cầu 3D ngôi sao
+        html += "  let geometry = new THREE.SphereGeometry(5, 64, 64);";
+        html += "  let material = new THREE.MeshBasicMaterial({ color: '" + s.colorHex + "' });";
+        html += "  starMesh = new THREE.Mesh(geometry, material);";
+        html += "  scene.add(starMesh);";
+
+        // Ánh sáng cho không gian
+        html += "  scene.add(new THREE.PointLight(0xffffff, 2, 100));";
+        html += "  scene.add(new THREE.AmbientLight(0xffffff, 0.5));";
+
+        // Sự kiện chuột xoay & zoom 3D
+        html += "  window.addEventListener('mousedown', e => { isDragging = true; prevMouse = {x: e.clientX, y: e.clientY}; });";
+        html += "  window.addEventListener('mousemove', e => {";
+        html += "    if (!isDragging) return;";
+        html += "    targetRot.y += (e.clientX - prevMouse.x) * 0.007;";
+        html += "    targetRot.x += (e.clientY - prevMouse.y) * 0.007;";
+        html += "    prevMouse = {x: e.clientX, y: e.clientY};";
+        html += "  });";
+        html += "  window.addEventListener('mouseup', () => isDragging = false);";
+        html += "  window.addEventListener('wheel', e => {";
+        html += "    camDist += e.deltaY * 0.005;";
+        html += "    camDist = Math.max(8, Math.min(25, camDist));";
+        html += "  });";
+        html += "  window.addEventListener('resize', () => {";
+        html += "    camera.aspect = window.innerWidth / window.innerHeight;";
+        html += "    camera.updateProjectionMatrix();";
+        html += "    renderer.setSize(window.innerWidth, window.innerHeight);";
+        html += "  });";
+        html += "}";
+
+        html += "function animate() {";
+        html += "  requestAnimationFrame(animate);";
+        html += "  starMesh.rotation.y += 0.002;";
+        html += "  starMesh.rotation.x += (targetRot.x - starMesh.rotation.x) * 0.1;";
+        html += "  starMesh.rotation.y += (targetRot.y - starMesh.rotation.y) * 0.1;";
+        html += "  camera.position.z += (camDist - camera.position.z) * 0.1;";
+        html += "  renderer.render(scene, camera);";
+        html += "}";
+
+        html += "init(); animate();";
         html += "</script></body></html>";
 
         return html;
