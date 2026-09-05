@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá 11 Ngôi Sao 3D1 - Tiềm Năng Sự Sống</title>
+    <title>Khám Phá 11 Ngôi Sao 3D2 - Tiềm Năng Sự Sống</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -85,7 +85,7 @@
             </div>
         </header>
 
-        <!-- BẢNG 5 CHỈ SỐ CHI TIẾT (Đã cập nhật công thức xác suất sự sống theo điều kiện vật lý sao) -->
+        <!-- BẢNG THÔNG TIN VÀ ƯU - NHƯỢC ĐIỂM -->
         <div class="absolute top-28 right-8 z-10 pointer-events-none">
             <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl grid grid-cols-2 gap-3 w-88">
                 <!-- Chỉ số 1: Nhiệt độ -->
@@ -120,19 +120,31 @@
                     </div>
                     <div id="metric-dist" class="text-sm font-bold text-slate-100">149.6 triệu km</div>
                 </div>
-                <!-- Chỉ số 5 (CẬP NHẬT): Xác suất xuất hiện sự sống theo điều kiện vật lý sao -->
-                <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3.5 rounded-xl border border-cyan-500/30">
-                    <div class="flex items-center justify-between mb-1.5">
+                <!-- Chỉ số 5: Xác suất xuất hiện sự sống -->
+                <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3 rounded-xl border border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center space-x-1.5 text-cyan-300 text-[11px] font-bold">
                             <span>🧬</span>
-                            <span>Xác Suất Sự Sống Tiềm Năng (Vật Lý Sao)</span>
+                            <span>Xác Suất Sự Sống Tiềm Năng</span>
                         </div>
                         <div id="metric-life-val" class="text-xs font-black text-cyan-400">88.5%</div>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden p-0.5 border border-slate-700">
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden p-0.5 border border-slate-700 mb-1">
                         <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 88.5%"></div>
                     </div>
-                    <div id="metric-life-desc" class="text-[10px] text-slate-400 mt-1 italic">Đặc tính quang phổ G2V, bức xạ cực tím cân bằng và độ ổn định từ trường hoàn hảo.</div>
+                    <div id="metric-life-desc" class="text-[10px] text-slate-400 italic">Đặc tính quang phổ G2V, bức xạ cực tím cân bằng và độ ổn định từ trường hoàn hảo.</div>
+                </div>
+
+                <!-- Ưu và Nhược điểm ngắn gọn -->
+                <div class="col-span-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80 space-y-1.5">
+                    <div class="text-[11px] flex items-start space-x-1.5">
+                        <span class="text-emerald-400 font-bold shrink-0">🟢 Ưu:</span>
+                        <span id="metric-pros" class="text-slate-300 text-[10px] leading-tight">Bức xạ quang học lý tưởng, tuổi thọ dài và từ trường cực kỳ ổn định.</span>
+                    </div>
+                    <div class="text-[11px] flex items-start space-x-1.5">
+                        <span class="text-rose-400 font-bold shrink-0">🔴 Nhược:</span>
+                        <span id="metric-cons" class="text-slate-300 text-[10px] leading-tight">Có nguy cơ bùng phát lóa mặt trời (solar flares) ảnh hưởng bầu khí quyển.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -148,62 +160,83 @@
     </main>
 
     <script>
-        // Các ngôi sao với xác suất tính toán thuần túy dựa trên điều kiện bức xạ, từ trường, quang phổ và tính kim loại (không tính tuổi, không tính diện tích vùng sống)
         const starsData = [
             { 
                 id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", 
                 desc: "Ngôi sao trung tâm hệ mặt trời của chúng ta.",
-                lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực, bức xạ cực tím (UV) vừa phải, từ trường ổn định giúp hành tinh giữ khí quyển tối ưu." 
+                lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực, bức xạ cực tím (UV) vừa phải, từ trường ổn định.",
+                pros: "Bức xạ quang học lý tưởng, dồi dào nguyên tố nặng kiến tạo hành tinh.",
+                cons: "Có thể xảy ra bùng nổ bức xạ từ trường (bão mặt trời) gây hại."
             },
             { 
                 id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", 
                 desc: "Hệ sao lân cận có đĩa bụi sao.",
-                lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V có bức xạ hồng ngoại ổn định, ít bùng nổ tia lửa từ tính bất thường, hỗ trợ hóa học sinh học rất tốt." 
+                lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V có bức xạ hồng ngoại ổn định, ít bùng nổ tia lửa từ tính.",
+                pros: "Tuổi thọ siêu dài, ít phát tia cực tím mạnh gây đột biến sinh học.",
+                cons: "Hoạt động từ tính trẻ tương đối năng động làm dao động quỹ đạo bụi."
             },
             { 
                 id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", dist: "18.8 năm ánh sáng", color: "#f59e0b", 
                 desc: "Ngôi sao dạng lùn cam ổn định.",
-                lifeProb: 86.2, lifeDesc: "Độ sáng cực kỳ đều đặn, thành phần hóa học giàu kim loại kiến tạo hành tinh đá có lõi từ trường mạnh." 
+                lifeProb: 86.2, lifeDesc: "Độ sáng cực kỳ đều đặn, thành phần hóa học giàu kim loại kiến tạo hành tinh.",
+                pros: "Cực kỳ ổn định về quang phổ, không gian bức xạ thân thiện với sự sống.",
+                cons: "Vùng sống hẹp hơn một chút so với các sao loại G tiêu chuẩn."
             },
             { 
                 id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", dist: "4.37 năm ánh sáng", color: "#d97706", 
                 desc: "Thành viên trong hệ sao ba gần nhất.",
-                lifeProb: 81.5, lifeDesc: "Bức xạ nhiệt từ quang phổ K1V đồng đều, quỹ đạo thành phần tương đối ít chịu can thiệp từ lực ngoại vi." 
+                lifeProb: 81.5, lifeDesc: "Bức xạ nhiệt từ quang phổ K1V đồng đều, quỹ đạo tương đối ít chịu can thiệp.",
+                pros: "Khoảng cách cực gần Trái Đất nhất trong các hệ sao tiềm năng.",
+                cons: "Chịu nhiễu động lực hấp dẫn từ các ngôi sao đồng hành trong hệ ba."
             },
             { 
                 id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", dist: "11.4 năm ánh sáng", color: "#ea580c", 
                 desc: "Ngôi sao nổi tiếng với chuyển động riêng lớn.",
-                lifeProb: 75.3, lifeDesc: "Nhiệt độ bề mặt thấp hơn khiến năng lượng quang học yếu hơn một chút, đòi hỏi cơ chế hấp thụ nhiệt đặc thù từ hành tinh." 
+                lifeProb: 75.3, lifeDesc: "Nhiệt độ bề mặt thấp hơn khiến năng lượng quang học yếu hơn một chút.",
+                pros: "Tỏa nhiệt ổn định trong thời gian cực kỳ dài (hàng chục tỷ năm).",
+                cons: "Năng lượng bức xạ thấp đòi hỏi hành tinh phải ở quỹ đạo rất gần."
             },
             { 
                 id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", dist: "16.6 năm ánh sáng", color: "#f97316", 
                 desc: "Hệ sao đôi quang phổ.",
-                lifeProb: 78.9, lifeDesc: "Đặc trưng quang phổ K0V tốt nhưng bản chất hệ đôi tạo ra một số dao động nhỏ về gió sao." 
+                lifeProb: 78.9, lifeDesc: "Đặc trưng quang phổ tốt nhưng bản chất hệ đôi tạo ra dao động gió sao.",
+                pros: "Quang phổ K0V gần giống hệ Mặt Trời giúp duy trì nước lỏng tốt.",
+                cons: "Quỹ đạo hệ sao đôi làm cho khí hậu hành tinh dễ bị biến động mạnh."
             },
             { 
                 id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", dist: "21.3 năm ánh sáng", color: "#fb923c", 
                 desc: "Ngôi sao lùn chứa các hành tinh đất đá.",
-                lifeProb: 82.7, lifeDesc: "Mật độ bức xạ hồng ngoại và quang học hài hòa, lý tưởng cho việc duy trì trạng thái lỏng của nước bề mặt." 
+                lifeProb: 82.7, lifeDesc: "Mật độ bức xạ hồng ngoại và quang học hài hòa, lý tưởng cho nước bề mặt.",
+                pros: "Đã phát hiện nhiều hành tinh đất đá xung quanh hệ thống.",
+                cons: "Cường độ phát xạ tia X dao động theo chu kỳ hoạt động từ trường."
             },
             { 
                 id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", dist: "11.8 năm ánh sáng", color: "#fdba74", 
                 desc: "Ngôi sao có tốc độ dịch chuyển cao trên bầu trời.",
-                lifeProb: 77.0, lifeDesc: "Hoạt động từ tính bề mặt ôn hòa, năng lượng bức xạ phát ra đều đặn theo các chu kỳ quay." 
+                lifeProb: 77.0, lifeDesc: "Hoạt động từ tính bề mặt ôn hòa, năng lượng bức xạ phát ra đều đặn.",
+                pros: "Khoảng cách tương đối gần và gió sao không quá mạnh.",
+                cons: "Độ kim loại thấp hơn Mặt Trời một chút, hạn chế tài nguyên lõi hành tinh."
             },
             { 
                 id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", dist: "24.4 năm ánh sáng", color: "#fde047", 
                 desc: "Ngôi sao có đặc tính tương đồng với mặt trời trẻ.",
-                lifeProb: 83.4, lifeDesc: "Chỉ số kim loại học (Metallicity) cao giúp thúc đẩy hình thành các hợp chất nguyên tố nặng cần thiết cho sinh học." 
+                lifeProb: 83.4, lifeDesc: "Chỉ số kim loại học cao giúp thúc đẩy hình thành hợp chất nguyên tố nặng.",
+                pros: "Hàm lượng kim loại cao tạo điều kiện hình thành lõi hành tinh vững chắc.",
+                cons: "Khoảng cách xa hơn đáng kể so với các hệ sao hàng xóm gần."
             },
             { 
                 id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", dist: "24.9 năm ánh sáng", color: "#facc15", 
                 desc: "Thành viên gần cụm sao lân cận.",
-                lifeProb: 74.1, lifeDesc: "Cường độ phát xạ tia X ở mức trung bình, dòng năng lượng quang phổ duy trì ổn định không bị ngắt quãng." 
+                lifeProb: 74.1, lifeDesc: "Cường độ phát xạ tia X ở mức trung bình, dòng năng lượng duy trì ổn định.",
+                pros: "Tiến hóa chậm, cung cấp nguồn sáng an toàn trong thời gian dài.",
+                cons: "Năng lượng phát ra yếu, đòi hỏi hành tinh phải nhận đủ hiệu ứng nhà kính."
             },
             { 
                 id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", 
                 desc: "Ngôi sao lùn cam hoạt động từ tính.",
-                lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp làm giảm hiệu suất năng lượng chiếu sáng, tuy nhiên từ trường sao khá ổn định." 
+                lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp làm giảm hiệu suất năng lượng chiếu sáng bề mặt.",
+                pros: "Rất bền bỉ, tuổi thọ dự tính cao hơn nhiều lần so với các sao lớn.",
+                cons: "Nhiệt độ bề mặt thấp dễ dẫn đến đóng băng bề mặt hành tinh ngoài vùng."
             }
         ];
 
@@ -284,10 +317,13 @@
             document.getElementById('metric-radius').innerText = s.radius;
             document.getElementById('metric-dist').innerText = s.dist;
 
-            // Cập nhật thông số xác suất sự sống mới dựa trên điều kiện vật lý sao
             document.getElementById('metric-life-val').innerText = `${s.lifeProb}%`;
             document.getElementById('metric-life-bar').style.width = `${s.lifeProb}%`;
             document.getElementById('metric-life-desc').innerText = s.lifeDesc;
+            
+            // Cập nhật ưu - nhược điểm
+            document.getElementById('metric-pros').innerText = s.pros;
+            document.getElementById('metric-cons').innerText = s.cons;
 
             while(starGroup.children.length > 0){ 
                 starGroup.remove(starGroup.children[0]); 
@@ -376,7 +412,6 @@
                 );
             }
 
-            let animationId;
             function loop() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 particles.forEach((p, index) => {
@@ -399,7 +434,7 @@
                 });
 
                 if (particles.length > 0) {
-                    animationId = requestAnimationFrame(loop);
+                    requestAnimationFrame(loop);
                 } else {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                 }
