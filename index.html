@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -66,14 +66,14 @@
         <span class="text-cyan-400 text-lg font-black group-hover:scale-110 transition-transform">🧪</span>
     </div>
 
-    <!-- Ô Bảng Tuần Hoản (Góc trên bên trái, ẩn mặc định, hiện khi xác nhận hoặc gây dựng hành tinh) -->
+    <!-- Ô Bảng Tuần Hoản (Góc trên bên trái, ẩn mặc định, hiện khi xác nhận) -->
     <div id="periodic-table-panel" class="absolute top-6 left-6 z-50 hidden w-[450px] glass-panel rounded-3xl p-5 shadow-2xl border border-slate-800 pointer-events-auto">
         <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
             <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
                 <h3 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Bảng Tuần Hoản Nguyên Tố (1-94)</h3>
             </div>
-            <button id="btn-close-periodic" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer" title="Quay lại hệ">
+            <button id="btn-close-periodic" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
                 ✕
             </button>
         </div>
@@ -163,11 +163,6 @@
             <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
                 <span class="text-slate-400 block mb-1">Trạng thái sinh thái:</span>
                 <span id="modal-planet-status" class="text-emerald-300 font-semibold text-[11px]">Đang phát triển ổn định, nước lỏng dồi dào.</span>
-            </div>
-            <div class="pt-2">
-                <button id="btn-build-planet" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
-                    <span>🌍 Gây Dựng Hành Tinh</span>
-                </button>
             </div>
         </div>
     </div>
@@ -1025,16 +1020,6 @@
             document.getElementById('btn-select').addEventListener('click', triggerFireworksAndRemoveSidebar);
             document.getElementById('btn-confirm-zone').addEventListener('click', handleConfirmZone);
 
-            // Nút "Gây Dựng Hành Tinh" trong bảng thông tin hành tinh
-            document.getElementById('btn-build-planet').addEventListener('click', () => {
-                document.getElementById('planet-detail-modal').classList.add('hidden');
-                document.getElementById('periodic-table-panel').classList.remove('hidden');
-                document.getElementById('periodic-toggle-btn').classList.add('hidden');
-                const zoneLegend = document.getElementById('zone-legend');
-                if (zoneLegend) zoneLegend.classList.add('hidden');
-                document.getElementById('instruction-text').innerText = `Chế độ gây dựng hành tinh: Bảng tuần hoàn bên trái, hành tinh trong suốt bên phải. Nhấn ✕ để quay lại hệ!`;
-            });
-
             // Đóng bảng thông tin sao
             document.getElementById('btn-close-star-modal').addEventListener('click', () => {
                 document.getElementById('star-detail-modal').classList.add('hidden');
@@ -1045,15 +1030,11 @@
                 document.getElementById('planet-detail-modal').classList.add('hidden');
             });
 
-            // Nút "x" quay lại hệ thống từ bảng tuần hoàn
+            // Nút "x" ẩn bảng tuần hoàn và hiện ô vuông nhỏ góc trên bên trái
             document.getElementById('btn-close-periodic').addEventListener('click', () => {
                 document.getElementById('periodic-table-panel').classList.add('hidden');
                 document.getElementById('periodic-toggle-btn').classList.remove('hidden');
-                if (isPageTwo) {
-                    const zoneLegend = document.getElementById('zone-legend');
-                    if (zoneLegend) zoneLegend.classList.remove('hidden');
-                }
-                document.getElementById('instruction-text').innerText = `Đã quay lại hệ thống! Nhấn vào ô vuông góc trái để mở lại bảng tuần hoàn.`;
+                document.getElementById('instruction-text').innerText = `Bảng tuần hoàn đã thu gọn. Nhấn vào ô vuông góc trái để mở lại!`;
             });
 
             // Ô vuông nhỏ bấm vào để mở lại bảng tuần hoàn
@@ -1113,9 +1094,11 @@
                 const intersects = raycaster.intersectObjects(scene.children, true);
                 if (intersects.length > 0) {
                     let hit = intersects[0].object;
+                    // Kiểm tra xem click vào Sao (sunSphere) hay Hành tinh (planetMesh)
                     let parentGroup = hit.parent;
                     
                     if (hit.name === "SunMesh" || (parentGroup && parentGroup === starGroup)) {
+                        // Hiển thị bảng thông tin Sao ở bên trái
                         const s = starsData[currentSelectedIndex];
                         document.getElementById('modal-star-name').innerText = s.name;
                         document.getElementById('modal-star-dot').style.backgroundColor = s.color;
@@ -1129,6 +1112,7 @@
                         document.getElementById('star-detail-modal').classList.remove('hidden');
                         document.getElementById('planet-detail-modal').classList.add('hidden');
                     } else if (hit.name === "PlanetMesh" || (parentGroup && parentGroup.name === "PlanetContainer")) {
+                        // Hiển thị bảng thông tin Hành tinh ở bên trái
                         const a = (orbitRadiusX + orbitRadiusY) / 2;
                         const yearDays = Math.round(Math.pow(a / 7.0, 1.5) * 365.25);
                         let surfTemp = Math.round((15.0 + (7.0 - a) * 28.0) * 10) / 10;
