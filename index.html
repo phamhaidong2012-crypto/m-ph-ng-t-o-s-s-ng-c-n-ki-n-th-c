@@ -177,6 +177,63 @@
         .compound-token.crafting {
             animation: craftMerge 0.75s ease-in forwards;
         }
+
+        /* ===== BỔ SUNG 3: HỆ THỐNG 5 TẦNG HÀNH TINH ===== */
+        .layer-step-unlocked {
+            opacity: 1 !important;
+            cursor: pointer !important;
+            border-color: rgba(34, 211, 238, 0.6) !important;
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.18);
+        }
+        .layer-step-unlocked:hover { background: rgba(34, 211, 238, 0.10); }
+        .layer-step-done {
+            opacity: 1 !important;
+            cursor: pointer !important;
+            border-color: rgba(16, 185, 129, 0.65) !important;
+            background: rgba(6, 78, 59, 0.22) !important;
+        }
+
+        .layer-sphere {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, rgba(148,163,184,0.20), rgba(2,6,23,0.95) 70%);
+            box-shadow: inset 0 0 40px rgba(34,211,238,0.20), 0 0 60px rgba(34,211,238,0.12);
+            animation: layerSpin 22s linear infinite;
+        }
+        @keyframes layerSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .layer-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .layer-ring.ring-active {
+            border-color: rgba(251, 191, 36, 0.95);
+            box-shadow: 0 0 22px rgba(251, 191, 36, 0.55), inset 0 0 22px rgba(251, 191, 36, 0.25);
+            background: rgba(251, 191, 36, 0.08);
+        }
+        .layer-ring.ring-done {
+            border-color: rgba(16, 185, 129, 0.85);
+            background: rgba(16, 185, 129, 0.07);
+        }
+
+        .layer-req-row { transition: all 0.25s ease; }
+        .layer-req-row.req-open:hover {
+            border-color: rgba(34, 211, 238, 0.65);
+            background: rgba(34, 211, 238, 0.07);
+        }
+
+        .crafted-source-chip {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        .crafted-source-chip:hover {
+            border-color: rgba(16, 185, 129, 0.8);
+            transform: translateY(-1px);
+        }
         @keyframes craftMerge {
             0% { transform: scale(1); opacity: 1; }
             60% { transform: scale(1.25); opacity: 0.9; filter: brightness(1.8); }
@@ -360,25 +417,25 @@
                     <h3 class="text-sm font-bold text-cyan-300 uppercase">Tiến Trình Kiến Tạo</h3>
                 </div>
                 <div class="space-y-3 text-xs text-slate-300">
-                    <div id="step-inner-core" class="p-3 rounded-xl bg-slate-900/80 border border-cyan-500/60 flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-all shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+                    <div id="step-inner-core" data-layer="1" class="p-3 rounded-xl bg-slate-900/80 border border-cyan-500/60 flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-all shadow-[0_0_10px_rgba(34,211,238,0.15)]">
                         <span>1. Lõi trong:</span>
-                        <span class="text-cyan-400 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/30">Mở khóa 🔓</span>
+                        <span id="badge-layer-1" class="text-cyan-400 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/30">Mở khóa 🔓</span>
                     </div>
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                    <div id="step-layer-2" data-layer="2" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
                         <span>2. Lõi ngoài:</span>
-                        <span class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                        <span id="badge-layer-2" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
                     </div>
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                    <div id="step-layer-3" data-layer="3" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
                         <span>3. Mantle dưới:</span>
-                        <span class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                        <span id="badge-layer-3" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
                     </div>
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                    <div id="step-layer-4" data-layer="4" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
                         <span>4. Quyển mềm:</span>
-                        <span class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                        <span id="badge-layer-4" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
                     </div>
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                    <div id="step-layer-5" data-layer="5" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
                         <span>5. Thạch quyển:</span>
-                        <span class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                        <span id="badge-layer-5" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
                     </div>
                 </div>
                 <div class="text-[11px] text-slate-400 italic text-center pt-1">
@@ -443,12 +500,57 @@
         </div>
     </div>
 
+    <!-- ===== BỔ SUNG 3: MODAL CHUNG CHO CÁC TẦNG 2 → 5 (LÕI NGOÀI, MANTLE DƯỚI, QUYỂN MỀM, THẠCH QUYỂN) ===== -->
+    <div id="layer-build-modal" class="absolute inset-12 z-50 glass-panel rounded-3xl p-6 border border-cyan-500/40 shadow-2xl hidden flex flex-col pointer-events-auto bg-slate-950/95 backdrop-blur-2xl">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+            <div class="flex items-center space-x-2.5">
+                <span id="layer-modal-dot" class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                <h3 id="layer-modal-title" class="text-base font-bold text-cyan-300 uppercase">Cấu Tạo Tầng</h3>
+                <span id="layer-modal-progress" class="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 px-2 py-1 rounded-full border border-cyan-500/20">0/5</span>
+            </div>
+            <button id="btn-close-layer-modal" class="w-8 h-8 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-sm transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="flex-1 flex gap-6 overflow-hidden">
+            <div class="w-1/3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Nguyên Tố Hóa Học</h4>
+                <div class="mb-3">
+                    <input id="layer-element-search" type="text" placeholder="🔍 Tìm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+                </div>
+                <div id="layer-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+            </div>
+
+            <div class="flex-1 glass-panel rounded-2xl border border-slate-800 relative flex flex-col items-center justify-center overflow-hidden bg-black/40">
+                <div id="layer-sphere" class="layer-sphere">
+                    <div class="layer-ring" data-ring="5" style="width:250px;height:250px"></div>
+                    <div class="layer-ring" data-ring="4" style="width:200px;height:200px"></div>
+                    <div class="layer-ring" data-ring="3" style="width:150px;height:150px"></div>
+                    <div class="layer-ring" data-ring="2" style="width:100px;height:100px"></div>
+                    <div class="layer-ring" data-ring="1" style="width:56px;height:56px"></div>
+                </div>
+                <div id="layer-sphere-caption" class="mt-5 text-[11px] text-cyan-300 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-center max-w-[80%]">
+                    Cấu trúc phân tầng hành tinh
+                </div>
+            </div>
+
+            <div class="w-1/3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-emerald-300 mb-3 uppercase tracking-wider">📋 Danh Sách Chất Cần Cấu Thành</h4>
+                <div id="layer-requirement-list" class="space-y-3 flex-1 overflow-y-auto pr-1 text-xs"></div>
+                <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 italic text-center">
+                    Mục có dấu ✓ là nguyên tử đơn hoặc chất đã tổng hợp. Nhấn vào mục chưa tích để tổng hợp tiếp!
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TRANG MỚI: KIẾN TẠO HỢP CHẤT (BẢNG TUẦN HOÀN + KHU VỰC KÉO THẢ HÌNH TRÒN KÍ HIỆU + BẢNG ÁP SUẤT NHIỆT ĐỘ BÊN PHẢI) -->
     <div id="compound-builder-page" class="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-2xl hidden flex flex-col pointer-events-auto p-6">
         <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
             <div class="flex items-center space-x-3">
                 <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
                 <h3 class="text-lg font-bold text-cyan-300 uppercase">Trang Kiến Tạo Hợp Chất & Điều Chỉnh Áp Suất - Nhiệt Độ</h3>
+                <span id="compound-layer-badge" class="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/25">Tầng 1 — Lõi trong</span>
             </div>
             <button id="btn-close-compound-page" class="w-9 h-9 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-base transition-all cursor-pointer">
                 ✕
@@ -461,6 +563,11 @@
                 <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Tuần Hoản (Chọn & Kéo Nguyên Tố)</h4>
                 <div class="mb-3">
                     <input id="compound-element-search" type="text" placeholder="🔍 Tìm kiếm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+                </div>
+                <!-- ===== BỔ SUNG 3: NGUYÊN LIỆU LÀ HỢP CHẤT ĐÃ TỔNG HỢP ===== -->
+                <div id="compound-crafted-source" class="mb-3 hidden">
+                    <div class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider mb-2">♻️ Hợp chất đã tổng hợp (dùng làm nguyên liệu)</div>
+                    <div id="compound-crafted-source-list" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <div id="compound-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
                     <!-- Danh sách nguyên tố -->
@@ -1071,7 +1178,7 @@
             compoundTasks.forEach((task, index) => {
                 const card = document.createElement('div');
                 const active = index === currentCompoundTaskIndex;
-                const complete = index < currentCompoundTaskIndex;
+                const complete = !!craftedFlags[task.id];
 
                 card.className = `compound-task-card p-3 rounded-xl border ${
                     complete ? 'task-complete' : active ? 'task-active bg-slate-900/90' : 'bg-slate-900/60 border-slate-800'
@@ -1080,7 +1187,7 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="w-6 h-6 shrink-0 rounded-lg ${complete ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/15 text-amber-300'} flex items-center justify-center text-[10px] font-black border border-current/20">${task.id}</span>
+                            <span class="w-6 h-6 shrink-0 rounded-lg ${complete ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/15 text-amber-300'} flex items-center justify-center text-[10px] font-black border border-current/20">${index + 1}</span>
                             <div class="min-w-0">
                                 <div class="font-black text-[11px] ${active ? 'text-cyan-300' : 'text-slate-200'}">${task.formula} — ${task.name}</div>
                                 <div class="text-[9px] text-slate-400 mt-0.5">${getCompoundTaskRequirementText(task)}</div>
@@ -1106,7 +1213,7 @@
                 list.appendChild(card);
             });
 
-            counter.innerText = `${Math.min(currentCompoundTaskIndex + 1, compoundTasks.length)}/${compoundTasks.length}`;
+            counter.innerText = `${compoundTasks.filter(t => craftedFlags[t.id]).length}/${compoundTasks.length}`;
         }
 
         function addCompoundToken(el, dropX = null, dropY = null) {
@@ -1394,8 +1501,10 @@
             }
 
             if (!task) return;
-            paintRangeHint('hint-temp', 100, 5000, task.tempMin, task.tempMax, getCompoundTemp());
-            paintRangeHint('hint-press', 0.1, 50, task.pressMin, task.pressMax, getCompoundPress());
+            const tempSlider = document.getElementById('slider-compound-temp');
+            const pressSlider = document.getElementById('slider-compound-press');
+            paintRangeHint('hint-temp', parseFloat(tempSlider.min), parseFloat(tempSlider.max), task.tempMin, task.tempMax, getCompoundTemp());
+            paintRangeHint('hint-press', parseFloat(pressSlider.min), parseFloat(pressSlider.max), task.pressMin, task.pressMax, getCompoundPress());
         }
 
         function updateCraftUI(task, compositionOK, environmentOK) {
@@ -1416,8 +1525,8 @@
             if (allCompoundTasksCrafted()) {
                 craftBtn.disabled = true;
                 craftBtn.className = "craft-btn craft-done w-full font-black text-xs py-3.5 px-4 rounded-xl uppercase";
-                craftBtn.innerText = "🏆 Đã chế tạo đủ 5 hợp chất silicat";
-                if (craftHint) craftHint.innerHTML = `<span class="text-emerald-300 font-bold">Hoàn tất! Lõi hành tinh đã có đủ hợp chất silicat nặng.</span>`;
+                craftBtn.innerText = `🏆 Đã chế tạo đủ ${compoundTasks.length} hợp chất`;
+                if (craftHint) craftHint.innerHTML = `<span class="text-emerald-300 font-bold">Hoàn tất tầng ${getActiveLayerName()}! Có thể đóng trang để sang tầng tiếp theo.</span>`;
                 return;
             }
 
@@ -1445,7 +1554,8 @@
             const counter = document.getElementById('crafted-counter');
             if (!box || !counter) return;
 
-            counter.innerText = `${craftedCompounds.length}/${compoundTasks.length}`;
+            const layerDone = compoundTasks.filter(t => craftedFlags[t.id]).length;
+            counter.innerText = `${layerDone}/${compoundTasks.length}`;
 
             if (craftedCompounds.length === 0) {
                 box.innerHTML = `<span class="text-[9px] text-slate-500 italic">Chưa chế tạo được hợp chất nào.</span>`;
@@ -1524,12 +1634,14 @@
                 updateCompoundReactionStatus();
 
                 if (allCompoundTasksCrafted()) {
-                    markSilicateRequirementDone();
+                    if (activeLayerId === 1) markSilicateRequirementDone();
                     const status = document.getElementById('compound-task-status');
                     if (status) {
-                        status.innerHTML = `🎉 <span class="text-emerald-300 font-bold">Đã chế tạo đủ 5 hợp chất silicat nặng cho lõi hành tinh!</span>`;
+                        status.innerHTML = `🎉 <span class="text-emerald-300 font-bold">Đã chế tạo đủ ${compoundTasks.length} hợp chất của tầng này!</span>`;
                     }
                 }
+
+                onLayerProgressChanged();
             }, 780);
         }
 
@@ -1549,7 +1661,8 @@
             }
 
             renderCraftedInventory();
-            if (allCompoundTasksCrafted()) markSilicateRequirementDone();
+            if (allCompoundTasksCrafted() && activeLayerId === 1) markSilicateRequirementDone();
+            onLayerProgressChanged();
         }
 
         function setCompoundSliderValue(sliderId, value) {
@@ -1601,6 +1714,490 @@
 
             renderCraftedInventory();
             updateCompoundReactionStatus();
+        }
+
+        /* ===== BỔ SUNG 3: HỆ THỐNG 5 TẦNG KIẾN TẠO HÀNH TINH ===== */
+        let activeLayerId = 1;
+
+        const PLANET_LAYERS = [
+            {
+                id: 1,
+                name: "Lõi trong",
+                en: "Inner Core",
+                color: "#22d3ee",
+                caption: "Lõi trong: khối cầu Fe–Ni rắn do áp suất cực lớn (~330–360 GPa), nhiệt ~5,200 °C.",
+                tempSlider: { min: 100, max: 5000, step: 50, value: 1200 },
+                pressSlider: { min: 0.1, max: 50, step: 0.1, value: 1.5 },
+                requirements: [
+                    { kind: 'element', label: 'Nguyên tử Sắt (Fe)', note: '≈ 80%' },
+                    { kind: 'element', label: 'Nguyên tử Niken (Ni)', note: '≈ 15%' },
+                    { kind: 'group', label: 'Hợp chất Silicat nặng (FeSiO₃, MgSiO₃...)' }
+                ],
+                tasks: compoundTasks.slice()
+            },
+            {
+                id: 2,
+                name: "Lõi ngoài",
+                en: "Outer Core",
+                color: "#f59e0b",
+                caption: "Lõi ngoài: hợp kim Fe–Ni lỏng pha nguyên tố nhẹ (S, O, Si, C) — nguồn sinh từ trường.",
+                tempSlider: { min: 500, max: 6000, step: 50, value: 1500 },
+                pressSlider: { min: 0.1, max: 60, step: 0.1, value: 10 },
+                requirements: [
+                    { kind: 'element', label: 'Nguyên tử Sắt (Fe)', note: '≈ 85%' },
+                    { kind: 'element', label: 'Nguyên tử Niken (Ni)', note: '≈ 5%' },
+                    { kind: 'element', label: 'Nguyên tử Lưu huỳnh (S)', note: '≈ 2%' },
+                    { kind: 'crafted', formula: 'FeSiO₃', label: 'Sắt silicat FeSiO₃ (đã tổng hợp ở lõi trong)' },
+                    { kind: 'group', label: 'Hợp kim & hợp chất lõi ngoài (FeS, FeO, FeSi, Fe₃C, FeNi₃)' }
+                ],
+                tasks: [
+                    { id: 201, formula: "FeS", name: "Troilit (sunfua sắt)",
+                      requirements: { Fe: 1, S: 1 }, tempMin: 1200, tempMax: 1600, pressMin: 5.0, pressMax: 20.0 },
+                    { id: 202, formula: "FeO", name: "Wüstit (oxit sắt II)",
+                      requirements: { Fe: 1, O: 1 }, tempMin: 1300, tempMax: 1800, pressMin: 8.0, pressMax: 25.0 },
+                    { id: 203, formula: "FeSi", name: "Sắt silicide",
+                      requirements: { Fe: 1, Si: 1 }, tempMin: 1400, tempMax: 1900, pressMin: 15.0, pressMax: 35.0 },
+                    { id: 204, formula: "Fe₃C", name: "Cohenit (cacbua sắt)",
+                      requirements: { Fe: 3, C: 1 }, tempMin: 1200, tempMax: 1700, pressMin: 10.0, pressMax: 40.0 },
+                    { id: 205, formula: "FeNi₃", name: "Tetrataenit (hợp kim sắt–niken)",
+                      requirements: { Fe: 1, Ni: 3 }, tempMin: 1000, tempMax: 1500, pressMin: 5.0, pressMax: 25.0 }
+                ]
+            },
+            {
+                id: 3,
+                name: "Mantle dưới",
+                en: "Lower Mantle",
+                color: "#f97316",
+                caption: "Mantle dưới: bridgmanit (MgSiO₃) + ferropericlas, áp suất 24–135 GPa, chảy dẻo rất chậm.",
+                tempSlider: { min: 500, max: 4000, step: 50, value: 1600 },
+                pressSlider: { min: 0.1, max: 200, step: 0.1, value: 25 },
+                requirements: [
+                    { kind: 'element', label: 'Nguyên tử Oxi (O)', note: '≈ 44%' },
+                    { kind: 'element', label: 'Nguyên tử Magie (Mg)', note: '≈ 23%' },
+                    { kind: 'element', label: 'Nguyên tử Silic (Si)', note: '≈ 21%' },
+                    { kind: 'crafted', formula: 'MgSiO₃', label: 'Bridgmanit MgSiO₃ (đã tổng hợp ở lõi trong)' },
+                    { kind: 'crafted', formula: 'CaSiO₃', label: 'Davemaoit CaSiO₃ (đã tổng hợp ở lõi trong)' },
+                    { kind: 'group', label: 'Oxit & khoáng áp suất cao (MgO, SiO₂, Al₂O₃, (Mg,Fe)O, hậu-perovskit)' }
+                ],
+                tasks: [
+                    { id: 301, formula: "MgO", name: "Periclas (oxit magie)",
+                      requirements: { Mg: 1, O: 1 }, tempMin: 1500, tempMax: 2200, pressMin: 20.0, pressMax: 60.0 },
+                    { id: 302, formula: "SiO₂", name: "Stishovit (thạch anh áp suất cao)",
+                      requirements: { Si: 1, O: 2 }, tempMin: 1200, tempMax: 1800, pressMin: 9.0, pressMax: 50.0 },
+                    { id: 303, formula: "Al₂O₃", name: "Corundum (oxit nhôm)",
+                      requirements: { Al: 2, O: 3 }, tempMin: 1400, tempMax: 2000, pressMin: 10.0, pressMax: 50.0 },
+                    { id: 304, formula: "(Mg,Fe)O", name: "Ferropericlas",
+                      requirements: { "MgO": 1, "FeO": 1 }, tempMin: 1600, tempMax: 2300, pressMin: 25.0, pressMax: 80.0 },
+                    { id: 305, formula: "pv-MgSiO₃", name: "Hậu-perovskit (post-perovskite)",
+                      requirements: { "MgO": 1, "SiO₂": 1 }, tempMin: 2300, tempMax: 2700, pressMin: 120.0, pressMax: 160.0 }
+                ]
+            },
+            {
+                id: 4,
+                name: "Quyển mềm",
+                en: "Asthenosphere",
+                color: "#a855f7",
+                caption: "Quyển mềm: peridotit dẻo nhớt (olivin + pyroxen + garnet), có pha nóng chảy một phần và nước.",
+                tempSlider: { min: 100, max: 2500, step: 25, value: 1200 },
+                pressSlider: { min: 0.1, max: 20, step: 0.1, value: 2.0 },
+                requirements: [
+                    { kind: 'element', label: 'Nguyên tử Oxi (O)', note: '≈ 44%' },
+                    { kind: 'element', label: 'Nguyên tử Hidro (H)', note: 'pha nước' },
+                    { kind: 'crafted', formula: 'Mg₂SiO₄', label: 'Olivin forsterit Mg₂SiO₄ (đã tổng hợp)' },
+                    { kind: 'crafted', formula: 'Fe₂SiO₄', label: 'Olivin fayalit Fe₂SiO₄ (đã tổng hợp)' },
+                    { kind: 'group', label: 'Pyroxen – garnet & pha nóng chảy (diopsit, jadeit, pyrop, H₂O, enstatit)' }
+                ],
+                tasks: [
+                    { id: 401, formula: "CaMgSi₂O₆", name: "Diopsit (clinopyroxen)",
+                      requirements: { Ca: 1, Mg: 1, Si: 2, O: 6 }, tempMin: 1200, tempMax: 1500, pressMin: 1.0, pressMax: 3.0 },
+                    { id: 402, formula: "NaAlSi₂O₆", name: "Jadeit (pyroxen natri)",
+                      requirements: { Na: 1, Al: 1, Si: 2, O: 6 }, tempMin: 600, tempMax: 1000, pressMin: 1.5, pressMax: 3.0 },
+                    { id: 403, formula: "Mg₃Al₂Si₃O₁₂", name: "Pyrop (garnet magie)",
+                      requirements: { "MgO": 3, "Al₂O₃": 1, "SiO₂": 3 }, tempMin: 1000, tempMax: 1400, pressMin: 2.0, pressMax: 6.0 },
+                    { id: 404, formula: "H₂O", name: "Nước trong pha nóng chảy",
+                      requirements: { H: 2, O: 1 }, tempMin: 300, tempMax: 800, pressMin: 0.5, pressMax: 3.0 },
+                    { id: 405, formula: "Mg₂Si₂O₆", name: "Enstatit (orthopyroxen)",
+                      requirements: { "MgO": 2, "SiO₂": 2 }, tempMin: 900, tempMax: 1400, pressMin: 1.0, pressMax: 5.0 }
+                ]
+            },
+            {
+                id: 5,
+                name: "Thạch quyển",
+                en: "Lithosphere",
+                color: "#10b981",
+                caption: "Thạch quyển: vỏ rắn giàu fenspat – thạch anh, nhiệt độ thấp, áp suất < 1.5 GPa.",
+                tempSlider: { min: 50, max: 1600, step: 25, value: 600 },
+                pressSlider: { min: 0.1, max: 5, step: 0.1, value: 0.5 },
+                requirements: [
+                    { kind: 'element', label: 'Nguyên tử Kali (K) & Natri (Na)', note: 'fenspat kiềm' },
+                    { kind: 'element', label: 'Nguyên tử Canxi (Ca)', note: '≈ 4%' },
+                    { kind: 'crafted', formula: 'SiO₂', label: 'Thạch anh SiO₂ (đã tổng hợp ở mantle dưới)' },
+                    { kind: 'crafted', formula: 'Al₂O₃', label: 'Corundum Al₂O₃ (đã tổng hợp ở mantle dưới)' },
+                    { kind: 'group', label: 'Fenspat & khoáng vỏ (orthoclas, albit, anorthit, canxit, hematit)' }
+                ],
+                tasks: [
+                    { id: 501, formula: "KAlSi₃O₈", name: "Orthoclas (fenspat kali)",
+                      requirements: { K: 1, Al: 1, Si: 3, O: 8 }, tempMin: 700, tempMax: 1100, pressMin: 0.2, pressMax: 1.0 },
+                    { id: 502, formula: "NaAlSi₃O₈", name: "Albit (fenspat natri)",
+                      requirements: { Na: 1, Al: 1, Si: 3, O: 8 }, tempMin: 700, tempMax: 1100, pressMin: 0.3, pressMax: 1.2 },
+                    { id: 503, formula: "CaAl₂Si₂O₈", name: "Anorthit (fenspat canxi)",
+                      requirements: { Ca: 1, Al: 2, Si: 2, O: 8 }, tempMin: 1100, tempMax: 1500, pressMin: 0.5, pressMax: 1.5 },
+                    { id: 504, formula: "CaCO₃", name: "Canxit (đá vôi)",
+                      requirements: { Ca: 1, C: 1, O: 3 }, tempMin: 100, tempMax: 600, pressMin: 0.1, pressMax: 0.5 },
+                    { id: 505, formula: "Fe₂O₃", name: "Hematit (oxit sắt III)",
+                      requirements: { "FeO": 2, O: 1 }, tempMin: 500, tempMax: 900, pressMin: 0.1, pressMax: 1.0 }
+                ]
+            }
+        ];
+
+        function getLayerById(id) {
+            return PLANET_LAYERS.find(l => l.id === id);
+        }
+
+        function getActiveLayerName() {
+            const layer = getLayerById(activeLayerId);
+            return layer ? layer.name : '';
+        }
+
+        function isLayerComplete(layer) {
+            return layer.tasks.every(t => craftedFlags[t.id]);
+        }
+
+        function isLayerUnlocked(layer) {
+            if (layer.id === 1) return true;
+            const prev = getLayerById(layer.id - 1);
+            return prev ? isLayerComplete(prev) : false;
+        }
+
+        function isFormulaCrafted(formula) {
+            return craftedCompounds.some(c => c.formula === formula);
+        }
+
+        function applyLayerSliderRanges(layer) {
+            const tempSlider = document.getElementById('slider-compound-temp');
+            const pressSlider = document.getElementById('slider-compound-press');
+            const tempInput = document.getElementById('input-compound-temp');
+            const pressInput = document.getElementById('input-compound-press');
+            if (!tempSlider || !pressSlider) return;
+
+            tempSlider.min = layer.tempSlider.min;
+            tempSlider.max = layer.tempSlider.max;
+            tempSlider.step = layer.tempSlider.step;
+            pressSlider.min = layer.pressSlider.min;
+            pressSlider.max = layer.pressSlider.max;
+            pressSlider.step = layer.pressSlider.step;
+
+            if (tempInput) {
+                tempInput.min = layer.tempSlider.min;
+                tempInput.max = layer.tempSlider.max;
+                tempInput.step = layer.tempSlider.step;
+            }
+            if (pressInput) {
+                pressInput.min = layer.pressSlider.min;
+                pressInput.max = layer.pressSlider.max;
+                pressInput.step = layer.pressSlider.step;
+            }
+
+            setCompoundSliderValue('slider-compound-temp', layer.tempSlider.value);
+            setCompoundSliderValue('slider-compound-press', layer.pressSlider.value);
+        }
+
+        function renderCraftedSourceList() {
+            const wrap = document.getElementById('compound-crafted-source');
+            const list = document.getElementById('compound-crafted-source-list');
+            if (!wrap || !list) return;
+
+            if (craftedCompounds.length === 0) {
+                wrap.classList.add('hidden');
+                list.innerHTML = '';
+                return;
+            }
+
+            wrap.classList.remove('hidden');
+            list.innerHTML = '';
+
+            craftedCompounds.forEach(item => {
+                const chip = document.createElement('div');
+                chip.className = "crafted-source-chip text-[10px] font-bold text-emerald-200 bg-emerald-500/10 border border-emerald-500/35 rounded-lg px-2 py-1.5";
+                chip.draggable = true;
+                chip.innerText = `⬦ ${item.formula}`;
+                chip.title = `${item.name} — nhấn hoặc kéo để đưa vào vùng kiến tạo`;
+
+                const asElement = { symbol: item.formula, name: item.name };
+
+                chip.addEventListener('click', () => addCompoundToken(asElement));
+                chip.addEventListener('dragstart', (e) => {
+                    compoundDragElement = asElement;
+                    e.dataTransfer.effectAllowed = 'copy';
+                    e.dataTransfer.setData('text/plain', `ADD:${item.formula}`);
+                    chip.classList.add('opacity-50');
+                });
+                chip.addEventListener('dragend', () => {
+                    chip.classList.remove('opacity-50');
+                    compoundDragElement = null;
+                });
+
+                list.appendChild(chip);
+            });
+        }
+
+        function loadLayerTasks(layerId) {
+            const layer = getLayerById(layerId);
+            if (!layer) return;
+
+            activeLayerId = layerId;
+            compoundTasks.length = 0;
+            layer.tasks.forEach(t => compoundTasks.push(t));
+
+            const firstOpen = compoundTasks.findIndex(t => !craftedFlags[t.id]);
+            currentCompoundTaskIndex = firstOpen === -1 ? compoundTasks.length - 1 : firstOpen;
+
+            const badge = document.getElementById('compound-layer-badge');
+            if (badge) badge.innerText = `Tầng ${layer.id} — ${layer.name}`;
+
+            applyLayerSliderRanges(layer);
+            renderCraftedSourceList();
+            renderCompoundTasks();
+            renderCraftedInventory();
+            updateCompoundReactionStatus();
+        }
+
+        function openCompoundBuilderForLayer(layerId) {
+            loadLayerTasks(layerId);
+            document.getElementById('compound-builder-page').classList.remove('hidden');
+            setupCompoundDropZone();
+            clearCompoundTokens();
+            updateCompoundReactionStatus();
+        }
+
+        function renderLayerRequirements(layer) {
+            const list = document.getElementById('layer-requirement-list');
+            if (!list || !layer) return;
+
+            list.innerHTML = '';
+
+            layer.requirements.forEach(req => {
+                const row = document.createElement('div');
+                let done = false;
+                let clickable = false;
+                let rightText = '';
+
+                if (req.kind === 'element') {
+                    done = true;
+                    rightText = req.note || 'Nguyên tử đơn';
+                } else if (req.kind === 'crafted') {
+                    done = isFormulaCrafted(req.formula);
+                    rightText = done ? 'Đã tổng hợp ✓' : 'Cần tổng hợp trước';
+                } else {
+                    done = isLayerComplete(layer);
+                    clickable = !done;
+                    rightText = done ? 'Đã tích ✓' : 'Chưa tích 🔓';
+                }
+
+                row.className = `layer-req-row p-3 rounded-xl bg-slate-900/90 border flex items-center justify-between ${
+                    done ? 'border-emerald-500/45' : clickable ? 'req-open border-slate-800 cursor-pointer' : 'border-amber-500/30'
+                }`;
+
+                row.innerHTML = `
+                    <span class="${done ? 'text-emerald-200' : 'text-slate-300'} font-medium">
+                        ${done ? '✓ ' : ''}${req.label}${clickable ? ' ➔' : ''}
+                    </span>
+                    <span class="font-bold px-2.5 py-1 rounded text-[10px] border ${
+                        done ? 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
+                             : 'text-amber-400 bg-amber-500/20 border-amber-500/30'
+                    }">${rightText}</span>
+                `;
+
+                if (clickable) {
+                    row.addEventListener('click', () => openCompoundBuilderForLayer(layer.id));
+                }
+
+                list.appendChild(row);
+            });
+
+            const progress = document.getElementById('layer-modal-progress');
+            if (progress) {
+                const done = layer.tasks.filter(t => craftedFlags[t.id]).length;
+                progress.innerText = `${done}/${layer.tasks.length}`;
+            }
+        }
+
+        function paintLayerSphere(layer) {
+            document.querySelectorAll('#layer-sphere .layer-ring').forEach(ring => {
+                const ringId = parseInt(ring.dataset.ring);
+                const ringLayer = getLayerById(ringId);
+                ring.classList.toggle('ring-active', ringId === layer.id);
+                ring.classList.toggle('ring-done', !!ringLayer && isLayerComplete(ringLayer));
+            });
+        }
+
+        function openLayerModal(layerId) {
+            const layer = getLayerById(layerId);
+            if (!layer || !isLayerUnlocked(layer)) return;
+
+            activeLayerId = layerId;
+
+            document.getElementById('layer-modal-title').innerText = `Cấu Tạo ${layer.name} (${layer.en})`;
+            document.getElementById('layer-modal-dot').style.background = layer.color;
+            document.getElementById('layer-sphere-caption').innerText = layer.caption;
+
+            renderLayerElementsList(elementsData);
+            renderLayerRequirements(layer);
+            paintLayerSphere(layer);
+
+            document.getElementById('layer-build-modal').classList.remove('hidden');
+        }
+
+        function renderLayerElementsList(dataToRender) {
+            const container = document.getElementById('layer-elements-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (dataToRender.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-slate-500 py-8">Không tìm thấy!</div>`;
+                return;
+            }
+
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center text-[10px] border border-cyan-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                            <span class="text-[10px] text-slate-400 block">Khối lượng: ${el.mass}</span>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-cyan-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function updateLayerProgressPanel() {
+            PLANET_LAYERS.forEach(layer => {
+                const step = layer.id === 1
+                    ? document.getElementById('step-inner-core')
+                    : document.getElementById(`step-layer-${layer.id}`);
+                const badge = document.getElementById(`badge-layer-${layer.id}`);
+                if (!step || !badge) return;
+
+                const complete = isLayerComplete(layer);
+                const unlocked = isLayerUnlocked(layer);
+
+                step.classList.toggle('layer-step-done', complete);
+                step.classList.toggle('layer-step-unlocked', unlocked && !complete);
+
+                if (unlocked || complete) {
+                    step.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                if (complete) {
+                    badge.className = "text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40";
+                    badge.innerText = "Hoàn thành ✓";
+                } else if (unlocked) {
+                    badge.className = "text-cyan-400 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/30";
+                    badge.innerText = "Mở khóa 🔓";
+                } else {
+                    badge.className = "text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700";
+                    badge.innerText = "Khóa 🔒";
+                }
+            });
+        }
+
+        function onLayerProgressChanged() {
+            updateLayerProgressPanel();
+            renderCraftedSourceList();
+
+            const layer = getLayerById(activeLayerId);
+            if (layer && !document.getElementById('layer-build-modal').classList.contains('hidden')) {
+                renderLayerRequirements(layer);
+                paintLayerSphere(layer);
+            }
+
+            if (layer && isLayerComplete(layer)) {
+                const next = getLayerById(layer.id + 1);
+                if (next) showLayerUnlockToast(layer, next);
+                else showAllLayersDoneToast();
+            }
+        }
+
+        function showLayerUnlockToast(doneLayer, nextLayer) {
+            if (doneLayer.dataset_notified) return;
+            doneLayer.dataset_notified = true;
+
+            const host = document.getElementById('compound-builder-page').classList.contains('hidden')
+                ? document.getElementById('build-planet-page')
+                : document.getElementById('compound-builder-page');
+            if (!host) return;
+
+            const toast = document.createElement('div');
+            toast.className = "congrats-modal absolute left-1/2 top-10 -translate-x-1/2 z-[70] glass-panel px-6 py-3 rounded-2xl border border-amber-400/60 shadow-[0_0_35px_rgba(251,191,36,0.35)] text-center pointer-events-none";
+            toast.innerHTML = `
+                <div class="text-sm font-black text-amber-300">✅ Hoàn thành tầng ${doneLayer.id}: ${doneLayer.name}</div>
+                <div class="text-[10px] text-slate-300 mt-0.5">Đã mở khóa tầng ${nextLayer.id}: ${nextLayer.name} — hãy tiếp tục kiến tạo!</div>
+            `;
+            host.appendChild(toast);
+            setTimeout(() => toast.remove(), 2800);
+        }
+
+        function showAllLayersDoneToast() {
+            const host = document.getElementById('compound-builder-page').classList.contains('hidden')
+                ? document.getElementById('build-planet-page')
+                : document.getElementById('compound-builder-page');
+            if (!host || host.dataset.allDone === "1") return;
+            host.dataset.allDone = "1";
+
+            const toast = document.createElement('div');
+            toast.className = "congrats-modal absolute left-1/2 top-10 -translate-x-1/2 z-[70] glass-panel px-7 py-4 rounded-2xl border border-emerald-400/70 shadow-[0_0_45px_rgba(16,185,129,0.45)] text-center pointer-events-none";
+            toast.innerHTML = `
+                <div class="text-base font-black text-emerald-300">🌍 Hoàn tất cả 5 tầng hành tinh!</div>
+                <div class="text-[11px] text-slate-300 mt-1">Lõi trong → Lõi ngoài → Mantle dưới → Quyển mềm → Thạch quyển đã được kiến tạo đầy đủ.</div>
+            `;
+            host.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function setupPlanetLayerSystem() {
+            const modal = document.getElementById('layer-build-modal');
+            if (!modal || modal.dataset.ready === "1") return;
+            modal.dataset.ready = "1";
+
+            PLANET_LAYERS.filter(l => l.id > 1).forEach(layer => {
+                const step = document.getElementById(`step-layer-${layer.id}`);
+                if (!step) return;
+                step.addEventListener('click', () => {
+                    if (!isLayerUnlocked(layer)) return;
+                    openLayerModal(layer.id);
+                });
+            });
+
+            const innerStep = document.getElementById('step-inner-core');
+            if (innerStep) innerStep.addEventListener('click', () => { activeLayerId = 1; loadLayerTasks(1); });
+
+            document.getElementById('btn-close-layer-modal').addEventListener('click', () => {
+                modal.classList.add('hidden');
+                updateLayerProgressPanel();
+            });
+
+            const layerSearch = document.getElementById('layer-element-search');
+            if (layerSearch) {
+                layerSearch.addEventListener('input', (e) => {
+                    const keyword = e.target.value.toLowerCase().trim();
+                    renderLayerElementsList(elementsData.filter(el =>
+                        el.name.toLowerCase().includes(keyword) ||
+                        el.symbol.toLowerCase().includes(keyword) ||
+                        el.mass.toLowerCase().includes(keyword) ||
+                        el.no.toString() === keyword
+                    ));
+                });
+            }
+
+            const closeBuilder = document.getElementById('btn-close-compound-page');
+            if (closeBuilder) closeBuilder.addEventListener('click', () => onLayerProgressChanged());
+
+            updateLayerProgressPanel();
         }
 
         function init3D() {
@@ -2454,6 +3051,7 @@
         /* ===== BỔ SUNG 2: KÍCH HOẠT TINH CHỈNH ÁP SUẤT + NÚT CHẾ TẠO ===== */
         window.addEventListener('load', () => {
             setupCompoundFineTuneAndCraft();
+            setupPlanetLayerSystem();
         });
     </script>
 </body>
