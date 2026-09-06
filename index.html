@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -191,11 +191,11 @@
             </div>
 
             <div id="build-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                <!-- Danh sách nguyên tố cho trang gây dựng (chia 5 tầng ô dài) -->
+                <!-- Danh sách nguyên tố cho trang gây dựng -->
             </div>
 
             <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-400 italic text-center">
-                Chọn nguyên tố để cấu thành lớp vỏ và khí quyển hành tinh trong suốt bên cạnh!
+                Chọn nguyên tố để cấu thành hành tinh trong suốt bên cạnh!
             </div>
         </div>
 
@@ -203,7 +203,7 @@
         <div class="flex-1 relative flex items-center justify-center">
             <div id="transparent-planet-container" class="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
             
-            <!-- KHU VỰC KHOANG BÚT XANH BÊN PHẢI -->
+            <!-- KHU VỰC TIẾN TRÌNH KIẾN TẠO BÊN PHẢI (ĐÃ BỎ THÀNH PHẦN HÓA HỌC) -->
             <div class="absolute right-12 top-1/2 -translate-y-1/2 z-20 w-80 glass-panel p-6 rounded-3xl border border-cyan-500/30 shadow-2xl pointer-events-auto space-y-4">
                 <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
                     <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
@@ -212,19 +212,19 @@
                 <div class="space-y-3 text-xs text-slate-300">
                     <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span>1. Lõi Hành Tinh:</span>
-                        <span class="text-cyan-400 font-bold">Sắt / Niken</span>
+                        <span class="text-cyan-400 font-bold">Hoàn tất</span>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span>2. Lớp Vỏ Đá:</span>
-                        <span class="text-emerald-400 font-bold">Silic / Oxi</span>
+                        <span class="text-emerald-400 font-bold">Hoàn tất</span>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span>3. Đại Dương Nước:</span>
-                        <span class="text-blue-400 font-bold">Hidro / Oxi</span>
+                        <span class="text-blue-400 font-bold">Hoàn tất</span>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span>4. Bầu Khí Quyển:</span>
-                        <span class="text-amber-400 font-bold">Nitơ / Cacbon</span>
+                        <span class="text-amber-400 font-bold">Hoàn tất</span>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span>5. Từ Trường Bảo Vệ:</span>
@@ -235,11 +235,7 @@
                     Cấu trúc 5 tầng thiết lập hoàn tất cho sự sống.
                 </div>
             </div>
-
-            <div class="absolute bottom-8 left-8 glass-panel px-6 py-4 rounded-2xl border border-emerald-500/30 shadow-2xl max-w-md pointer-events-none">
-                <h2 class="text-base font-bold text-emerald-400 mb-1">Mô Phỏng Hành Tinh Trong Suốt</h2>
-                <p class="text-xs text-slate-300">Quan sát cấu trúc lớp vỏ, lõi và bầu khí quyển hòa quyện cùng các nguyên tố tuần hoàn[cite: 10].</p>
-            </div>
+            <!-- Đã bỏ ô nhỏ ghi mô phỏng ở góc dưới bên trái theo yêu cầu -->
         </div>
     </div>
 
@@ -447,7 +443,6 @@
             { id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", desc: "Sao lùn cam hoạt động từ tính.", lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp.", pros: "Rất bền bỉ, tuổi thọ cao.", cons: "Dễ đóng băng bề mặt." }
         ];
 
-        // Danh sách mẫu 94 nguyên tố hóa học cơ bản
         const elementsData = [
             {no: 1, symbol: "H", name: "Hidro", mass: "1.008"},
             {no: 2, symbol: "He", name: "Heli", mass: "4.003"},
@@ -560,7 +555,6 @@
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        // Biến cho trang Gây Dựng Hành Tinh 3D riêng biệt
         let buildScene, buildCamera, buildRenderer, transparentPlanetMesh;
 
         function initApp() {
@@ -636,31 +630,30 @@
             const container = document.getElementById('build-elements-list');
             container.innerHTML = '';
 
-            // 5 tầng ô dài theo yêu cầu
-            const floorNames = [
-                "Tầng 1: Lõi Kim Loại Nặng (Sắt / Niken)",
-                "Tầng 2: Lớp Vỏ Khoáng Vật Đá (Silic / Oxi)",
-                "Tầng 3: Tầng Đại Dương Lỏng (Hidro / Oxi)",
-                "Tầng 4: Tầng Khí Quyển Sâu (Nitơ / Cacbon)",
-                "Tầng 5: Tầng Từ Trường & Sinh Khí (Bảo Vệ)"
-            ];
+            if (dataToRender.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-slate-500 py-8">Không tìm thấy nguyên tố!</div>`;
+                return;
+            }
 
-            floorNames.forEach((title, index) => {
-                const floorBox = document.createElement('div');
-                floorBox.className = "p-4 rounded-2xl bg-slate-900/95 border border-emerald-500/30 shadow-lg space-y-2 cursor-pointer hover:border-emerald-400/80 transition-all";
-                floorBox.innerHTML = `
-                    <div class="flex items-center justify-between text-xs font-bold text-emerald-300">
-                        <span>${title}</span>
-                        <span class="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">Ô dài #${index + 1}</span>
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-emerald-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center text-[10px] border border-emerald-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                            <span class="text-[10px] text-slate-400 block">Khối lượng: ${el.mass}</span>
+                        </div>
                     </div>
-                    <div class="text-[11px] text-slate-400 italic">Nhấn để cấu thành lớp sinh thái thứ ${index + 1} cho hành tinh trong suốt.</div>
+                    <span class="font-mono font-bold text-emerald-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
                 `;
-                floorBox.addEventListener('click', () => {
+                row.addEventListener('click', () => {
                     if (transparentPlanetMesh) {
-                        transparentPlanetMesh.material.color.setHSL(Math.random(), 0.8, 0.5);
+                        transparentPlanetMesh.material.color.setHSL(Math.random(), 0.8, 0.6);
                     }
                 });
-                container.appendChild(floorBox);
+                container.appendChild(row);
             });
         }
 
@@ -713,7 +706,6 @@
             pointLight.position.set(5, 5, 5);
             buildScene.add(pointLight);
 
-            // Tạo hành tinh trong suốt
             const sphereGeo = new THREE.SphereGeometry(2, 64, 64);
             const material = new THREE.MeshPhysicalMaterial({
                 color: 0x10b981,
@@ -1222,7 +1214,13 @@
             const buildSearchInput = document.getElementById('build-element-search');
             buildSearchInput.addEventListener('input', (e) => {
                 const keyword = e.target.value.toLowerCase().trim();
-                // giữ nguyên logic lọc
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword) || 
+                    el.mass.toLowerCase().includes(keyword) ||
+                    el.no.toString() === keyword
+                );
+                renderBuildElementsList(filtered);
             });
 
             const sliderRx = document.getElementById('slider-rx');
