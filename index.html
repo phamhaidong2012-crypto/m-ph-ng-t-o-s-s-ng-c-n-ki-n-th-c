@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -44,7 +44,7 @@
             <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
             <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã thiết lập quỹ đạo và vùng sự sống thành công!</p>
             <div class="px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 inline-block animate-pulse">
-                Đang quay trở lại tổng quan hệ sao...
+                Đang chuyển đến không gian chi tiết hành tinh...
             </div>
         </div>
     </div>
@@ -205,6 +205,45 @@
             </div>
         </div>
 
+        <!-- NEW: Phase 3 Panel (Detailed Planet View) -->
+        <div id="planet-detail-panel" class="absolute top-6 left-6 z-20 pointer-events-none hidden space-y-3 w-88 max-h-[calc(100vh-48px)] overflow-y-auto pr-1">
+            <div class="glass-panel px-5 py-4 rounded-2xl border border-slate-800 shadow-xl space-y-2 pointer-events-auto">
+                <div class="text-xs font-bold text-cyan-300 flex items-center space-x-2">
+                    <span class="uppercase tracking-wider">Khám Phá Chi Tiết Hành Tinh</span>
+                </div>
+                <div class="text-[11px] text-slate-300">
+                    Hành tinh trắng trong suốt đang quay quanh ngôi sao bạn đã chọn. Bạn có thể tương tác trực tiếp với bề mặt và quan sát khí quyển độc đáo.
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 pointer-events-auto">
+                <div class="text-xs font-bold text-cyan-400 flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span>🪐 THÔNG SỐ HÀNH TINH TRẮNG</span>
+                    <span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full border border-white/30">Transparent</span>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">✨ Loại Khí Quýên:</span>
+                        <span class="font-bold text-slate-100">Băng sương / Sương mù</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">🛡️ Độ Phản Xạ (Albedo):</span>
+                        <span class="font-bold text-cyan-300">0.85 (Cao)</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">💎 Cấu Trúc:</span>
+                        <span class="font-bold text-emerald-300">Silicat pha lê trong suốt</span>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button id="btn-back-to-system" class="w-full font-bold text-xs py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border border-slate-600">
+                        <span>⬅️ Quay Lại Hệ Sao Vừa Chọn</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing pointer-events-auto"></div>
 
         <div class="absolute bottom-6 right-8 z-20 pointer-events-none">
@@ -231,11 +270,16 @@
         ];
 
         let currentSelectedIndex = 0;
-        let isPageTwo = false;
+        let appState = 'SELECT_STAR'; // 'SELECT_STAR' | 'HABITABLE_ZONE' | 'PLANET_DETAIL'
         let scene, camera, renderer, sunSphere, orbitRing1, starField, starGroup;
         let habZoneMesh = null;
         let interactiveOrbitGroup = null;
         let planetMesh = null;
+        
+        // Phase 3 objects
+        let detailStarMesh = null;
+        let detailPlanetGroup = null;
+        let detailTransparentPlanet = null;
         
         let orbitRadiusX = 7.5; 
         let orbitRadiusY = 5.0; 
@@ -311,6 +355,7 @@
             const s = starsData[idx];
             document.getElementById('star-title').innerText = `${s.name} (${s.rank} Star)`;
             document.getElementById('star-subtitle').innerText = s.desc;
+            document.getElementById('zone-system-name').innerText = `Hệ Sao: ${s.name}`;
 
             document.getElementById('metric-temp').innerText = s.temp;
             document.getElementById('metric-mass').innerText = s.mass;
@@ -324,6 +369,12 @@
             document.getElementById('metric-pros').innerText = s.pros;
             document.getElementById('metric-cons').innerText = s.cons;
 
+            if (appState === 'SELECT_STAR') {
+                rebuildSystemSun(s);
+            }
+        }
+
+        function rebuildSystemSun(s) {
             while(starGroup.children.length > 0){ 
                 starGroup.remove(starGroup.children[0]); 
             }
@@ -350,19 +401,40 @@
                 scene.remove(interactiveOrbitGroup);
                 interactiveOrbitGroup = null;
             }
+            clearDetailScene();
 
-            if (!isPageTwo) {
-                orbitRing1 = new THREE.Line(
-                    new THREE.BufferGeometry().setFromPoints(new THREE.EllipseCurve(0, 0, 6.6, 6.6, 0, 2*Math.PI).getPoints(60).map(p => new THREE.Vector3(p.x, p.y, 0))),
-                    new THREE.LineBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.35})
-                );
-                starGroup.add(orbitRing1);
-            } else {
-                createHabitableZoneSystem();
+            orbitRing1 = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints(new THREE.EllipseCurve(0, 0, 6.6, 6.6, 0, 2*Math.PI).getPoints(60).map(p => new THREE.Vector3(p.x, p.y, 0))),
+                new THREE.LineBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.35})
+            );
+            starGroup.add(orbitRing1);
+        }
+
+        function clearDetailScene() {
+            if (detailStarMesh) {
+                scene.remove(detailStarMesh);
+                detailStarMesh = null;
+            }
+            if (detailPlanetGroup) {
+                scene.remove(detailPlanetGroup);
+                detailPlanetGroup = null;
+                detailTransparentPlanet = null;
             }
         }
 
         function createHabitableZoneSystem() {
+            while(starGroup.children.length > 0){ 
+                starGroup.remove(starGroup.children[0]); 
+            }
+            const s = starsData[currentSelectedIndex];
+            const canvasSun = document.createElement('canvas');
+            canvasSun.width = 512; canvasSun.height = 256;
+            const ctxSun = canvasSun.getContext('2d');
+            ctxSun.fillStyle = s.color;
+            ctxSun.fillRect(0,0,512,256);
+            sunSphere = new THREE.Mesh(new THREE.SphereGeometry(2.5, 32, 32), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvasSun) }));
+            starGroup.add(sunSphere);
+
             const geometry = new THREE.RingGeometry(3.5, 13.0, 128);
             const canvas = document.createElement('canvas');
             canvas.width = 1024; canvas.height = 1024;
@@ -386,6 +458,9 @@
         }
 
         function createInteractiveEllipseOrbit() {
+            if (interactiveOrbitGroup) {
+                scene.remove(interactiveOrbitGroup);
+            }
             interactiveOrbitGroup = new THREE.Group();
             const curve = new THREE.EllipseCurve(0, 0, orbitRadiusX, orbitRadiusY, 0, 2 * Math.PI, false, 0);
             const points = curve.getPoints(120);
@@ -404,37 +479,100 @@
             scene.add(interactiveOrbitGroup);
         }
 
+        // Setup Phase 3: Detailed view of the selected star & chosen transparent white planet
+        function setupPlanetDetailScene() {
+            // Clear previous elements
+            while(starGroup.children.length > 0){ 
+                starGroup.remove(starGroup.children[0]); 
+            }
+            if (habZoneMesh) {
+                scene.remove(habZoneMesh);
+                habZoneMesh = null;
+            }
+            if (interactiveOrbitGroup) {
+                scene.remove(interactiveOrbitGroup);
+                interactiveOrbitGroup = null;
+            }
+
+            const s = starsData[currentSelectedIndex];
+
+            // 1. Create a prominent Star at center
+            const canvasSun = document.createElement('canvas');
+            canvasSun.width = 512; canvasSun.height = 256;
+            const ctxSun = canvasSun.getContext('2d');
+            ctxSun.fillStyle = s.color;
+            ctxSun.fillRect(0,0,512,256);
+            detailStarMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(3.2, 32, 32), 
+                new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvasSun) })
+            );
+            starGroup.add(detailStarMesh);
+
+            // 2. Create the chosen planet with white semi-transparent material close by
+            detailPlanetGroup = new THREE.Group();
+            
+            // Inner core for depth
+            const coreMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(1.2, 32, 32),
+                new THREE.MeshStandardMaterial({ color: 0xddeeff, roughness: 0.3 })
+            );
+            detailPlanetGroup.add(coreMesh);
+
+            // Outer transparent white shell layer (Hành tinh màu trắng hơi trong suốt)
+            detailTransparentPlanet = new THREE.Mesh(
+                new THREE.SphereGeometry(1.4, 32, 32),
+                new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.45,
+                    roughness: 0.1,
+                    metalness: 0.1,
+                    side: THREE.DoubleSide,
+                    blending: THREE.NormalBlending
+                })
+            );
+            detailPlanetGroup.add(detailTransparentPlanet);
+
+            // Position the planet in a nice close orbit
+            detailPlanetGroup.position.set(7.0, 0, 0);
+            scene.add(detailPlanetGroup);
+        }
+
         function setupEventListeners() {
+            // Nút "Chọn Ngôi Sao Này" từ trang danh sách sao sang giao diện Vùng Sự Sống
             document.getElementById('btn-select').addEventListener('click', () => {
-                isPageTwo = true;
+                appState = 'HABITABLE_ZONE';
                 document.getElementById('sidebar').style.transform = 'translateX(-120%)';
+                document.getElementById('main-header').style.opacity = '0';
+                document.getElementById('metrics-panel').style.opacity = '0';
                 document.getElementById('zone-legend').classList.remove('hidden');
-                updateStarContent(currentSelectedIndex);
+                createHabitableZoneSystem();
             });
 
-            // Xử lý sự kiện khi nhấn xác nhận vùng sự sống
+            // Nút "Xác Nhận Vùng Sự Sống" -> Hiển thị pháo hoa & chuyển sang không gian hành tinh trắng trong suốt đã chọn
             document.getElementById('btn-confirm-zone').addEventListener('click', () => {
-                // 1. Xóa bảng điều chỉnh & vùng xanh (ẩn giao diện panel & remove mesh vùng xanh)
+                // 1. Ẩn panel điều chỉnh vùng sự sống
                 document.getElementById('zone-legend').classList.add('hidden');
-                if (habZoneMesh) {
-                    scene.remove(habZoneMesh);
-                    habZoneMesh = null;
-                }
-                if (interactiveOrbitGroup) {
-                    scene.remove(interactiveOrbitGroup);
-                    interactiveOrbitGroup = null;
-                }
-
+                
                 // 2. Hiển thị thông báo chúc mừng & pháo hoa
                 document.getElementById('congrats-overlay').classList.remove('hidden');
                 
-                // 3. Sau 2.5 giây, quay lại hệ ban đầu
+                // 3. Sau 2.5 giây, chuyển thẳng sang chi tiết hệ sao & hành tinh trắng trong suốt vừa chọn
                 setTimeout(() => {
                     document.getElementById('congrats-overlay').classList.add('hidden');
-                    document.getElementById('sidebar').style.transform = 'translateX(0)';
-                    isPageTwo = false;
-                    updateStarContent(currentSelectedIndex);
+                    appState = 'PLANET_DETAIL';
+                    document.getElementById('planet-detail-panel').classList.remove('hidden');
+                    setupPlanetDetailScene();
                 }, 2500);
+            });
+
+            // Nút "Quay Lại Hệ Sao Vừa Chọn" (Quay lại màn hình chỉnh quỹ đạo/vùng sự sống của ngôi sao hiện tại, KHÔNG phải quay lại ban đầu)
+            document.getElementById('btn-back-to-system').addEventListener('click', () => {
+                document.getElementById('planet-detail-panel').classList.add('hidden');
+                appState = 'HABITABLE_ZONE';
+                document.getElementById('zone-legend').classList.remove('hidden');
+                clearDetailScene();
+                createHabitableZoneSystem();
             });
 
             // Sliders thay đổi quỹ đạo
@@ -446,8 +584,7 @@
                     if (id === 'ry') orbitRadiusY = val;
                     if (id === 'tilt') planetTilt = val;
 
-                    if (interactiveOrbitGroup) {
-                        scene.remove(interactiveOrbitGroup);
+                    if (interactiveOrbitGroup && appState === 'HABITABLE_ZONE') {
                         createInteractiveEllipseOrbit();
                     }
                 });
@@ -484,6 +621,9 @@
                 starGroup.rotation.y += (targetRot.x - starGroup.rotation.y) * 0.05;
             }
             if (habZoneMesh) habZoneMesh.rotation.z += 0.001;
+            if (detailPlanetGroup) {
+                detailPlanetGroup.rotation.y += 0.01;
+            }
             renderer.render(scene, camera);
         }
 
