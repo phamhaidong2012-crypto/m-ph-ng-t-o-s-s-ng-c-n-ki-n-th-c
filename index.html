@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -38,135 +38,36 @@
 
     <canvas id="fireworks-canvas"></canvas>
 
-    <!-- Modal Phóng To Chi Tiết Ngôi Sao (Trái: Thông tin, Phải: Giao diện ngôi sao + Nút X) -->
-    <div id="star-detail-modal" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
-        <div class="congrats-modal glass-panel w-[90vw] max-w-5xl h-[80vh] rounded-3xl border border-cyan-500/50 shadow-[0_0_60px_rgba(34,211,238,0.25)] flex overflow-hidden relative">
-            <!-- Nút X thoát -->
-            <button id="btn-close-star-modal" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-sm transition-all cursor-pointer z-20">
-                ✕
-            </button>
-
-            <!-- Cột bên trái: Thông tin và thông số ngôi sao -->
-            <div class="w-1/2 p-8 overflow-y-auto border-r border-slate-800/80 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center space-x-2.5 mb-2">
-                        <span id="modal-star-dot" class="w-4 h-4 rounded-full shadow-[0_0_12px_#22d3ee]"></span>
-                        <span id="modal-star-rank" class="text-xs font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">G2V Star</span>
-                    </div>
-                    <h2 id="modal-star-name" class="text-2xl font-black text-white mb-3">Mặt Trời</h2>
-                    <p id="modal-star-desc" class="text-xs text-slate-300 mb-6 leading-relaxed">Ngôi sao trung tâm hệ mặt trời của chúng ta.</p>
-
-                    <div class="grid grid-cols-2 gap-3 mb-6">
-                        <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
-                            <div class="text-[11px] text-orange-400 font-semibold mb-1">🌡️ Nhiệt Độ</div>
-                            <div id="modal-star-temp" class="text-sm font-bold text-white">~5,500 °C</div>
-                        </div>
-                        <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
-                            <div class="text-[11px] text-blue-400 font-semibold mb-1">⚖️ Khối Lượng</div>
-                            <div id="modal-star-mass" class="text-sm font-bold text-white">~1.989 × 10³⁰ kg</div>
-                        </div>
-                        <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
-                            <div class="text-[11px] text-emerald-400 font-semibold mb-1">⚪ Bán Kính</div>
-                            <div id="modal-star-radius" class="text-sm font-bold text-white">696,340 km</div>
-                        </div>
-                        <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
-                            <div class="text-[11px] text-purple-400 font-semibold mb-1">🌌 Khoảng Cách</div>
-                            <div id="modal-star-dist" class="text-sm font-bold text-white">149.6 triệu km</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-cyan-500/30 space-y-2">
-                        <div class="flex justify-between items-center text-xs font-bold text-cyan-300">
-                            <span>🧬 Xác Suất Sự Sống Hệ Thống</span>
-                            <span id="modal-star-life" class="text-cyan-400 text-sm">88.5%</span>
-                        </div>
-                        <p id="modal-star-lifedesc" class="text-[11px] text-slate-400">Đặc tính quang phổ chuẩn mực, duy trì quỹ đạo ổn định lâu dài.</p>
-                    </div>
-                </div>
-                <div class="text-[11px] text-slate-500 italic mt-4">
-                    💡 Gợi ý: Nhấn vào ngôi sao trong không gian 3D bất cứ lúc nào để mở bảng thông tin này.
-                </div>
-            </div>
-
-            <!-- Cột bên phải: Hiển thị trực quan ngôi sao (Mô phỏng 3D thu nhỏ / Canvas hoặc hiệu ứng sáng rực) -->
-            <div class="w-1/2 bg-slate-950 flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-radial from-cyan-500/10 via-transparent to-transparent pointer-events-none"></div>
-                <div id="modal-star-visual" class="w-48 h-48 rounded-full shadow-[0_0_80px_rgba(239,68,68,0.5)] flex items-center justify-center relative animate-pulse" style="background: radial-gradient(circle, #f97316 0%, #ef4444 60%, #7f1d1d 100%);">
-                    <div class="absolute inset-0 rounded-full border border-white/20 animate-ping opacity-30"></div>
-                </div>
-                <div class="mt-6 text-center">
-                    <span class="text-xs text-cyan-400 font-bold uppercase tracking-widest bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/30">
-                        Phát Xếp Quang Phổ Hoạt Động
-                    </span>
-                </div>
+    <div id="congrats-overlay" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🎉⭐✨</div>
+            <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
+            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã chọn ngôi sao này thành công.</p>
+            <div class="px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 inline-block animate-pulse">
+                Đang chuyển sang không gian 3D vùng sinh thái...
             </div>
         </div>
     </div>
 
-    <!-- Modal Phóng To Chi Tiết Hành Tinh (Nghiên trục, Ngày, Nhiệt độ + Nút X) -->
-    <div id="planet-detail-modal" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
-        <div class="congrats-modal glass-panel w-[90vw] max-w-xl rounded-3xl border border-emerald-500/50 shadow-[0_0_50px_rgba(16,185,129,0.3)] p-6 relative">
-            <button id="btn-close-planet-modal" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
-                ✕
-            </button>
-            <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-800">
-                <span class="text-3xl">🌍</span>
-                <div>
-                    <h3 class="text-lg font-bold text-emerald-300">Thông Số Chi Tiết Hành Tinh</h3>
-                    <p class="text-xs text-slate-400">Dữ liệu phân tích vùng sinh thái & quỹ đạo thời gian thực</p>
-                </div>
-            </div>
-
-            <div class="space-y-3.5">
-                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                    <div class="flex items-center space-x-2.5">
-                        <span class="text-amber-400 text-lg">📐</span>
-                        <div>
-                            <span class="text-xs font-semibold text-slate-300 block">Độ Nghiêng Trục (Tilt)</span>
-                            <span class="text-[10px] text-slate-500">Góc nghiêng tạo hệ thống mùa trên hành tinh</span>
-                        </div>
-                    </div>
-                    <span id="planet-modal-tilt" class="text-base font-black text-amber-400">23.5°</span>
-                </div>
-
-                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                    <div class="flex items-center space-x-2.5">
-                        <span class="text-cyan-400 text-lg">📅</span>
-                        <div>
-                            <span class="text-xs font-semibold text-slate-300 block">Chu Kỳ Năm (Số Ngày)</span>
-                            <span class="text-[10px] text-slate-500">Thời gian hoàn thành một vòng quay quanh ngôi sao</span>
-                        </div>
-                    </div>
-                    <span id="planet-modal-days" class="text-base font-black text-cyan-400">365 Ngày</span>
-                </div>
-
-                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                    <div class="flex items-center space-x-2.5">
-                        <span class="text-rose-400 text-lg">🌡️</span>
-                        <div>
-                            <span class="text-xs font-semibold text-slate-300 block">Nhiệt Độ Bề Mặt Trung Bình</span>
-                            <span class="text-[10px] text-slate-500">Đo lường theo khoảng cách và bức xạ quang phổ</span>
-                        </div>
-                    </div>
-                    <span id="planet-modal-temp" class="text-base font-black text-rose-400">15.0 °C</span>
-                </div>
-            </div>
-
-            <div class="mt-6 pt-3 border-t border-slate-800 text-center">
-                <button id="btn-planet-modal-ok" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl shadow-lg transition-all cursor-pointer">
-                    Đã Hiểu & Đóng
-                </button>
+    <!-- Modal thông báo khi xác nhận thành công -->
+    <div id="success-overlay" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-emerald-500/50 shadow-[0_0_50px_rgba(16,185,129,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🌍🌿✨</div>
+            <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">Thiết Lập Sự Sống Thành Công!</h2>
+            <p class="text-sm text-slate-300 mb-4">Quỹ đạo và nhiệt độ đã đạt chuẩn tối ưu cho sự sống phát triển.</p>
+            <div class="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 inline-block">
+                Đã lưu cấu hình hành tinh!
             </div>
         </div>
     </div>
 
     <!-- Ô vuông nhỏ để mở lại bảng tuần hoàn khi bị ẩn -->
-    <div id="periodic-toggle-btn" class="absolute top-6 left-6 z-40 hidden w-12 h-12 glass-panel rounded-2xl flex items-center justify-center border border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)] cursor-pointer hover:bg-cyan-500/20 transition-all pointer-events-auto group" title="Mở Bảng Tuần Hoản">
+    <div id="periodic-toggle-btn" class="absolute top-6 left-6 z-50 hidden w-12 h-12 glass-panel rounded-2xl flex items-center justify-center border border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)] cursor-pointer hover:bg-cyan-500/20 transition-all pointer-events-auto group" title="Mở Bảng Tuần Hoản">
         <span class="text-cyan-400 text-lg font-black group-hover:scale-110 transition-transform">🧪</span>
     </div>
 
     <!-- Ô Bảng Tuần Hoản (Góc trên bên trái, ẩn mặc định, hiện khi xác nhận) -->
-    <div id="periodic-table-panel" class="absolute top-6 left-6 z-40 hidden w-[450px] glass-panel rounded-3xl p-5 shadow-2xl border border-slate-800 pointer-events-auto">
+    <div id="periodic-table-panel" class="absolute top-6 left-6 z-50 hidden w-[450px] glass-panel rounded-3xl p-5 shadow-2xl border border-slate-800 pointer-events-auto">
         <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
             <div class="flex items-center space-x-2">
                 <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
@@ -177,12 +78,17 @@
             </button>
         </div>
 
+        <!-- Thanh tìm kiếm nguyên tố (tên tiếng Việt, kí hiệu, khối lượng) -->
         <div class="mb-3">
             <input id="element-search-input" type="text" placeholder="🔍 Tìm kiếm theo tên, kí hiệu hoặc khối lượng..." class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all">
         </div>
 
         <div class="flex gap-3 h-[370px]">
-            <div id="elements-list-container" class="w-1/2 overflow-y-auto space-y-1.5 pr-1"></div>
+            <!-- Cột bên trái: Danh sách nguyên tố 1-94, cuộn chuột -->
+            <div id="elements-list-container" class="w-1/2 overflow-y-auto space-y-1.5 pr-1">
+                <!-- Nội dung được sinh động bằng JS -->
+            </div>
+            <!-- Phần còn lại: Màu đen kịt hiển thị chi tiết nguyên tố -->
             <div class="w-1/2 bg-black rounded-2xl p-4 border border-slate-900 flex flex-col justify-center items-center text-center">
                 <div id="element-detail-display" class="space-y-2">
                     <span class="text-xs text-slate-500">Chọn một nguyên tố bên trái để xem</span>
@@ -191,7 +97,77 @@
         </div>
     </div>
 
-    <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-40 pointer-events-auto glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800">
+    <!-- BẢNG THÔNG TIN CHI TIẾT SAO (HIỂN THỊ KHI CLICK VÀO SAO) -->
+    <div id="star-detail-modal" class="absolute top-6 left-6 z-50 hidden w-80 glass-panel rounded-3xl p-5 shadow-2xl border border-cyan-500/40 pointer-events-auto transition-all">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+                <span id="modal-star-dot" class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                <h3 id="modal-star-name" class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Tên Ngôi Sao</h3>
+            </div>
+            <button id="btn-close-star-modal" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="space-y-2.5 text-xs">
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Hạng quang phổ:</span>
+                <span id="modal-star-rank" class="font-bold text-cyan-400">G2V</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Nhiệt độ:</span>
+                <span id="modal-star-temp" class="font-bold text-orange-400">~5,500 °C</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Khối lượng:</span>
+                <span id="modal-star-mass" class="font-bold text-blue-400">~1.989 kg</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Bán kính:</span>
+                <span id="modal-star-radius" class="font-bold text-emerald-400">696,340 km</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Khoảng cách:</span>
+                <span id="modal-star-dist" class="font-bold text-purple-400">149.6 triệu km</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-slate-400 block mb-1">Mô tả chi tiết:</span>
+                <span id="modal-star-desc" class="text-slate-200 italic text-[11px]">Đang cập nhật...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BẢNG THÔNG TIN CHI TIẾT HÀNH TINH (HIỂN THỊ KHI CLICK VÀO HÀNH TINH) -->
+    <div id="planet-detail-modal" class="absolute top-6 left-6 z-50 hidden w-80 glass-panel rounded-3xl p-5 shadow-2xl border border-emerald-500/40 pointer-events-auto transition-all">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block shadow-[0_0_8px_#10b981]"></span>
+                <h3 class="text-sm font-bold tracking-wider text-emerald-300 uppercase">Thông Tin Hành Tinh Sự Sống</h3>
+            </div>
+            <button id="btn-close-planet-modal" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="space-y-2.5 text-xs">
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Độ nghiêng trục (Nghiêng):</span>
+                <span id="modal-planet-tilt" class="font-bold text-amber-400">23.5°</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Chu kỳ năm (Ngày):</span>
+                <span id="modal-planet-days" class="font-bold text-cyan-400">365 Ngày</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Nhiệt độ bề mặt:</span>
+                <span id="modal-planet-temp" class="font-bold text-rose-400">15.0 °C</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-slate-400 block mb-1">Trạng thái sinh thái:</span>
+                <span id="modal-planet-status" class="text-emerald-300 font-semibold text-[11px]">Đang phát triển ổn định, nước lỏng dồi dào.</span>
+            </div>
+        </div>
+    </div>
+
+    <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-50 pointer-events-auto glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800">
         <div>
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
                 <div class="flex items-center space-x-2.5">
@@ -285,7 +261,7 @@
                 </div>
                 <div class="text-[11px] text-slate-300 flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-cyan-500 inline-block shadow-[0_0_8px_#06b6d4]"></span>
-                    <span>Vùng Xanh: Đứng yên • Xoay chuột phóng to • Kéo chuột đổi quỹ đạo (Giữ <strong>Shift</strong> để đổi tròn & phóng to đều)</span>
+                    <span>Vùng Xanh: Đứng yên • Xoay chuột phóng to • Click vào Sao hoặc Hành tinh để xem thông số!</span>
                 </div>
             </div>
 
@@ -375,7 +351,7 @@
         <div class="absolute bottom-6 right-8 z-20 pointer-events-none">
             <div class="flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-full text-slate-300 shadow-lg backdrop-blur-md pointer-events-auto">
                 <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span id="instruction-text">Kéo chuột để xoay • Cuộn để phóng to • Click vào Sao hoặc Hành tinh để xem chi tiết</span>
+                <span id="instruction-text">Kéo chuột để xoay • Cuộn để phóng to • Click vào Sao/Hành tinh xem thông tin</span>
             </div>
         </div>
     </main>
@@ -395,6 +371,7 @@
             { id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", desc: "Sao lùn cam hoạt động từ tính.", lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp.", pros: "Rất bền bỉ, tuổi thọ cao.", cons: "Dễ đóng băng bề mặt." }
         ];
 
+        // Danh sách mẫu 94 nguyên tố hóa học cơ bản
         const elementsData = [
             {no: 1, symbol: "H", name: "Hidro", mass: "1.008"},
             {no: 2, symbol: "He", name: "Heli", mass: "4.003"},
@@ -498,15 +475,14 @@
         let habZoneMesh = null;
         let interactiveOrbitGroup = null;
         let planetMesh = null;
-        let planetContainerRef = null;
         
         let orbitRadiusX = 7.5; 
         let orbitRadiusY = 5.0; 
         let planetTilt = 23.5;
 
         let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
-        let raycaster = new THREE.Raycaster();
-        let mouse = new THREE.Vector2();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
 
         function initApp() {
             buildStarListUI();
@@ -647,6 +623,7 @@
 
             const texture = new THREE.CanvasTexture(canvas);
             sunSphere = new THREE.Mesh(new THREE.SphereGeometry(4.8, 64, 64), new THREE.MeshBasicMaterial({ map: texture }));
+            sunSphere.name = "SunMesh";
             starGroup.add(sunSphere);
 
             if (habZoneMesh) {
@@ -745,16 +722,18 @@
                 blending: THREE.NormalBlending
             });
             planetMesh = new THREE.Mesh(planetGeo, planetMat);
+            planetMesh.name = "PlanetMesh";
             
             planetMesh.rotation.z = THREE.MathUtils.degToRad(planetTilt);
             axisLine.rotation.z = THREE.MathUtils.degToRad(planetTilt);
 
-            planetContainerRef = new THREE.Group();
-            planetContainerRef.add(planetMesh);
-            planetContainerRef.add(axisLine);
-            planetContainerRef.position.set(orbitRadiusX, 0, 0);
+            const planetContainer = new THREE.Group();
+            planetContainer.name = "PlanetContainer";
+            planetContainer.add(planetMesh);
+            planetContainer.add(axisLine);
+            planetContainer.position.set(orbitRadiusX, 0, 0);
 
-            interactiveOrbitGroup.add(planetContainerRef);
+            interactiveOrbitGroup.add(planetContainer);
             scene.add(interactiveOrbitGroup);
             updateRealtimeMetrics();
         }
@@ -811,14 +790,16 @@
                 blending: THREE.NormalBlending
             });
             planetMesh = new THREE.Mesh(planetGeo, planetMat);
+            planetMesh.name = "PlanetMesh";
             planetMesh.rotation.z = THREE.MathUtils.degToRad(planetTilt);
 
-            planetContainerRef = new THREE.Group();
-            planetContainerRef.add(planetMesh);
-            planetContainerRef.add(axisLine);
-            planetContainerRef.position.set(orbitRadiusX, 0, 0);
+            const planetContainer = new THREE.Group();
+            planetContainer.name = "PlanetContainer";
+            planetContainer.add(planetMesh);
+            planetContainer.add(axisLine);
+            planetContainer.position.set(orbitRadiusX, 0, 0);
 
-            interactiveOrbitGroup.add(planetContainerRef);
+            interactiveOrbitGroup.add(planetContainer);
             scene.add(interactiveOrbitGroup);
             updateRealtimeMetrics();
         }
@@ -919,7 +900,7 @@
                 const zoneLegend = document.getElementById('zone-legend');
                 zoneLegend.classList.remove('hidden');
                 document.getElementById('zone-system-name').innerText = `Hệ Sao: ${selectedStar.name} (${selectedStar.rank})`;
-                document.getElementById('instruction-text').innerText = `Xoay chuột để phóng to/thu nhỏ • Kéo chuột thay đổi quỹ đạo (Giữ Shift để đổi tròn & phóng to đều) • Click hành tinh xem thông tin`;
+                document.getElementById('instruction-text').innerText = `Xoay chuột để phóng to/thu nhỏ • Kéo chuột thay đổi quỹ đạo (Giữ Shift để đổi tròn & phóng to đều) • Click Sao/Hành tinh để xem thông tin`;
 
                 updateStarContent(currentSelectedIndex);
                 targetCamDist = 14;
@@ -939,6 +920,7 @@
                     zoneLegend.classList.add('hidden');
                 }
                 
+                // Hiển thị Bảng Tuần Hoản ở góc trên bên trái theo yêu cầu
                 const periodicPanel = document.getElementById('periodic-table-panel');
                 if (periodicPanel) {
                     periodicPanel.classList.remove('hidden');
@@ -1034,67 +1016,35 @@
             loop();
         }
 
-        function openStarModal() {
-            const s = starsData[currentSelectedIndex];
-            document.getElementById('modal-star-name').innerText = s.name;
-            document.getElementById('modal-star-rank').innerText = `${s.rank} Star`;
-            document.getElementById('modal-star-desc').innerText = s.desc;
-            document.getElementById('modal-star-temp').innerText = s.temp;
-            document.getElementById('modal-star-mass').innerText = s.mass;
-            document.getElementById('modal-star-radius').innerText = s.radius;
-            document.getElementById('modal-star-dist').innerText = s.dist;
-            document.getElementById('modal-star-life').innerText = `${s.lifeProb}%`;
-            document.getElementById('modal-star-lifedesc').innerText = s.lifeDesc;
-
-            document.getElementById('modal-star-dot').style.backgroundColor = s.color;
-            document.getElementById('modal-star-visual').style.background = `radial-gradient(circle, ${s.color} 0%, #ef4444 60%, #7f1d1d 100%)`;
-            document.getElementById('modal-star-visual').style.boxShadow = `0 0 80px ${s.color}88`;
-
-            document.getElementById('star-detail-modal').classList.remove('hidden');
-        }
-
-        function openPlanetModal() {
-            const a = (orbitRadiusX + orbitRadiusY) / 2;
-            const yearDays = Math.round(Math.pow(a / 7.0, 1.5) * 365.25);
-            const surfTemp = Math.round((15.0 + (7.0 - a) * 28.0) * 10) / 10;
-
-            document.getElementById('planet-modal-tilt').innerText = `${planetTilt.toFixed(1)}°`;
-            document.getElementById('planet-modal-days').innerText = `${yearDays} Ngày`;
-            document.getElementById('planet-modal-temp').innerText = `${surfTemp} °C`;
-
-            document.getElementById('planet-detail-modal').classList.remove('hidden');
-        }
-
         function setupEventListeners() {
             document.getElementById('btn-select').addEventListener('click', triggerFireworksAndRemoveSidebar);
             document.getElementById('btn-confirm-zone').addEventListener('click', handleConfirmZone);
 
-            // Nút đóng modal sao
+            // Đóng bảng thông tin sao
             document.getElementById('btn-close-star-modal').addEventListener('click', () => {
                 document.getElementById('star-detail-modal').classList.add('hidden');
             });
 
-            // Nút đóng modal hành tinh
+            // Đóng bảng thông tin hành tinh
             document.getElementById('btn-close-planet-modal').addEventListener('click', () => {
                 document.getElementById('planet-detail-modal').classList.add('hidden');
             });
-            document.getElementById('btn-planet-modal-ok').addEventListener('click', () => {
-                document.getElementById('planet-detail-modal').classList.add('hidden');
-            });
 
-            // Nút "x" ẩn bảng tuần hoàn
+            // Nút "x" ẩn bảng tuần hoàn và hiện ô vuông nhỏ góc trên bên trái
             document.getElementById('btn-close-periodic').addEventListener('click', () => {
                 document.getElementById('periodic-table-panel').classList.add('hidden');
                 document.getElementById('periodic-toggle-btn').classList.remove('hidden');
                 document.getElementById('instruction-text').innerText = `Bảng tuần hoàn đã thu gọn. Nhấn vào ô vuông góc trái để mở lại!`;
             });
 
+            // Ô vuông nhỏ bấm vào để mở lại bảng tuần hoàn
             document.getElementById('periodic-toggle-btn').addEventListener('click', () => {
                 document.getElementById('periodic-toggle-btn').classList.add('hidden');
                 document.getElementById('periodic-table-panel').classList.remove('hidden');
                 document.getElementById('instruction-text').innerText = `Đã mở lại bảng tuần hoàn nguyên tố!`;
             });
 
+            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố
             const searchInput = document.getElementById('element-search-input');
             searchInput.addEventListener('input', (e) => {
                 const keyword = e.target.value.toLowerCase().trim();
@@ -1130,12 +1080,52 @@
             });
 
             const dom = renderer.domElement;
-            let startClickPos = {x:0, y:0};
-
             dom.addEventListener('mousedown', (e) => {
                 isDragging = true;
                 prevMouse = { x: e.clientX, y: e.clientY };
-                startClickPos = { x: e.clientX, y: e.clientY };
+            });
+
+            dom.addEventListener('click', (e) => {
+                // Tính toán Raycaster khi click vào màn hình 3D
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+
+                const intersects = raycaster.intersectObjects(scene.children, true);
+                if (intersects.length > 0) {
+                    let hit = intersects[0].object;
+                    // Kiểm tra xem click vào Sao (sunSphere) hay Hành tinh (planetMesh)
+                    let parentGroup = hit.parent;
+                    
+                    if (hit.name === "SunMesh" || (parentGroup && parentGroup === starGroup)) {
+                        // Hiển thị bảng thông tin Sao ở bên trái
+                        const s = starsData[currentSelectedIndex];
+                        document.getElementById('modal-star-name').innerText = s.name;
+                        document.getElementById('modal-star-dot').style.backgroundColor = s.color;
+                        document.getElementById('modal-star-rank').innerText = s.rank;
+                        document.getElementById('modal-star-temp').innerText = s.temp;
+                        document.getElementById('modal-star-mass').innerText = s.mass;
+                        document.getElementById('modal-star-radius').innerText = s.radius;
+                        document.getElementById('modal-star-dist').innerText = s.dist;
+                        document.getElementById('modal-star-desc').innerText = s.desc;
+
+                        document.getElementById('star-detail-modal').classList.remove('hidden');
+                        document.getElementById('planet-detail-modal').classList.add('hidden');
+                    } else if (hit.name === "PlanetMesh" || (parentGroup && parentGroup.name === "PlanetContainer")) {
+                        // Hiển thị bảng thông tin Hành tinh ở bên trái
+                        const a = (orbitRadiusX + orbitRadiusY) / 2;
+                        const yearDays = Math.round(Math.pow(a / 7.0, 1.5) * 365.25);
+                        let surfTemp = Math.round((15.0 + (7.0 - a) * 28.0) * 10) / 10;
+
+                        document.getElementById('modal-planet-tilt').innerText = `${planetTilt}°`;
+                        document.getElementById('modal-planet-days').innerText = `${yearDays} Ngày`;
+                        document.getElementById('modal-planet-temp').innerText = `${surfTemp} °C`;
+                        document.getElementById('modal-planet-status').innerText = surfTemp >= 20 && surfTemp <= 40 ? "Tối ưu cho sự sống phát triển, nước lỏng duy trì ổn định." : "Nhiệt độ khắc nghiệt, cần điều chỉnh quỹ đạo!";
+
+                        document.getElementById('planet-detail-modal').classList.remove('hidden');
+                        document.getElementById('star-detail-modal').classList.add('hidden');
+                    }
+                }
             });
 
             window.addEventListener('mousemove', (e) => {
@@ -1158,30 +1148,7 @@
                 prevMouse = { x: e.clientX, y: e.clientY };
             });
 
-            window.addEventListener('mouseup', (e) => {
-                isDragging = false;
-                const distMoved = Math.hypot(e.clientX - startClickPos.x, e.clientY - startClickPos.y);
-                if (distMoved < 5) {
-                    // Click detection with Raycaster
-                    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-                    raycaster.setFromCamera(mouse, camera);
-
-                    let intersectObjects = [];
-                    if (sunSphere) intersectObjects.push(sunSphere);
-                    if (planetMesh) intersectObjects.push(planetMesh);
-
-                    const intersects = raycaster.intersectObjects(intersectObjects, true);
-                    if (intersects.length > 0) {
-                        const hitObj = intersects[0].object;
-                        if (hitObj === sunSphere) {
-                            openStarModal();
-                        } else if (hitObj === planetMesh || (planetContainerRef && planetContainerRef.children.includes(hitObj))) {
-                            openPlanetModal();
-                        }
-                    }
-                }
-            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
 
             dom.addEventListener('wheel', (e) => {
                 e.preventDefault();
@@ -1221,8 +1188,9 @@
                 const px = Math.cos(angle) * orbitRadiusX;
                 const py = Math.sin(angle) * orbitRadiusY;
                 
-                if (planetContainerRef) {
-                    planetContainerRef.position.set(px, py, 0);
+                const planetContainer = interactiveOrbitGroup.children[1];
+                if (planetContainer) {
+                    planetContainer.position.set(px, py, 0);
                     if (planetMesh) {
                         planetMesh.rotation.y += 0.02;
                     }
