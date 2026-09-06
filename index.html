@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -163,6 +163,48 @@
             <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
                 <span class="text-slate-400 block mb-1">Trạng thái sinh thái:</span>
                 <span id="modal-planet-status" class="text-emerald-300 font-semibold text-[11px]">Đang phát triển ổn định, nước lỏng dồi dào.</span>
+            </div>
+            <div class="pt-2">
+                <button id="btn-build-planet" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
+                    <span>🌍 Gây Dựng Hành Tinh</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANG GÂY DỰNG HÀNH TINH (ẨN MẶC ĐỊNH) -->
+    <div id="build-planet-page" class="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-xl hidden flex pointer-events-auto">
+        <!-- Nút X để quay lại hệ sao -->
+        <button id="btn-close-build-page" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-lg transition-all cursor-pointer z-50 shadow-lg" title="Quay lại hệ sao">
+            ✕
+        </button>
+
+        <!-- Bên trái là bảng tuần hoàn nhỏ / ô tuần hoàn -->
+        <div class="w-[420px] h-full p-6 flex flex-col justify-between border-r border-slate-800/80 bg-slate-900/40">
+            <div class="flex items-center space-x-2.5 pb-3 border-b border-slate-800">
+                <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                <h3 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Ô Tuần Hoản - Nguyên Tố Kiến Tạo</h3>
+            </div>
+            
+            <div class="my-4">
+                <input id="build-element-search" type="text" placeholder="🔍 Tìm nguyên tố cấu tạo..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all">
+            </div>
+
+            <div id="build-elements-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                <!-- Danh sách nguyên tố cho trang gây dựng -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-400 italic text-center">
+                Chọn nguyên tố để cấu thành lớp vỏ và khí quyển hành tinh trong suốt bên cạnh!
+            </div>
+        </div>
+
+        <!-- Bên phải là không gian hành tinh trong suốt -->
+        <div class="flex-1 relative flex items-center justify-center">
+            <div id="transparent-planet-container" class="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
+            <div class="absolute bottom-8 left-8 glass-panel px-6 py-4 rounded-2xl border border-emerald-500/30 shadow-2xl max-w-md pointer-events-none">
+                <h2 class="text-base font-bold text-emerald-400 mb-1">Mô Phỏng Hành Tinh Trong Suốt</h2>
+                <p class="text-xs text-slate-300">Quan sát cấu trúc lớp vỏ, lõi và bầu khí quyển hòa quyện cùng các nguyên tố tuần hoàn.</p>
             </div>
         </div>
     </div>
@@ -484,9 +526,14 @@
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
+        // Biến cho trang Gây Dựng Hành Tinh 3D riêng biệt
+        let buildScene, buildCamera, buildRenderer, transparentPlanetMesh;
+        let isBuildDragging = false, prevBuildMouse = {x:0, y:0};
+
         function initApp() {
             buildStarListUI();
             renderElementsList(elementsData);
+            renderBuildElementsList(elementsData);
             init3D();
             setupEventListeners();
         }
@@ -552,6 +599,38 @@
             });
         }
 
+        function renderBuildElementsList(dataToRender) {
+            const container = document.getElementById('build-elements-list');
+            container.innerHTML = '';
+
+            if (dataToRender.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-slate-500 py-8">Không tìm thấy nguyên tố!</div>`;
+                return;
+            }
+
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-emerald-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center text-[10px] border border-emerald-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                            <span class="text-[10px] text-slate-400 block">Khối lượng: ${el.mass}</span>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-emerald-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
+                `;
+                row.addEventListener('click', () => {
+                    // Cập nhật màu sắc hoặc hiệu ứng hành tinh trong suốt bên phải khi chọn nguyên tố
+                    if (transparentPlanetMesh) {
+                        transparentPlanetMesh.material.color.setHSL(Math.random(), 0.7, 0.6);
+                    }
+                });
+                container.appendChild(row);
+            });
+        }
+
         function init3D() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -581,6 +660,58 @@
 
             updateStarContent(0);
             animate();
+        }
+
+        function initBuildPlanet3D() {
+            if (buildScene) return; // Khởi tạo 1 lần
+
+            const container = document.getElementById('transparent-planet-container');
+            buildScene = new THREE.Scene();
+            buildCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            buildCamera.position.z = 6;
+
+            buildRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            buildRenderer.setSize(container.clientWidth, container.clientHeight);
+            buildRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(buildRenderer.domElement);
+
+            buildScene.add(new THREE.AmbientLight(0xffffff, 2.0));
+            const pointLight = new THREE.PointLight(0x22d3ee, 3, 50);
+            pointLight.position.set(5, 5, 5);
+            buildScene.add(pointLight);
+
+            // Tạo hành tinh trong suốt
+            const sphereGeo = new THREE.SphereGeometry(2, 64, 64);
+            const material = new THREE.MeshPhysicalMaterial({
+                color: 0x10b981,
+                roughness: 0.1,
+                metalness: 0.1,
+                transmission: 0.85, // Trong suốt thủy tinh/khí quyển
+                thickness: 1.2,
+                transparent: true,
+                opacity: 0.6,
+                side: THREE.DoubleSide
+            });
+            transparentPlanetMesh = new THREE.Mesh(sphereGeo, material);
+            buildScene.add(transparentPlanetMesh);
+
+            // Lõi hành tinh bên trong
+            const coreGeo = new THREE.SphereGeometry(0.8, 32, 32);
+            const coreMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+            const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+            buildScene.add(coreMesh);
+
+            animateBuildPlanet();
+        }
+
+        function animateBuildPlanet() {
+            if (!document.getElementById('build-planet-page').classList.contains('hidden')) {
+                requestAnimationFrame(animateBuildPlanet);
+                if (transparentPlanetMesh) {
+                    transparentPlanetMesh.rotation.y += 0.005;
+                }
+                buildRenderer.render(buildScene, buildCamera);
+            }
         }
 
         function updateStarContent(idx) {
@@ -1020,6 +1151,18 @@
             document.getElementById('btn-select').addEventListener('click', triggerFireworksAndRemoveSidebar);
             document.getElementById('btn-confirm-zone').addEventListener('click', handleConfirmZone);
 
+            // Nút "Gây dựng hành tinh" trong bảng thông tin hành tinh
+            document.getElementById('btn-build-planet').addEventListener('click', () => {
+                document.getElementById('planet-detail-modal').classList.add('hidden');
+                document.getElementById('build-planet-page').classList.remove('hidden');
+                initBuildPlanet3D();
+            });
+
+            // Nút "X" ở trang Gây Dựng Hành Tinh để quay lại hệ sao
+            document.getElementById('btn-close-build-page').addEventListener('click', () => {
+                document.getElementById('build-planet-page').classList.add('hidden');
+            });
+
             // Đóng bảng thông tin sao
             document.getElementById('btn-close-star-modal').addEventListener('click', () => {
                 document.getElementById('star-detail-modal').classList.add('hidden');
@@ -1044,7 +1187,7 @@
                 document.getElementById('instruction-text').innerText = `Đã mở lại bảng tuần hoàn nguyên tố!`;
             });
 
-            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố
+            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố chính
             const searchInput = document.getElementById('element-search-input');
             searchInput.addEventListener('input', (e) => {
                 const keyword = e.target.value.toLowerCase().trim();
@@ -1055,6 +1198,19 @@
                     el.no.toString() === keyword
                 );
                 renderElementsList(filtered);
+            });
+
+            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố ở trang Gây Dựng
+            const buildSearchInput = document.getElementById('build-element-search');
+            buildSearchInput.addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase().trim();
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword) || 
+                    el.mass.toLowerCase().includes(keyword) ||
+                    el.no.toString() === keyword
+                );
+                renderBuildElementsList(filtered);
             });
 
             const sliderRx = document.getElementById('slider-rx');
@@ -1086,7 +1242,6 @@
             });
 
             dom.addEventListener('click', (e) => {
-                // Tính toán Raycaster khi click vào màn hình 3D
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
@@ -1094,11 +1249,9 @@
                 const intersects = raycaster.intersectObjects(scene.children, true);
                 if (intersects.length > 0) {
                     let hit = intersects[0].object;
-                    // Kiểm tra xem click vào Sao (sunSphere) hay Hành tinh (planetMesh)
                     let parentGroup = hit.parent;
                     
                     if (hit.name === "SunMesh" || (parentGroup && parentGroup === starGroup)) {
-                        // Hiển thị bảng thông tin Sao ở bên trái
                         const s = starsData[currentSelectedIndex];
                         document.getElementById('modal-star-name').innerText = s.name;
                         document.getElementById('modal-star-dot').style.backgroundColor = s.color;
@@ -1112,7 +1265,6 @@
                         document.getElementById('star-detail-modal').classList.remove('hidden');
                         document.getElementById('planet-detail-modal').classList.add('hidden');
                     } else if (hit.name === "PlanetMesh" || (parentGroup && parentGroup.name === "PlanetContainer")) {
-                        // Hiển thị bảng thông tin Hành tinh ở bên trái
                         const a = (orbitRadiusX + orbitRadiusY) / 2;
                         const yearDays = Math.round(Math.pow(a / 7.0, 1.5) * 365.25);
                         let surfTemp = Math.round((15.0 + (7.0 - a) * 28.0) * 10) / 10;
