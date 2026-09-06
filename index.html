@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -449,19 +449,29 @@
             const pCanvas = document.createElement('canvas');
             pCanvas.width = 512; pCanvas.height = 256;
             const pCtx = pCanvas.getContext('2d');
-            pCtx.fillStyle = '#1e3a8a';
+            
+            // Thay đổi màu hành tinh thành trắng trong suốt (RGBA với alpha thấp / màu nhạt trong suốt)
+            pCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             pCtx.fillRect(0, 0, 512, 256);
-            pCtx.fillStyle = '#15803d';
+            pCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             pCtx.fillRect(100, 60, 150, 100);
             pCtx.fillRect(320, 90, 120, 80);
-            pCtx.fillStyle = '#ca8a04';
+            pCtx.fillStyle = 'rgba(200, 220, 255, 0.25)';
             pCtx.fillRect(140, 90, 60, 40);
-            pCtx.fillStyle = '#ffffff';
+            pCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
             pCtx.fillRect(0, 0, 512, 25);
             pCtx.fillRect(0, 231, 512, 25);
             const pTexture = new THREE.CanvasTexture(pCanvas);
 
-            const planetMat = new THREE.MeshStandardMaterial({ map: pTexture, roughness: 0.7 });
+            // Cấu hình Material của hành tinh để có độ trong suốt (transparent = true, opacity = 0.4 hoặc tương tự)
+            const planetMat = new THREE.MeshStandardMaterial({ 
+                map: pTexture, 
+                roughness: 0.2, 
+                metalness: 0.1,
+                transparent: true,
+                opacity: 0.35,
+                blending: THREE.NormalBlending
+            });
             planetMesh = new THREE.Mesh(planetGeo, planetMat);
             
             planetMesh.rotation.z = THREE.MathUtils.degToRad(planetTilt);
@@ -507,19 +517,28 @@
             const pCanvas = document.createElement('canvas');
             pCanvas.width = 512; pCanvas.height = 256;
             const pCtx = pCanvas.getContext('2d');
-            pCtx.fillStyle = '#1e3a8a';
+            
+            // Màu trắng trong suốt cho hành tinh
+            pCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             pCtx.fillRect(0, 0, 512, 256);
-            pCtx.fillStyle = '#15803d';
+            pCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             pCtx.fillRect(100, 60, 150, 100);
             pCtx.fillRect(320, 90, 120, 80);
-            pCtx.fillStyle = '#ca8a04';
+            pCtx.fillStyle = 'rgba(200, 220, 255, 0.25)';
             pCtx.fillRect(140, 90, 60, 40);
-            pCtx.fillStyle = '#ffffff';
+            pCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
             pCtx.fillRect(0, 0, 512, 25);
             pCtx.fillRect(0, 231, 512, 25);
             const pTexture = new THREE.CanvasTexture(pCanvas);
 
-            const planetMat = new THREE.MeshStandardMaterial({ map: pTexture, roughness: 0.7 });
+            const planetMat = new THREE.MeshStandardMaterial({ 
+                map: pTexture, 
+                roughness: 0.2, 
+                metalness: 0.1,
+                transparent: true,
+                opacity: 0.35,
+                blending: THREE.NormalBlending
+            });
             planetMesh = new THREE.Mesh(planetGeo, planetMat);
             planetMesh.rotation.z = THREE.MathUtils.degToRad(planetTilt);
 
