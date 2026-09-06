@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>Khám Phá Vùng Sự Sống Chuẩn Khoa Học 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -42,9 +42,9 @@
         <div class="congrats-modal glass-panel p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center max-w-md mx-4">
             <div class="text-5xl mb-3">🎉⭐✨</div>
             <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
-            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã chọn ngôi sao này thành công.</p>
+            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Đã thiết lập thông số vùng sinh sống chuẩn xác.</p>
             <div class="px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 inline-block animate-pulse">
-                Đang chuyển sang không gian 3D vùng sinh thái...
+                Đang chuyển sang không gian 3D khoa học...
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
                 <span>⭐ Chọn Ngôi Sao Này</span>
             </button>
             <div class="mt-2.5 text-center text-[10px] text-slate-500">
-                Bấm để xem pháo hoa & chuyển không gian 3D
+                Bấm để xem pháo hoa & khảo sát vùng sinh sống
             </div>
         </div>
     </aside>
@@ -99,39 +99,26 @@
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
                     <div class="flex items-center space-x-1.5 text-emerald-400 text-[11px] font-semibold mb-1">
                         <span>⚪</span>
-                        <span>Bán Kính</span>
+                        <span>Bán Kính Sao</span>
                     </div>
                     <div id="metric-radius" class="text-sm font-bold text-slate-100">696,340 km</div>
                 </div>
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
                     <div class="flex items-center space-x-1.5 text-purple-400 text-[11px] font-semibold mb-1">
                         <span>🌌</span>
-                        <span>Khoảng Cách</span>
+                        <span>Độ Sáng (L)</span>
                     </div>
-                    <div id="metric-dist" class="text-sm font-bold text-slate-100">149.6 triệu km</div>
+                    <div id="metric-lum" class="text-sm font-bold text-slate-100">1.0 L☉</div>
                 </div>
                 <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3 rounded-xl border border-cyan-500/30">
                     <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center space-x-1.5 text-cyan-300 text-[11px] font-bold">
                             <span>🧬</span>
-                            <span>Xác Suất Sự Sống Tiềm Năng</span>
+                            <span>Khoảng Cách Vùng Xanh (HZ)</span>
                         </div>
-                        <div id="metric-life-val" class="text-xs font-black text-cyan-400">88.5%</div>
+                        <div id="metric-hz-val" class="text-xs font-black text-cyan-400">0.95 - 1.37 AU</div>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden p-0.5 border border-slate-700 mb-1">
-                        <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 88.5%"></div>
-                    </div>
-                    <div id="metric-life-desc" class="text-[10px] text-slate-400 italic">Đặc tính quang phổ G2V chuẩn mực.</div>
-                </div>
-                <div class="col-span-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80 space-y-1.5">
-                    <div class="text-[11px] flex items-start space-x-1.5">
-                        <span class="text-emerald-400 font-bold shrink-0">🟢 Ưu:</span>
-                        <span id="metric-pros" class="text-slate-300 text-[10px] leading-tight">Bức xạ lý tưởng, tuổi thọ dài.</span>
-                    </div>
-                    <div class="text-[11px] flex items-start space-x-1.5">
-                        <span class="text-rose-400 font-bold shrink-0">🔴 Nhược:</span>
-                        <span id="metric-cons" class="text-slate-300 text-[10px] leading-tight">Có nguy cơ bùng phát lóa mặt trời.</span>
-                    </div>
+                    <div id="metric-life-desc" class="text-[10px] text-slate-400 italic">Quang phổ chuẩn mực, nước lỏng duy trì ổn định.</div>
                 </div>
             </div>
         </div>
@@ -142,13 +129,10 @@
                     <span id="zone-system-name" class="uppercase tracking-wider">Hệ Sao: Mặt Trời</span>
                 </div>
                 <div class="text-[11px] text-slate-300 flex items-center space-x-2">
-                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block shadow-[0_0_8px_#ef4444]"></span>
-                    <span>Vòng Nguy Hiểm (Đỏ): Quá nóng, bức xạ khắc nghiệt</span>
+                    <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                    <span>Vòng Xanh (Vùng Sự Sống tính theo $\sqrt{L}$)</span>
                 </div>
-                <div class="text-[11px] text-slate-300 flex items-center space-x-2">
-                    <span class="w-3 h-3 rounded-full bg-cyan-500 inline-block shadow-[0_0_8px_#06b6d4]"></span>
-                    <span>Vòng Lý Tưởng (Xanh): Nước lỏng tồn tại, ôn hòa</span>
-                </div>
+                <div class="text-[10px] text-slate-400 italic">Khu vực trống ngoài/trong: Không có màu = Không tồn tại sự sống.</div>
             </div>
         </div>
 
@@ -157,31 +141,32 @@
         <div class="absolute bottom-6 right-8 z-20 pointer-events-none">
             <div class="flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-full text-slate-300 shadow-lg backdrop-blur-md pointer-events-auto">
                 <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span id="instruction-text">Kéo chuột để xoay • Cuộn để phóng to</span>
+                <span id="instruction-text">Kéo chuột để xoay • Cuộn để phóng to không gian</span>
             </div>
         </div>
     </main>
 
     <script>
+        // Danh sách 11 sao với thông số độ sáng tương đối (L) so với Mặt Trời để tính HZ chính xác bằng công thức d = sqrt(L)
         const starsData = [
-            { id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", desc: "Ngôi sao trung tâm hệ mặt trời.", lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực.", pros: "Bức xạ quang học lý tưởng.", cons: "Nguy cơ bão mặt trời." },
-            { id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", desc: "Hệ sao lân cận có đĩa bụi sao.", lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V ổn định.", pros: "Tuổi thọ siêu dài.", cons: "Hoạt động từ tính trẻ." },
-            { id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", dist: "18.8 năm ánh sáng", color: "#f59e0b", desc: "Ngôi sao dạng lùn cam ổn định.", lifeProb: 86.2, lifeDesc: "Độ sáng cực kỳ đều đặn.", pros: "Cực kỳ ổn định quang phổ.", cons: "Vùng sống hẹp hơn." },
-            { id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", dist: "4.37 năm ánh sáng", color: "#d97706", desc: "Thành viên hệ ba gần nhất.", lifeProb: 81.5, lifeDesc: "Bức xạ nhiệt đều đặn.", pros: "Khoảng cách cực gần.", cons: "Nhiễu động hệ sao đôi/ba." },
-            { id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", dist: "11.4 năm ánh sáng", color: "#ea580c", desc: "Chuyển động riêng lớn.", lifeProb: 75.3, lifeDesc: "Nhiệt độ bề mặt thấp hơn.", pros: "Tỏa nhiệt thời gian cực dài.", cons: "Năng lượng bức xạ thấp." },
-            { id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", dist: "16.6 năm ánh sáng", color: "#f97316", desc: "Hệ sao đôi quang phổ.", lifeProb: 78.9, lifeDesc: "Quang phổ K0V gần giống Mặt Trời.", pros: "Duy trì nước lỏng tốt.", cons: "Khí hậu dễ biến động." },
-            { id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", dist: "21.3 năm ánh sáng", color: "#fb923c", desc: "Sao lùn chứa hành tinh đá.", lifeProb: 82.7, lifeDesc: "Bức xạ hồng ngoại hài hòa.", pros: "Đã phát hiện hành tinh đá.", cons: "Tia X dao động." },
-            { id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", dist: "11.8 năm ánh sáng", color: "#fdba74", desc: "Tốc độ dịch chuyển cao.", lifeProb: 77.0, lifeDesc: "Hoạt động bề mặt ôn hòa.", pros: "Gần và gió sao nhẹ.", cons: "Độ kim loại thấp hơn." },
-            { id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", dist: "24.4 năm ánh sáng", color: "#fde047", desc: "Tương đồng mặt trời trẻ.", lifeProb: 83.4, lifeDesc: "Chỉ số kim loại cao.", pros: "Lõi hành tinh vững chắc.", cons: "Khoảng cách khá xa." },
-            { id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", dist: "24.9 năm ánh sáng", color: "#facc15", desc: "Cụm sao lân cận.", lifeProb: 74.1, lifeDesc: "Phát xạ tia X trung bình.", pros: "Tiến hóa chậm, an toàn.", cons: "Năng lượng phát ra yếu." },
-            { id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", desc: "Sao lùn cam hoạt động từ tính.", lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp.", pros: "Rất bền bỉ, tuổi thọ cao.", cons: "Dễ đóng băng bề mặt." }
+            { id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", luminosity: 1.00, hzMin: 0.95, hzMax: 1.37, color: "#ef4444", desc: "Ngôi sao trung tâm hệ mặt trời." },
+            { id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", luminosity: 0.34, hzMin: 0.55, hzMax: 0.80, color: "#fbbf24", desc: "Hệ sao lân cận có đĩa bụi sao." },
+            { id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", luminosity: 0.43, hzMin: 0.62, hzMax: 0.90, color: "#f59e0b", desc: "Ngôi sao dạng lùn cam ổn định." },
+            { id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", luminosity: 0.50, hzMin: 0.67, hzMax: 0.97, color: "#d97706", desc: "Thành viên hệ ba gần nhất." },
+            { id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", luminosity: 0.16, hzMin: 0.38, hzMax: 0.55, color: "#ea580c", desc: "Chuyển động riêng lớn." },
+            { id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", luminosity: 0.45, hzMin: 0.64, hzMax: 0.92, color: "#f97316", desc: "Hệ sao đôi quang phổ." },
+            { id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", luminosity: 0.27, hzMin: 0.49, hzMax: 0.71, color: "#fb923c", desc: "Sao lùn chứa hành tinh đá." },
+            { id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", luminosity: 0.22, hzMin: 0.44, hzMax: 0.64, color: "#fdba74", desc: "Tốc độ dịch chuyển cao." },
+            { id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", luminosity: 0.52, hzMin: 0.68, hzMax: 0.99, color: "#fde047", desc: "Tương đồng mặt trời trẻ." },
+            { id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", luminosity: 0.19, hzMin: 0.41, hzMax: 0.60, color: "#facc15", desc: "Cụm sao lân cận." },
+            { id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", luminosity: 0.08, hzMin: 0.27, hzMax: 0.39, color: "#ca8a04", desc: "Sao lùn cam hoạt động từ tính." }
         ];
 
         let currentSelectedIndex = 0;
         let isPageTwo = false;
         let scene, camera, renderer, sunSphere, orbitRing1, starField, starGroup;
-        let habZoneMesh = null; // Vòng biểu thị vùng (đứng yên hoàn toàn)
-        let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
+        let habZoneMesh = null;
+        let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 14, targetCamDist = 14;
 
         function initApp() {
             buildStarListUI();
@@ -201,7 +186,7 @@
                         <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${star.color}; box-shadow: 0 0 8px ${star.color}"></span>
                         <div>
                             <span class="font-bold text-xs block">${star.name}</span>
-                            <span class="text-[10px] text-slate-400">Hạng ${star.rank} • <span class="text-cyan-400 font-bold">${star.lifeProb}%</span></span>
+                            <span class="text-[10px] text-slate-400">Hạng ${star.rank} • L = ${star.luminosity} L☉</span>
                         </div>
                     </div>
                     <span class="text-xs font-semibold ${idx === currentSelectedIndex ? 'text-cyan-400' : 'text-slate-500'}">${idx === currentSelectedIndex ? '●' : '○'}</span>
@@ -255,17 +240,19 @@
             document.getElementById('metric-temp').innerText = s.temp;
             document.getElementById('metric-mass').innerText = s.mass;
             document.getElementById('metric-radius').innerText = s.radius;
-            document.getElementById('metric-dist').innerText = s.dist;
+            document.getElementById('metric-lum').innerText = `${s.luminosity} L☉`;
 
-            document.getElementById('metric-life-val').innerText = `${s.lifeProb}%`;
-            document.getElementById('metric-life-bar').style.width = `${s.lifeProb}%`;
-            document.getElementById('metric-life-desc').innerText = s.lifeDesc;
-            
-            document.getElementById('metric-pros').innerText = s.pros;
-            document.getElementById('metric-cons').innerText = s.cons;
+            document.getElementById('metric-hz-val').innerText = `${s.hzMin} - ${s.hzMax} AU`;
 
             while(starGroup.children.length > 0){ 
                 starGroup.remove(starGroup.children[0]); 
+            }
+
+            if (habZoneMesh) {
+                scene.remove(habZoneMesh);
+                habZoneMesh.geometry.dispose();
+                habZoneMesh.material.dispose();
+                habZoneMesh = null;
             }
 
             const canvas = document.createElement('canvas');
@@ -286,21 +273,24 @@
             }
 
             const texture = new THREE.CanvasTexture(canvas);
-            sunSphere = new THREE.Mesh(new THREE.SphereGeometry(4.8, 64, 64), new THREE.MeshBasicMaterial({ map: texture }));
+            sunSphere = new THREE.Mesh(new THREE.SphereGeometry(3.5, 64, 64), new THREE.MeshBasicMaterial({ map: texture }));
             starGroup.add(sunSphere);
 
             if (!isPageTwo) {
-                orbitRing1 = createOrbit(6.6, 0xffffff, 0.35);
+                orbitRing1 = createOrbit(6.0, 0xffffff, 0.35);
                 starGroup.add(orbitRing1);
             } else {
-                createHabitableZoneSystem(s);
+                createScientificHabitableZone(s);
             }
         }
 
-        function createHabitableZoneSystem(s) {
-            // Vòng phân ra màu đỏ (nguy hiểm) ở trong và xanh (lí tưởng) ở ngoài, đứng yên hoàn toàn (được add thẳng vào scene thay vì starGroup để không bị xoay theo không gian)
-            const innerRadius = 5.5;
-            const outerRadius = 9.5;
+        function createScientificHabitableZone(s) {
+            // Tính bán kính 3D dựa chuẩn công thức tỷ lệ căn bậc hai độ sáng d = sqrt(L)
+            // Lấy hệ số tỉ lệ chuẩn hình học không gian 3D
+            const baseScale = 6.0;
+            const innerRadius = Math.max(4.5, baseScale * Math.sqrt(s.hzMin));
+            const outerRadius = Math.max(innerRadius + 1.2, baseScale * Math.sqrt(s.hzMax));
+
             const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 128);
             geometry.rotateX(Math.PI / 2);
 
@@ -309,13 +299,14 @@
             const ctx = canvas.getContext('2d');
 
             const cx = 512, cy = 512;
-            const innerPx = 140, outerPx = 480;
+            const innerPx = 180, outerPx = 460;
 
+            // Tạo dải màu xanh thuần túy cho vùng an toàn, hai bên trong/ngoài trong suốt tuyệt đối (không tô màu = không sống được)
             const gradZone = ctx.createRadialGradient(cx, cy, innerPx, cx, cy, outerPx);
-            gradZone.addColorStop(0, 'rgba(239, 68, 68, 0.95)');   // Màu đỏ tượng trưng cho nguy hiểm (quá nóng, bức xạ cao) ở gần tâm
-            gradZone.addColorStop(0.45, 'rgba(239, 68, 68, 0.6)'); 
-            gradZone.addColorStop(0.55, 'rgba(6, 182, 212, 0.85)'); // Chuyển sang xanh tượng trưng cho lí tưởng (vùng ôn hòa)
-            gradZone.addColorStop(1, 'rgba(15, 23, 42, 0.0)');      // Mờ dần ra biên ngoài
+            gradZone.addColorStop(0, 'rgba(6, 182, 212, 0.0)');   // Giáp ranh trong: không tô màu (quá nóng)
+            gradZone.addColorStop(0.15, 'rgba(6, 182, 212, 0.85)'); // Bắt đầu vào vùng xanh an toàn
+            gradZone.addColorStop(0.85, 'rgba(59, 130, 246, 0.85)');// Kết thúc vùng xanh an toàn
+            gradZone.addColorStop(1, 'rgba(15, 23, 42, 0.0)');     // Giáp ranh ngoài: không tô màu (quá lạnh)
 
             ctx.fillStyle = gradZone;
             ctx.fillRect(0, 0, 1024, 1024);
@@ -326,11 +317,10 @@
                 map: zoneTexture,
                 side: THREE.DoubleSide,
                 transparent: true,
-                opacity: 0.9
+                opacity: 0.95
             });
 
             habZoneMesh = new THREE.Mesh(geometry, material);
-            // Đặt cố định góc nghiêng nhưng đưa vào scene chính để đứng yên hoàn toàn, không quay theo lệnh xoay chuột
             habZoneMesh.rotation.x = 0.35;
             habZoneMesh.rotation.z = 0.25;
             scene.add(habZoneMesh);
@@ -344,7 +334,7 @@
             ringMesh.rotation.x = Math.PI / 2;
             group.add(ringMesh);
 
-            const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
+            const dotGeo = new THREE.SphereGeometry(0.12, 16, 16);
             const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
             const dot = new THREE.Mesh(dotGeo, dotMat);
             dot.position.set(radius, 0, 0);
@@ -359,7 +349,7 @@
         function triggerFireworksAndRemoveSidebar() {
             const selectedStar = starsData[currentSelectedIndex];
             document.getElementById('congrats-title').innerText = `Đã Chọn: ${selectedStar.name}!`;
-            document.getElementById('congrats-desc').innerText = `Hệ sao ${selectedStar.name} đã sẵn sàng. Xác suất sự sống: ${selectedStar.lifeProb}%.`;
+            document.getElementById('congrats-desc').innerText = `Hệ sao ${selectedStar.name} đã sẵn sàng. Vùng xanh: ${selectedStar.hzMin} - ${selectedStar.hzMax} AU.`;
             
             const overlay = document.getElementById('congrats-overlay');
             overlay.classList.remove('hidden');
@@ -377,10 +367,10 @@
                 const zoneLegend = document.getElementById('zone-legend');
                 zoneLegend.classList.remove('hidden');
                 document.getElementById('zone-system-name').innerText = `Hệ Sao: ${selectedStar.name} (${selectedStar.rank})`;
-                document.getElementById('instruction-text').innerText = `Khám phá vùng sinh thái quanh sao • Vòng biểu thị vùng đứng yên hoàn toàn`;
+                document.getElementById('instruction-text').innerText = `Khám phá đĩa vùng xanh khoa học • Khoảng trống tự hiểu là không sống được`;
 
                 updateStarContent(currentSelectedIndex);
-                targetCamDist = 15;
+                targetCamDist = 16;
 
                 overlay.classList.add('hidden');
             }, 2500);
@@ -493,7 +483,7 @@
             window.addEventListener('touchend', () => { isDragging = false; });
 
             container.addEventListener('wheel', e => {
-                targetCamDist = Math.max(7, Math.min(25, targetCamDist + e.deltaY * 0.005));
+                targetCamDist = Math.max(7, Math.min(28, targetCamDist + e.deltaY * 0.005));
             });
 
             const selectBtn = document.getElementById('btn-select');
@@ -528,7 +518,6 @@
                 orbitRing1.userData.dot.position.x = Math.cos(t) * orbitRing1.userData.radius;
                 orbitRing1.userData.dot.position.z = Math.sin(t) * orbitRing1.userData.radius;
             }
-            // Vòng biểu thị vùng (habZoneMesh) giữ nguyên đứng yên hoàn toàn, không thay đổi rotation theo starGroup hay chuột
 
             camDist += (targetCamDist - camDist) * 0.1;
             camera.position.z = camDist;
