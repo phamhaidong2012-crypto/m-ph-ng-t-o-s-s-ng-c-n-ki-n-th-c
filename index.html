@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>4Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -199,7 +199,7 @@
             </div>
         </div>
 
-        <!-- Bên phải là không gian hành tinh trong suốt -->
+        <!-- Bên phải là không gian hành tinh trong suốt (Đã xoá bỏ cục màu vàng hoàn toàn) -->
         <div class="flex-1 relative flex items-center justify-center">
             <div id="transparent-planet-container" class="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
             <div class="absolute bottom-8 left-8 glass-panel px-6 py-4 rounded-2xl border border-emerald-500/30 shadow-2xl max-w-md pointer-events-none">
@@ -522,13 +522,12 @@
         let orbitRadiusY = 5.0; 
         let planetTilt = 23.5;
 
-        let isDragging = false, prevMouse = {x:0, y:0}, camDist = 13, targetCamDist = 13;
+        let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
         // Biến cho trang Gây Dựng Hành Tinh 3D riêng biệt
-        let buildScene, buildCamera, buildRenderer, transparentPlanetMesh, coreMesh;
-        let isBuildDragging = false, prevBuildMouse = {x:0, y:0};
+        let buildScene, buildCamera, buildRenderer, transparentPlanetMesh;
 
         function initApp() {
             buildStarListUI();
@@ -622,7 +621,6 @@
                     <span class="font-mono font-bold text-emerald-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
                 `;
                 row.addEventListener('click', () => {
-                    // ĐỔI MÀU HOẶC TƯƠNG TÁC KHI CHỌN NGUYÊN TỐ (Chỉ đổi màu như yêu cầu, bỏ cục màu vàng bên trong)
                     if (transparentPlanetMesh) {
                         transparentPlanetMesh.material.color.setHSL(Math.random(), 0.7, 0.6);
                     }
@@ -663,7 +661,7 @@
         }
 
         function initBuildPlanet3D() {
-            if (buildScene) return; // Khởi tạo 1 lần
+            if (buildScene) return;
 
             const container = document.getElementById('transparent-planet-container');
             buildScene = new THREE.Scene();
@@ -680,16 +678,16 @@
             pointLight.position.set(5, 5, 5);
             buildScene.add(pointLight);
 
-            // Tạo hành tinh hoàn toàn trong suốt (đã loại bỏ cục màu vàng ở tâm theo yêu cầu)
+            // Tạo hành tinh trong suốt (Đã loại bỏ hoàn toàn cục màu vàng ở tâm)
             const sphereGeo = new THREE.SphereGeometry(2, 64, 64);
             const material = new THREE.MeshPhysicalMaterial({
                 color: 0x10b981,
                 roughness: 0.1,
                 metalness: 0.1,
-                transmission: 0.95, // Độ truyền sáng cao để trong suốt hoàn toàn
-                thickness: 1.5,
+                transmission: 0.85,
+                thickness: 1.2,
                 transparent: true,
-                opacity: 0.5,
+                opacity: 0.6,
                 side: THREE.DoubleSide
             });
             transparentPlanetMesh = new THREE.Mesh(sphereGeo, material);
@@ -1045,7 +1043,6 @@
                     zoneLegend.classList.add('hidden');
                 }
                 
-                // Hiển thị Bảng Tuần Hoản ở góc trên bên trái theo yêu cầu
                 const periodicPanel = document.getElementById('periodic-table-panel');
                 if (periodicPanel) {
                     periodicPanel.classList.remove('hidden');
@@ -1145,43 +1142,36 @@
             document.getElementById('btn-select').addEventListener('click', triggerFireworksAndRemoveSidebar);
             document.getElementById('btn-confirm-zone').addEventListener('click', handleConfirmZone);
 
-            // Nút "Gây dựng hành tinh" trong bảng thông tin hành tinh
             document.getElementById('btn-build-planet').addEventListener('click', () => {
                 document.getElementById('planet-detail-modal').classList.add('hidden');
                 document.getElementById('build-planet-page').classList.remove('hidden');
                 initBuildPlanet3D();
             });
 
-            // Nút "X" ở trang Gây Dựng Hành Tinh để quay lại hệ sao
             document.getElementById('btn-close-build-page').addEventListener('click', () => {
                 document.getElementById('build-planet-page').classList.add('hidden');
             });
 
-            // Đóng bảng thông tin sao
             document.getElementById('btn-close-star-modal').addEventListener('click', () => {
                 document.getElementById('star-detail-modal').classList.add('hidden');
             });
 
-            // Đóng bảng thông tin hành tinh
             document.getElementById('btn-close-planet-modal').addEventListener('click', () => {
                 document.getElementById('planet-detail-modal').classList.add('hidden');
             });
 
-            // Nút "x" ẩn bảng tuần hoàn và hiện ô vuông nhỏ góc trên bên trái
             document.getElementById('btn-close-periodic').addEventListener('click', () => {
                 document.getElementById('periodic-table-panel').classList.add('hidden');
                 document.getElementById('periodic-toggle-btn').classList.remove('hidden');
                 document.getElementById('instruction-text').innerText = `Bảng tuần hoàn đã thu gọn. Nhấn vào ô vuông góc trái để mở lại!`;
             });
 
-            // Ô vuông nhỏ bấm vào để mở lại bảng tuần hoàn
             document.getElementById('periodic-toggle-btn').addEventListener('click', () => {
                 document.getElementById('periodic-toggle-btn').classList.add('hidden');
                 document.getElementById('periodic-table-panel').classList.remove('hidden');
                 document.getElementById('instruction-text').innerText = `Đã mở lại bảng tuần hoàn nguyên tố!`;
             });
 
-            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố chính
             const searchInput = document.getElementById('element-search-input');
             searchInput.addEventListener('input', (e) => {
                 const keyword = e.target.value.toLowerCase().trim();
@@ -1194,7 +1184,6 @@
                 renderElementsList(filtered);
             });
 
-            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố ở trang Gây Dựng
             const buildSearchInput = document.getElementById('build-element-search');
             buildSearchInput.addEventListener('input', (e) => {
                 const keyword = e.target.value.toLowerCase().trim();
