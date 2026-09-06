@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -61,7 +61,12 @@
         </div>
     </div>
 
-    <!-- Ô Bảng Tuần Hoàn (Góc trên bên trái, ẩn mặc định, hiện khi xác nhận) -->
+    <!-- Ô vuông nhỏ để mở lại bảng tuần hoàn khi bị ẩn -->
+    <div id="periodic-toggle-btn" class="absolute top-6 left-6 z-50 hidden w-12 h-12 glass-panel rounded-2xl flex items-center justify-center border border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)] cursor-pointer hover:bg-cyan-500/20 transition-all pointer-events-auto group" title="Mở Bảng Tuần Hoản">
+        <span class="text-cyan-400 text-lg font-black group-hover:scale-110 transition-transform">🧪</span>
+    </div>
+
+    <!-- Ô Bảng Tuần Hoản (Góc trên bên trái, ẩn mặc định, hiện khi xác nhận) -->
     <div id="periodic-table-panel" class="absolute top-6 left-6 z-50 hidden w-[450px] glass-panel rounded-3xl p-5 shadow-2xl border border-slate-800 pointer-events-auto">
         <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
             <div class="flex items-center space-x-2">
@@ -72,7 +77,13 @@
                 ✕
             </button>
         </div>
-        <div class="flex gap-3 h-[420px]">
+
+        <!-- Thanh tìm kiếm nguyên tố (tên tiếng Việt, kí hiệu, khối lượng) -->
+        <div class="mb-3">
+            <input id="element-search-input" type="text" placeholder="🔍 Tìm kiếm theo tên, kí hiệu hoặc khối lượng..." class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all">
+        </div>
+
+        <div class="flex gap-3 h-[370px]">
             <!-- Cột bên trái: Danh sách nguyên tố 1-94, cuộn chuột -->
             <div id="elements-list-container" class="w-1/2 overflow-y-auto space-y-1.5 pr-1">
                 <!-- Nội dung được sinh động bằng JS -->
@@ -309,7 +320,7 @@
             {no: 15, symbol: "P", name: "Photpho", mass: "30.974"},
             {no: 16, symbol: "S", name: "Lưu huỳnh", mass: "32.06"},
             {no: 17, symbol: "Cl", name: "Clo", mass: "35.45"},
-            {no: 18, symbol: "Ar", name: " Argon", mass: "39.95"},
+            {no: 18, symbol: "Ar", name: "Argon", mass: "39.95"},
             {no: 19, symbol: "K", name: "Kali", mass: "39.098"},
             {no: 20, symbol: "Ca", name: "Canxi", mass: "40.078"},
             {no: 21, symbol: "Sc", name: "Scandi", mass: "44.956"},
@@ -403,7 +414,7 @@
 
         function initApp() {
             buildStarListUI();
-            buildPeriodicTableUI();
+            renderElementsList(elementsData);
             init3D();
             setupEventListeners();
         }
@@ -435,11 +446,16 @@
             });
         }
 
-        function buildPeriodicTableUI() {
+        function renderElementsList(dataToRender) {
             const container = document.getElementById('elements-list-container');
             container.innerHTML = '';
 
-            elementsData.forEach(el => {
+            if (dataToRender.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-slate-500 py-8">Không tìm thấy nguyên tố phù hợp!</div>`;
+                return;
+            }
+
+            dataToRender.forEach(el => {
                 const row = document.createElement('div');
                 row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
                 row.innerHTML = `
@@ -927,14 +943,31 @@
             document.getElementById('btn-select').addEventListener('click', triggerFireworksAndRemoveSidebar);
             document.getElementById('btn-confirm-zone').addEventListener('click', handleConfirmZone);
 
-            // Xử lý nút "x" đóng bảng tuần hoàn để trở lại hệ hành tinh trước đó
+            // Nút "x" ẩn bảng tuần hoàn và hiện ô vuông nhỏ góc trên bên trái
             document.getElementById('btn-close-periodic').addEventListener('click', () => {
                 document.getElementById('periodic-table-panel').classList.add('hidden');
-                const zoneLegend = document.getElementById('zone-legend');
-                if (zoneLegend) {
-                    zoneLegend.classList.remove('hidden');
-                }
-                document.getElementById('instruction-text').innerText = `Đã quay lại hệ không gian hành tinh sống!`;
+                document.getElementById('periodic-toggle-btn').classList.remove('hidden');
+                document.getElementById('instruction-text').innerText = `Bảng tuần hoàn đã thu gọn. Nhấn vào ô vuông góc trái để mở lại!`;
+            });
+
+            // Ô vuông nhỏ bấm vào để mở lại bảng tuần hoàn
+            document.getElementById('periodic-toggle-btn').addEventListener('click', () => {
+                document.getElementById('periodic-toggle-btn').classList.add('hidden');
+                document.getElementById('periodic-table-panel').classList.remove('hidden');
+                document.getElementById('instruction-text').innerText = `Đã mở lại bảng tuần hoàn nguyên tố!`;
+            });
+
+            // Lắng nghe sự kiện thanh tìm kiếm nguyên tố
+            const searchInput = document.getElementById('element-search-input');
+            searchInput.addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase().trim();
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword) || 
+                    el.mass.toLowerCase().includes(keyword) ||
+                    el.no.toString() === keyword
+                );
+                renderElementsList(filtered);
             });
 
             const sliderRx = document.getElementById('slider-rx');
