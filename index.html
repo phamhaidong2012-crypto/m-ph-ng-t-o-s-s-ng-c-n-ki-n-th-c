@@ -395,7 +395,6 @@
             const axisLine = new THREE.Line(axisGeo, axisMat);
 
             const planetGeo = new THREE.SphereGeometry(0.35, 32, 32);
-            // Hành tinh màu trắng trong suốt (chưa xây)
             const planetMat = new THREE.MeshStandardMaterial({ 
                 color: 0xffffff, 
                 transparent: true, 
@@ -476,13 +475,20 @@
         }
 
         function updateRealtimeMetrics() {
-            const area = Math.PI * orbitRadiusX * orbitRadiusY;
             const days = Math.round(365.25 * Math.sqrt(Math.pow((orbitRadiusX + orbitRadiusY)/2 / 7.5, 3)));
             document.getElementById('real-year-days').innerText = `${days} Ngày`;
             
             const meanDist = (orbitRadiusX + orbitRadiusY) / 2;
             let temp = Math.round(15.0 + (7.5 - meanDist) * 8);
             document.getElementById('real-surface-temp').innerText = `${temp} °C`;
+        }
+
+        function triggerTransitionToPageTwo() {
+            isPageTwo = true;
+            document.getElementById('metrics-panel').classList.add('hidden');
+            document.getElementById('zone-legend').classList.remove('hidden');
+            document.getElementById('sidebar').style.transform = 'translateX(-120%)';
+            updateStarContent(currentSelectedIndex);
         }
 
         function setupEventListeners() {
@@ -541,113 +547,37 @@
             });
 
             document.getElementById('btn-confirm-zone').addEventListener('click', () => {
-                triggerFinalConfirmation();
+                document.getElementById('congrats-overlay').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('congrats-overlay').classList.add('hidden');
+                    isPageTwo = false;
+                    document.getElementById('metrics-panel').classList.remove('hidden');
+                    document.getElementById('zone-legend').classList.add('hidden');
+                    document.getElementById('sidebar').style.transform = 'translateX(0)';
+                    updateStarContent(currentSelectedIndex);
+                }, 2500);
             });
-        }
-
-        function triggerTransitionToPageTwo() {
-            const overlay = document.getElementById('congrats-overlay');
-            overlay.classList.remove('hidden');
-            runFireworks();
-
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                isPageTwo = true;
-                
-                document.getElementById('sidebar').classList.add('opacity-0', 'pointer-events-none');
-                document.getElementById('metrics-panel').classList.add('opacity-0', 'pointer-events-none');
-                document.getElementById('zone-legend').classList.remove('hidden');
-                document.getElementById('zone-system-name').innerText = `Hệ Sao: ${starsData[currentSelectedIndex].name}`;
-
-                updateStarContent(currentSelectedIndex);
-            }, 2000);
-        }
-
-        function triggerFinalConfirmation() {
-            const overlay = document.getElementById('congrats-overlay');
-            document.getElementById('congrats-desc').innerText = "Bạn đã thiết lập quỹ đạo và hành tinh trắng thành công.";
-            overlay.classList.remove('hidden');
-            runFireworks();
-
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                
-                // Xóa bảng điều chỉnh, vùng xanh (habZoneMesh) và đưa về lại hệ sao vừa chọn với hành tinh trắng tự quay quanh trục & quanh mặt trời
-                if (habZoneMesh) {
-                    scene.remove(habZoneMesh);
-                    habZoneMesh = null;
-                }
-                
-                // Ẩn bảng điều chỉnh & bảng thông số quỹ đạo
-                document.getElementById('zone-legend').classList.add('hidden');
-                
-                // Hiện lại sidebar và metrics panel của hệ sao chính
-                document.getElementById('sidebar').classList.remove('opacity-0', 'pointer-events-none');
-                document.getElementById('metrics-panel').classList.remove('opacity-0', 'pointer-events-none');
-
-                isPageTwo = false;
-                updateStarContent(currentSelectedIndex);
-            }, 2500);
-        }
-
-        function runFireworks() {
-            const fwCanvas = document.getElementById('fireworks-canvas');
-            fwCanvas.width = window.innerWidth;
-            fwCanvas.height = window.innerHeight;
-            const ctx = fwCanvas.getContext('2d');
-
-            let particles = [];
-            for(let i=0; i<120; i++) {
-                particles.push({
-                    x: fwCanvas.width / 2,
-                    y: fwCanvas.height / 2,
-                    vx: (Math.random() - 0.5) * 12,
-                    vy: (Math.random() - 0.5) * 12,
-                    color: ['#22d3ee', '#38bdf8', '#fbbf24', '#f43f5e', '#a855f7'][Math.floor(Math.random()*5)],
-                    alpha: 1,
-                    decay: Math.random() * 0.02 + 0.01
-                });
-            }
-
-            function frame() {
-                ctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.alpha -= p.decay;
-                    ctx.save();
-                    ctx.globalAlpha = Math.max(0, p.alpha);
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
-                    ctx.fill();
-                    ctx.restore();
-                });
-                particles = particles.filter(p => p.alpha > 0);
-                if(particles.length > 0) requestAnimationFrame(frame);
-            }
-            frame();
         }
 
         function animate() {
             requestAnimationFrame(animate);
 
-            camDist += (targetCamDist - camDist) * 0.05;
+            camDist += (targetCamDist - camDist) * 0.1;
             camera.position.z = camDist;
 
-            starGroup.rotation.y += 0.001;
-            if(sunSphere) sunSphere.rotation.y += 0.002;
-
-            if (isPageTwo) {
+            if (starGroup) {
+                starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.1;
+                starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.1;
+            }
+            if (interactiveOrbitGroup) {
+                interactiveOrbitGroup.rotation.y += (targetRot.y - interactiveOrbitGroup.rotation.y) * 0.1;
+                interactiveOrbitGroup.rotation.x += (targetRot.x - interactiveOrbitGroup.rotation.x) * 0.1;
+                
                 planetAngle += 0.005;
                 updatePlanetPosition();
-                if (planetMesh) {
-                    planetMesh.rotation.y += 0.02; // Tự xoay quanh trục
-                }
             }
 
-            starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.05;
-            starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.05;
+            if (starField) starField.rotation.y += 0.0003;
 
             renderer.render(scene, camera);
         }
