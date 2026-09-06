@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>1Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -136,7 +136,6 @@
             </div>
         </div>
 
-        <!-- Bảng chỉ số liên tục cập nhật quỹ đạo hành tinh & Bảng điều khiển quỹ đạo vùng xanh -->
         <div id="zone-legend" class="absolute top-6 left-6 z-20 pointer-events-none hidden space-y-3 w-80">
             <div class="glass-panel px-5 py-4 rounded-2xl border border-slate-800 shadow-xl space-y-2 pointer-events-auto">
                 <div class="text-xs font-bold text-cyan-300 flex items-center space-x-2">
@@ -144,11 +143,10 @@
                 </div>
                 <div class="text-[11px] text-slate-300 flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-cyan-500 inline-block shadow-[0_0_8px_#06b6d4]"></span>
-                    <span>Vùng Xanh: Kéo thả trực tiếp quỹ đạo hành tinh (Giữ <strong>Shift</strong> để đổi tròn/elip hoàn hảo)</span>
+                    <span>Vùng Xanh: Kéo thả quỹ đạo tự do (Giữ <strong>Shift</strong> để đổi tròn & phóng to đều)</span>
                 </div>
             </div>
 
-            <!-- BẢNG CHỈ SỐ THỜI GIAN THỰC CẬP NHẬT TỪ QUỸ ĐẠO -->
             <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 pointer-events-auto">
                 <div class="text-xs font-bold text-cyan-400 flex items-center justify-between border-b border-slate-800 pb-2">
                     <span>📊 CHỈ SỐ QUỸ ĐẠO THỜI GIAN THỰC</span>
@@ -204,14 +202,16 @@
         let isPageTwo = false;
         let scene, camera, renderer, sunSphere, orbitRing1, starField, starGroup;
         let habZoneMesh = null;
-        let interactiveOrbitGroup = null; // Nhóm chứa quỹ đạo hành tinh có thể kéo thả
+        let interactiveOrbitGroup = null;
         let planetMesh = null;
-        let isDraggingOrbitPlanet = false;
-        let isShiftPressed = false;
+        
+        let isDraggingOrbit = false;
+        let dragStartPoint = { x: 0, y: 0 };
+        let initialRx = 7.5;
+        let initialRy = 5.0;
 
-        // Các thông số quỹ đạo tương tác
-        let orbitRadiusX = 7.5; // Bán trục lớn
-        let orbitRadiusY = 5.0; // Bán trục nhỏ
+        let orbitRadiusX = 7.5; 
+        let orbitRadiusY = 5.0; 
 
         let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
 
@@ -339,8 +339,8 @@
         }
 
         function createHabitableZoneSystem(s) {
-            const innerRadius = 5.0;
-            const outerRadius = 10.5;
+            const innerRadius = 3.5;
+            const outerRadius = 13.0;
             const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 128);
 
             const canvas = document.createElement('canvas');
@@ -348,7 +348,7 @@
             const ctx = canvas.getContext('2d');
 
             const cx = 512, cy = 512;
-            const innerPx = 200, outerPx = 480;
+            const innerPx = 150, outerPx = 500;
 
             const gradZone = ctx.createRadialGradient(cx, cy, innerPx, cx, cy, outerPx);
             gradZone.addColorStop(0, 'rgba(6, 182, 212, 0.85)');    
@@ -359,7 +359,6 @@
             ctx.fillRect(0, 0, 1024, 1024);
 
             const zoneTexture = new THREE.CanvasTexture(canvas);
-
             const material = new THREE.MeshBasicMaterial({
                 map: zoneTexture,
                 side: THREE.DoubleSide,
@@ -371,33 +370,22 @@
             habZoneMesh = new THREE.Mesh(geometry, material);
             scene.add(habZoneMesh);
 
-            // Tạo quỹ đạo elip/tròn tương tác nằm trong vùng xanh
             createInteractiveEllipseOrbit();
         }
 
         function createInteractiveEllipseOrbit() {
             interactiveOrbitGroup = new THREE.Group();
 
-            // Vẽ đường viền elip quỹ đạo hành tinh
-            const curve = new THREE.EllipseCurve(
-                0, 0,              // ax, aY
-                orbitRadiusX, orbitRadiusY, // xRadius, yRadius
-                0, 2 * Math.PI,    // aStartAngle, aEndAngle
-                false,             // aClockwise
-                0                  // aRotation
-            );
-
+            const curve = new THREE.EllipseCurve(0, 0, orbitRadiusX, orbitRadiusY, 0, 2 * Math.PI, false, 0);
             const points = curve.getPoints(120);
             const geometry = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, p.y, 0)));
-            const material = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8, linewidth: 2 });
+            const material = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 });
             const ellipseLine = new THREE.Line(geometry, material);
             interactiveOrbitGroup.add(ellipseLine);
 
-            // Tạo hành tinh nằm trên quỹ đạo này
             const planetGeo = new THREE.SphereGeometry(0.35, 32, 32);
             const planetMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
             planetMesh = new THREE.Mesh(planetGeo, planetMat);
-            // Đặt vị trí ban đầu tại góc 0
             planetMesh.position.set(orbitRadiusX, 0, 0);
             interactiveOrbitGroup.add(planetMesh);
 
@@ -406,8 +394,8 @@
         }
 
         function updateInteractiveOrbitShape(rx, ry) {
-            orbitRadiusX = Math.max(5.2, Math.min(9.8, rx));
-            orbitRadiusY = Math.max(5.2, Math.min(9.8, ry));
+            orbitRadiusX = Math.max(2.0, Math.min(12.5, rx));
+            orbitRadiusY = Math.max(2.0, Math.min(12.5, ry));
 
             if (interactiveOrbitGroup) {
                 scene.remove(interactiveOrbitGroup);
@@ -433,23 +421,18 @@
         }
 
         function updateRealtimeMetrics() {
-            // Tính số ngày 1 năm theo định luật 3 Kepler tương đối dựa trên bán trục lớn trung bình (a = (rx+ry)/2)
             const a = (orbitRadiusX + orbitRadiusY) / 2;
             const yearDays = Math.round(Math.pow(a / 7.0, 1.5) * 365.25);
 
-            // Tính nhiệt độ trung bình năm dựa theo khoảng cách tới tâm sao (càng gần càng nóng, càng xa càng lạnh)
-            // Chuẩn 1 AU tương ứng bán kính 7 đơn vị 3D -> 15°C
             const avgDist = a;
             let surfTemp = Math.round((15.0 + (7.0 - avgDist) * 28.0) * 10) / 10;
             if (surfTemp < -200) surfTemp = -200;
 
-            // Tính độ lệch tâm (Eccentricity) của elip
             const maxR = Math.max(orbitRadiusX, orbitRadiusY);
             const minR = Math.min(orbitRadiusX, orbitRadiusY);
             const c = Math.sqrt(Math.abs(maxR * maxR - minR * minR));
             const eccentricity = Math.round((c / maxR) * 1000) / 1000;
 
-            // Đánh giá nước lỏng
             let waterStatus = "Tối Ưu (Ổn định)";
             let waterColor = "text-emerald-400";
             if (surfTemp < 0) {
@@ -460,7 +443,6 @@
                 waterColor = "text-rose-400";
             }
 
-            // Cập nhật DOM bảng chỉ số quỹ đạo
             document.getElementById('real-year-days').innerText = `${yearDays} Ngày`;
             const tempEl = document.getElementById('real-surface-temp');
             tempEl.innerText = `${surfTemp} °C`;
@@ -514,7 +496,7 @@
                 const zoneLegend = document.getElementById('zone-legend');
                 zoneLegend.classList.remove('hidden');
                 document.getElementById('zone-system-name').innerText = `Hệ Sao: ${selectedStar.name} (${selectedStar.rank})`;
-                document.getElementById('instruction-text').innerText = `Kéo thả quỹ đạo xanh trực tiếp • Giữ Shift để đổi hình tròn/elip`;
+                document.getElementById('instruction-text').innerText = `Kéo thả trực tiếp quỹ đạo • Giữ Shift để đổi tròn/phóng to`;
 
                 updateStarContent(currentSelectedIndex);
                 targetCamDist = 14;
@@ -541,6 +523,7 @@
                 );
             }
 
+            let animId;
             function loop() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 particles.forEach((p, index) => {
@@ -557,193 +540,150 @@
                     ctx.fill();
                     ctx.restore();
 
-                    if (p.alpha <= 0) {
-                        particles.splice(index, 1);
-                    }
+                    if (p.alpha <= 0) particles.splice(index, 1);
                 });
 
                 if (particles.length > 0) {
-                    requestAnimationFrame(loop);
+                    animId = requestAnimationFrame(loop);
                 } else {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    cancelAnimationFrame(animId);
                 }
             }
             loop();
         }
 
-        function createFireworkBurst(x, y, colors, particlesArray) {
-            const particleCount = 60;
-            for (let i = 0; i < particleCount; i++) {
+        function createFireworkBurst(x, y, colors, particles) {
+            const count = 40;
+            for (let i = 0; i < count; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 6 + 2;
-                particlesArray.push({
+                particles.push({
                     x: x,
                     y: y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
-                    size: Math.random() * 3 + 1,
+                    alpha: 1,
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    alpha: 1.0
+                    size: Math.random() * 3 + 1.5
                 });
             }
         }
 
         function setupEventListeners() {
-            const container = document.getElementById('canvas-container');
-            
-            // Xử lý phím Shift để ràng buộc hình dạng quỹ đạo tròn/elip hoàn hảo
-            window.addEventListener('keydown', e => {
+            document.getElementById('btn-select').addEventListener('click', () => {
+                triggerFireworksAndRemoveSidebar();
+            });
+
+            window.addEventListener('keydown', (e) => {
                 if (e.key === 'Shift') isShiftPressed = true;
             });
-            window.addEventListener('keyup', e => {
+            window.addEventListener('keyup', (e) => {
                 if (e.key === 'Shift') isShiftPressed = false;
             });
 
-            container.addEventListener('mousedown', e => { 
+            const container = document.getElementById('canvas-container');
+
+            container.addEventListener('mousedown', (e) => {
                 if (isPageTwo) {
-                    // Kiểm tra xem click có gần hành tinh hoặc vùng quỹ đạo để kéo thả thay đổi hình dạng không
-                    const mousePos = new THREE.Vector2(
+                    // Kiểm tra nếu click kéo vùng quỹ đạo
+                    const mouse = new THREE.Vector2(
                         (e.clientX / window.innerWidth) * 2 - 1,
                         -(e.clientY / window.innerHeight) * 2 + 1
                     );
                     const raycaster = new THREE.Raycaster();
-                    raycaster.setFromCamera(mousePos, camera);
+                    raycaster.setFromCamera(mouse, camera);
                     
-                    if (planetMesh) {
-                        const intersects = raycaster.intersectObject(planetMesh);
-                        if (intersects.length > 0 || e.button === 0) {
-                            isDraggingOrbitPlanet = true;
-                            return;
-                        }
-                    }
+                    // Kéo chỉnh hình dạng quỹ đạo trực tiếp
+                    isDraggingOrbit = true;
+                    dragStartPoint = { x: e.clientX, y: e.clientY };
+                    initialRx = orbitRadiusX;
+                    initialRy = orbitRadiusY;
                 }
 
-                isDragging = true; 
-                prevMouse = {x: e.clientX, y: e.clientY}; 
+                isDragging = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
             });
 
-            window.addEventListener('mousemove', e => {
-                if (isDraggingOrbitPlanet && isPageTwo) {
-                    // Tính toán tọa độ kéo thả chuột trong không gian 3D mặt phẳng song song màn hình
-                    const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-                    const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-                    
-                    // Chiếu từ camera ra không gian (z = 0)
-                    const vector = new THREE.Vector3(mouseX, mouseY, 0.5).unproject(camera);
-                    const dir = vector.sub(camera.position).normalize();
-                    const distance = -camera.position.z / dir.z;
-                    const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+            window.addEventListener('mousemove', (e) => {
+                if (isDraggingOrbit && isPageTwo) {
+                    const dx = (e.clientX - dragStartPoint.x) * 0.03;
+                    const dy = (e.clientY - dragStartPoint.y) * 0.03;
 
-                    let newRx = Math.abs(pos.x);
-                    let newRy = Math.abs(pos.y);
-
-                    // Nếu nhấn phím Shift thì ép thành đường tròn hoàn hảo (rx = ry)
                     if (isShiftPressed) {
-                        const avgR = (newRx + newRy) / 2;
-                        newRx = avgR;
-                        newRy = avgR;
+                        // Nhấn Shift: Tăng giảm đồng đều cả Rx và Ry thành hình tròn phóng to / thu nhỏ
+                        const scaleDelta = dx - dy;
+                        let newR = Math.max(2.5, Math.min(12.5, initialRx + scaleDelta));
+                        updateInteractiveOrbitShape(newR, newR);
+                    } else {
+                        // Kéo tự do tạo Elip
+                        let newRx = Math.max(2.5, Math.min(12.5, initialRx + dx));
+                        let newRy = Math.max(2.5, Math.min(12.5, initialRy - dy));
+                        updateInteractiveOrbitShape(newRx, newRy);
                     }
-
-                    updateInteractiveOrbitShape(newRx, newRy);
                     return;
                 }
 
-                if(!isDragging) return;
-                const dx = e.clientX - prevMouse.x;
-                const dy = e.clientY - prevMouse.y;
+                if (!isDragging) return;
+                const deltaX = e.clientX - prevMouse.x;
+                const deltaY = e.clientY - prevMouse.y;
 
-                targetRot.y += dx * 0.007;
-                targetRot.x += dy * 0.007;
-                targetRot.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRot.x));
-                prevMouse = {x: e.clientX, y: e.clientY};
+                targetRot.y += deltaX * 0.008;
+                targetRot.x += deltaY * 0.008;
+                targetRot.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, targetRot.x));
+
+                prevMouse = { x: e.clientX, y: e.clientY };
             });
 
-            window.addEventListener('mouseup', () => { 
-                isDragging = false; 
-                isDraggingOrbitPlanet = false;
-            });
-            
-            container.addEventListener('touchstart', e => {
-                if(e.touches.length === 1) { 
-                    isDragging = true; 
-                    prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY}; 
-                }
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                isDraggingOrbit = false;
             });
 
-            window.addEventListener('touchmove', e => {
-                if(!isDragging || e.touches.length !== 1) return;
-                const dx = e.touches[0].clientX - prevMouse.x;
-                const dy = e.touches[0].clientY - prevMouse.y;
-
-                targetRot.y += dx * 0.007;
-                targetRot.x += dy * 0.007;
-                targetRot.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRot.x));
-                prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+            container.addEventListener('wheel', (e) => {
+                targetCamDist += e.deltaY * 0.005;
+                targetCamDist = Math.max(6, Math.min(25, targetCamDist));
             });
-
-            window.addEventListener('touchend', () => { isDragging = false; });
-
-            container.addEventListener('wheel', e => {
-                targetCamDist = Math.max(7, Math.min(25, targetCamDist + e.deltaY * 0.005));
-            });
-
-            const selectBtn = document.getElementById('btn-select');
-            if(selectBtn) {
-                selectBtn.addEventListener('click', triggerFireworksAndRemoveSidebar);
-            }
 
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                const fwCanvas = document.getElementById('fireworks-canvas');
-                if(fwCanvas) {
-                    fwCanvas.width = window.innerWidth;
-                    fwCanvas.height = window.innerHeight;
-                }
             });
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            if(starGroup) {
-                starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.1;
-                starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.1;
-            }
-            if(sunSphere) {
-                sunSphere.rotation.y += 0.0012;
-            }
-            if(orbitRing1 && !isPageTwo) {
-                orbitRing1.rotation.y += 0.006;
-                const t = Date.now() * 0.002;
-                orbitRing1.userData.dot.position.x = Math.cos(t) * orbitRing1.userData.radius;
-                orbitRing1.userData.dot.position.z = Math.sin(t) * orbitRing1.userData.radius;
-            }
 
-            // Nếu đang ở trang 2, cho hành tinh chạy quỹ đạo elip quanh ngôi sao theo thời gian thực
-            if (isPageTwo && interactiveOrbitGroup && planetMesh) {
-                const t = Date.now() * 0.0015;
-                const px = Math.cos(t) * orbitRadiusX;
-                const py = Math.sin(t) * orbitRadiusY;
-                planetMesh.position.set(px, py, 0);
-            }
+            starGroup.rotation.y += 0.001;
+            if (starField) starField.rotation.y += 0.0002;
 
-            if (habZoneMesh) {
-                habZoneMesh.quaternion.copy(camera.quaternion);
-            }
-            if (interactiveOrbitGroup) {
-                interactiveOrbitGroup.quaternion.copy(camera.quaternion);
-            }
+            scene.rotation.y += (targetRot.y - scene.rotation.y) * 0.1;
+            scene.rotation.x += (targetRot.x - scene.rotation.x) * 0.1;
 
             camDist += (targetCamDist - camDist) * 0.1;
             camera.position.z = camDist;
-            if(starField) starField.rotation.y += 0.0002;
+
+            if (orbitRing1 && !isPageTwo) {
+                orbitRing1.rotation.z += 0.005;
+                const dot = orbitRing1.userData.dot;
+                const r = orbitRing1.userData.radius;
+                const time = Date.now() * 0.001;
+                dot.position.x = Math.cos(time) * r;
+                dot.position.y = Math.sin(time) * r;
+            }
+
+            // Hành tinh chạy vòng quanh quỹ đạo elip tương tác
+            if (isPageTwo && planetMesh) {
+                const time = Date.now() * 0.0008;
+                planetMesh.position.x = Math.cos(time) * orbitRadiusX;
+                planetMesh.position.y = Math.sin(time) * orbitRadiusY;
+            }
+
             renderer.render(scene, camera);
         }
 
-        window.onload = () => {
-            initApp();
-        };
+        window.onload = initApp;
     </script>
 </body>
 </html>
