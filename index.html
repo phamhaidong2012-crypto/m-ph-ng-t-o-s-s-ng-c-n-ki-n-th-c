@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -522,12 +522,12 @@
         let orbitRadiusY = 5.0; 
         let planetTilt = 23.5;
 
-        let isDragging = false, prevMouse = {x:0, y:0}, targetRot = {x:0, y:0}, camDist = 13, targetCamDist = 13;
+        let isDragging = false, prevMouse = {x:0, y:0}, camDist = 13, targetCamDist = 13;
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
         // Biến cho trang Gây Dựng Hành Tinh 3D riêng biệt
-        let buildScene, buildCamera, buildRenderer, transparentPlanetMesh;
+        let buildScene, buildCamera, buildRenderer, transparentPlanetMesh, coreMesh;
         let isBuildDragging = false, prevBuildMouse = {x:0, y:0};
 
         function initApp() {
@@ -622,7 +622,7 @@
                     <span class="font-mono font-bold text-emerald-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
                 `;
                 row.addEventListener('click', () => {
-                    // Cập nhật màu sắc hoặc hiệu ứng hành tinh trong suốt bên phải khi chọn nguyên tố
+                    // ĐỔI MÀU HOẶC TƯƠNG TÁC KHI CHỌN NGUYÊN TỐ (Chỉ đổi màu như yêu cầu, bỏ cục màu vàng bên trong)
                     if (transparentPlanetMesh) {
                         transparentPlanetMesh.material.color.setHSL(Math.random(), 0.7, 0.6);
                     }
@@ -680,26 +680,20 @@
             pointLight.position.set(5, 5, 5);
             buildScene.add(pointLight);
 
-            // Tạo hành tinh trong suốt
+            // Tạo hành tinh hoàn toàn trong suốt (đã loại bỏ cục màu vàng ở tâm theo yêu cầu)
             const sphereGeo = new THREE.SphereGeometry(2, 64, 64);
             const material = new THREE.MeshPhysicalMaterial({
                 color: 0x10b981,
                 roughness: 0.1,
                 metalness: 0.1,
-                transmission: 0.85, // Trong suốt thủy tinh/khí quyển
-                thickness: 1.2,
+                transmission: 0.95, // Độ truyền sáng cao để trong suốt hoàn toàn
+                thickness: 1.5,
                 transparent: true,
-                opacity: 0.6,
+                opacity: 0.5,
                 side: THREE.DoubleSide
             });
             transparentPlanetMesh = new THREE.Mesh(sphereGeo, material);
             buildScene.add(transparentPlanetMesh);
-
-            // Lõi hành tinh bên trong
-            const coreGeo = new THREE.SphereGeometry(0.8, 32, 32);
-            const coreMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
-            const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-            buildScene.add(coreMesh);
 
             animateBuildPlanet();
         }
