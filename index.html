@@ -49,6 +49,18 @@
         </div>
     </div>
 
+    <!-- Modal thông báo khi xác nhận thành công -->
+    <div id="success-overlay" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-emerald-500/50 shadow-[0_0_50px_rgba(16,185,129,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🌍🌿✨</div>
+            <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">Thiết Lập Sự Sống Thành Công!</h2>
+            <p class="text-sm text-slate-300 mb-4">Quỹ đạo và nhiệt độ đã đạt chuẩn tối ưu cho sự sống phát triển.</p>
+            <div class="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 inline-block">
+                Đã lưu cấu hình hành tinh!
+            </div>
+        </div>
+    </div>
+
     <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-50 pointer-events-auto glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800">
         <div>
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
@@ -450,7 +462,6 @@
             pCanvas.width = 512; pCanvas.height = 256;
             const pCtx = pCanvas.getContext('2d');
             
-            // Thay đổi màu hành tinh thành trắng trong suốt (RGBA với alpha thấp / màu nhạt trong suốt)
             pCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             pCtx.fillRect(0, 0, 512, 256);
             pCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
@@ -463,7 +474,6 @@
             pCtx.fillRect(0, 231, 512, 25);
             const pTexture = new THREE.CanvasTexture(pCanvas);
 
-            // Cấu hình Material của hành tinh để có độ trong suốt (transparent = true, opacity = 0.4 hoặc tương tự)
             const planetMat = new THREE.MeshStandardMaterial({ 
                 map: pTexture, 
                 roughness: 0.2, 
@@ -518,7 +528,6 @@
             pCanvas.width = 512; pCanvas.height = 256;
             const pCtx = pCanvas.getContext('2d');
             
-            // Màu trắng trong suốt cho hành tinh
             pCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             pCtx.fillRect(0, 0, 512, 256);
             pCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
@@ -657,6 +666,22 @@
             }, 2500);
         }
 
+        // Thêm hàm xử lý khi bấm nút Xác Nhận ở bảng điều chỉnh
+        function handleConfirmZone() {
+            const successOverlay = document.getElementById('success-overlay');
+            successOverlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                successOverlay.classList.add('hidden');
+                // Ẩn hoàn toàn bảng điều chỉnh (zone-legend) theo yêu cầu của chủ nhân
+                const zoneLegend = document.getElementById('zone-legend');
+                if (zoneLegend) {
+                    zoneLegend.classList.add('hidden');
+                }
+                document.getElementById('instruction-text').innerText = `Thiết lập hoàn tất! Xoay chuột để khám phá không gian hành tinh sống.`;
+            }, 2000);
+        }
+
         function startFireworksAnimation() {
             const canvas = document.getElementById('fireworks-canvas');
             const ctx = canvas.getContext('2d');
@@ -745,6 +770,7 @@
 
         function setupEventListeners() {
             document.getElementById('btn-select').addEventListener('click', triggerFireworksAndRemoveSidebar);
+            document.getElementById('btn-confirm-zone').addEventListener('click', handleConfirmZone);
 
             const sliderRx = document.getElementById('slider-rx');
             const sliderRy = document.getElementById('slider-ry');
