@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -306,48 +306,45 @@
         </div>
 
         <div class="flex-1 flex gap-6 overflow-hidden">
-            <!-- Cột trái: Bảng tuần hoàn nguyên tố để chọn/kéo ra -->
-            <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col">
-                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Tuần Hoản (Chọn & Triệu Hồi Nguyên Tố)</h4>
-                <div class="mb-3">
-                    <input id="compound-element-search" type="text" placeholder="🔍 Tìm kiếm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+            <!-- Cột trái: Bảng tuần hoàn nguyên tố để chọn/kéo ra & Bảng nhiệm vụ -->
+            <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col gap-4 overflow-y-auto">
+                <!-- Bảng nhiệm vụ -->
+                <div class="bg-cyan-950/40 p-4 rounded-2xl border border-cyan-500/30">
+                    <h4 class="text-xs font-bold text-cyan-300 mb-2 uppercase tracking-wider">🎯 Bảng Nhiệm Vụ Hợp Chất</h4>
+                    <div id="quest-description" class="text-xs text-slate-200 space-y-1">
+                        <p class="font-bold text-cyan-400" id="quest-name">Nhiệm vụ: FeSiO₃</p>
+                        <p id="quest-pressure-range">• Áp suất yêu cầu: 1.0 GPa đến 3.0 GPa</p>
+                        <p id="quest-temp-range">• Nhiệt độ yêu cầu: 1000 °C đến 2500 °C</p>
+                        <p id="quest-elements-req" class="text-amber-300">• Nguyên tố cần triệu hồi: 1x Fe, 1x Si, 3x O</p>
+                    </div>
                 </div>
-                <div id="compound-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                    <!-- Danh sách nguyên tố -->
+
+                <div class="flex flex-col flex-1">
+                    <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Tuần Hoản (Nhấn/Kéo Nguyên Tố)</h4>
+                    <div class="mb-3">
+                        <input id="compound-element-search" type="text" placeholder="🔍 Tìm kiếm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+                    </div>
+                    <div id="compound-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
+                        <!-- Danh sách nguyên tố -->
+                    </div>
                 </div>
             </div>
 
-            <!-- Cột giữa: Không gian thao tác / hình tròn ghi kí hiệu nguyên tử (Kéo thả, click triệu hồi, click vào mất) -->
+            <!-- Cột giữa: Không gian thao tác / hình tròn ghi kí hiệu nguyên tử có thể kéo thả -->
             <div class="flex-1 glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative bg-black/50 overflow-hidden">
-                <div class="absolute top-4 left-4 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-cyan-300 z-10">
-                    💡 Click nguyên tố bên trái để triệu hồi • Click vào nguyên tố để xóa • Kéo để di chuyển tự do
+                <div class="absolute top-4 left-4 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-cyan-300">
+                    Khu vực kéo thả nguyên tố (Nhấn để triệu hồi nhiều, kéo để di chuyển vị trí)
                 </div>
-                <div id="dropped-elements-container" class="w-full h-full relative border-2 border-dashed border-slate-800 rounded-2xl overflow-hidden mt-8">
-                    <div id="drop-placeholder" class="absolute inset-0 flex items-center justify-center text-xs text-slate-500 italic pointer-events-none">
-                        Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!
-                    </div>
+                <div id="dropped-elements-container" class="w-full h-full flex flex-wrap gap-4 items-center justify-center p-8 overflow-y-auto border-2 border-dashed border-slate-800 rounded-2xl relative">
+                    <span class="text-xs text-slate-500 italic pointer-events-none">Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy nhấn chọn từ bảng bên trái!</span>
                 </div>
             </div>
 
-            <!-- Cột phải: Bảng Nhiệm Vụ & Bảng kéo chỉnh Áp suất & Nhiệt độ -->
-            <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between overflow-y-auto">
-                <div class="space-y-4">
-                    <!-- BẢNG NHIỆM VỤ -->
-                    <div class="bg-cyan-950/30 p-4 rounded-2xl border border-cyan-500/30 space-y-2">
-                        <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center justify-between">
-                            <span>📋 Bảng Nhiệm Vụ Hiện Tại</span>
-                            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/40 animate-pulse">Nhiệm Vụ 1</span>
-                        </h4>
-                        <div class="text-xs space-y-1 text-slate-300">
-                            <p class="font-bold text-white">Tạo hợp chất: <span class="text-cyan-400 font-mono">FeSiO₃</span> (Silicat Sắt)</p>
-                            <p class="text-[11px] text-slate-400">• Nguyên tố yêu cầu: 1x Fe, 1x Si, 3x O</p>
-                            <p class="text-[11px] text-slate-400">• Áp suất yêu cầu: <span class="text-cyan-300 font-semibold">1.0 GPa – 3.0 GPa</span></p>
-                            <p class="text-[11px] text-slate-400">• Nhiệt độ yêu cầu: <span class="text-orange-300 font-semibold">1,000 °C – 1,500 °C</span></p>
-                        </div>
-                    </div>
-
-                    <h4 class="text-xs font-bold text-emerald-300 uppercase tracking-wider">🎛️ Điều Chỉnh Áp Suất & Nhiệt Độ</h4>
-                    <div class="space-y-4 text-xs">
+            <!-- Cột phải: Bảng kéo chỉnh Áp suất & Nhiệt độ -->
+            <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                    <h4 class="text-xs font-bold text-emerald-300 mb-4 uppercase tracking-wider">🎛️ Điều Chỉnh Áp Suất & Nhiệt Độ Môi Trường</h4>
+                    <div class="space-y-6 text-xs">
                         <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-2">
                             <div class="flex justify-between text-slate-300">
                                 <span>🌡️ Nhiệt độ tổng hợp:</span>
@@ -365,12 +362,12 @@
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-800 space-y-3 mt-4">
+                <div class="pt-4 border-t border-slate-800 space-y-3">
                     <button id="btn-synthesize-compound" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all cursor-pointer">
-                        ✨ Tổng Hợp Hợp Chất (Kiểm Tra Nhiệm Vụ)
+                        ✨ Tổng Hợp Hợp Chất Silicat Nặng
                     </button>
-                    <div id="synthesize-result-msg" class="text-[11px] text-slate-400 italic text-center">
-                        Triệu hồi đủ nguyên tố và chỉnh đúng thông số để hoàn thành nhiệm vụ!
+                    <div class="text-[11px] text-slate-400 italic text-center">
+                        Điều chỉnh số lượng nguyên tố, áp suất và nhiệt độ phù hợp để xảy ra phản ứng!
                     </div>
                 </div>
             </div>
@@ -471,7 +468,7 @@
                 </div>
                 <div class="text-[11px] text-slate-300 flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-cyan-500 inline-block shadow-[0_0_8px_#06b6d4]"></span>
-                    <span>Vùng Xanh: Đứng yên • Xoay chuột phóng to • Click vào Sao hoặc Hành tinh để xem thông số!</span>
+                    <span>Vùng Xanh: Đứng yên • Xoay chuột phóng to • Click vào Sao hoặc Hành tinh để xem thông tin!</span>
                 </div>
             </div>
 
@@ -566,7 +563,7 @@
         </div>
     </main>
 
-    <script[cite: 13]>
+    <script[cite: 12]>
         const starsData = [
             { id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", desc: "Ngôi sao trung tâm hệ mặt trời.", lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực.", pros: "Bức xạ quang học lý tưởng.", cons: "Nguy cơ bão mặt trời." },
             { id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", desc: "Hệ sao lân cận có đĩa bụi sao.", lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V ổn định.", pros: "Tuổi thọ siêu dài.", cons: "Hoạt động từ tính trẻ." },
@@ -852,74 +849,79 @@
                     <span class="font-mono font-bold text-cyan-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
                 `;
                 row.addEventListener('click', () => {
-                    const droppedContainer = document.getElementById('dropped-elements-container');
-                    const placeholder = document.getElementById('drop-placeholder');
-                    if (placeholder) placeholder.remove();
-
-                    const token = document.createElement('div');
-                    token.className = "absolute w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border-2 border-cyan-400/80 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.4)] cursor-grab active:cursor-grabbing select-none";
-                    token.dataset.symbol = el.symbol;
-                    
-                    // Random initial position inside container
-                    const maxW = droppedContainer.clientWidth - 70;
-                    const maxH = droppedContainer.clientHeight - 70;
-                    const posX = Math.max(10, Math.random() * maxW);
-                    const posY = Math.max(10, Math.random() * maxH);
-                    token.style.left = `${posX}px`;
-                    token.style.top = `${posY}px`;
-
-                    token.innerHTML = `
-                        <span class="text-sm font-black text-cyan-200 pointer-events-none">${el.symbol}</span>
-                        <span class="text-[9px] text-slate-300 pointer-events-none">${el.name}</span>
-                    `;
-
-                    // Dragging and clicking logic (Click to remove, drag to move)
-                    let isDraggingToken = false;
-                    let startX, startY;
-                    let hasMoved = false;
-
-                    token.addEventListener('pointerdown', (e) => {
-                        isDraggingToken = true;
-                        hasMoved = false;
-                        startX = e.clientX - token.offsetLeft;
-                        startY = e.clientY - token.offsetTop;
-                        token.setPointerCapture(e.pointerId);
-                        e.stopPropagation();
-                    });
-
-                    token.addEventListener('pointermove', (e) => {
-                        if (!isDraggingToken) return;
-                        const newX = e.clientX - startX;
-                        const newY = e.clientY - startY;
-                        if (Math.abs(newX - token.offsetLeft) > 3 || Math.abs(newY - token.offsetTop) > 3) {
-                            hasMoved = true;
-                        }
-                        token.style.left = `${Math.max(0, Math.min(droppedContainer.clientWidth - 64, newX))}px`;
-                        token.style.top = `${Math.max(0, Math.min(droppedContainer.clientHeight - 64, newY))}px`;
-                    });
-
-                    token.addEventListener('pointerup', (e) => {
-                        isDraggingToken = false;
-                        token.releasePointerCapture(e.pointerId);
-                        if (!hasMoved) {
-                            // Clicked without dragging -> remove element ("nhấn vào nguyên tố là nó mất")
-                            token.remove();
-                            if (droppedContainer.querySelectorAll('div[data-symbol]').length === 0) {
-                                if (!document.getElementById('drop-placeholder')) {
-                                    const ph = document.createElement('div');
-                                    ph.id = 'drop-placeholder';
-                                    ph.className = 'absolute inset-0 flex items-center justify-center text-xs text-slate-500 italic pointer-events-none';
-                                    ph.innerText = 'Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!';
-                                    droppedContainer.appendChild(ph);
-                                }
-                            }
-                        }
-                    });
-
-                    droppedContainer.appendChild(token);
+                    spawnDroppedElement(el.symbol, el.name);
                 });
                 container.appendChild(row);
             });
+        }
+
+        function spawnDroppedElement(symbol, name, customX, customY) {
+            const droppedContainer = document.getElementById('dropped-elements-container');
+            const placeholder = droppedContainer.querySelector('span');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            const token = document.createElement('div');
+            token.className = "absolute w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border-2 border-cyan-400/80 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.4)] cursor-grab active:cursor-grabbing hover:scale-110 transition-transform select-none";
+            token.dataset.symbol = symbol;
+            
+            // Random vị trí khởi tạo hoặc đặt theo tọa độ truyền vào
+            const rect = droppedContainer.getBoundingClientRect();
+            const posX = customX !== undefined ? customX : Math.random() * (rect.width - 80) + 20;
+            const posY = customY !== undefined ? customY : Math.random() * (rect.height - 80) + 20;
+            
+            token.style.left = `${posX}px`;
+            token.style.top = `${posY}px`;
+            
+            token.innerHTML = `
+                <span class="text-sm font-black text-cyan-200">${symbol}</span>
+                <span class="text-[8px] text-slate-300">${name || ''}</span>
+            `;
+            token.title = "Kéo để di chuyển, nhấp đúp để xóa";
+
+            // Xóa khi nhấp đúp
+            token.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                token.remove();
+                if (droppedContainer.querySelectorAll('.absolute').length === 0) {
+                    droppedContainer.innerHTML = `<span class="text-xs text-slate-500 italic pointer-events-none">Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy nhấn chọn từ bảng bên trái!</span>`;
+                }
+            });
+
+            // Logic kéo thả tự do bên trong khung
+            let isDraggingToken = false;
+            let startX = 0, startY = 0;
+
+            token.addEventListener('mousedown', (e) => {
+                isDraggingToken = true;
+                startX = e.clientX - token.offsetLeft;
+                startY = e.clientY - token.offsetTop;
+                token.style.zIndex = 100;
+                e.stopPropagation();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDraggingToken) return;
+                let newX = e.clientX - startX;
+                let newY = e.clientY - startY;
+                
+                const containerRect = droppedContainer.getBoundingClientRect();
+                newX = Math.max(0, Math.min(newX, containerRect.width - token.offsetWidth));
+                newY = Math.max(0, Math.min(newY, containerRect.height - token.offsetHeight));
+
+                token.style.left = `${newX}px`;
+                token.style.top = `${newY}px`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDraggingToken) {
+                    isDraggingToken = false;
+                    token.style.zIndex = 10;
+                }
+            });
+
+            droppedContainer.appendChild(token);
         }
 
         function init3D() {
@@ -1506,80 +1508,217 @@
                 document.getElementById('compound-builder-page').classList.add('hidden');
             });
 
-            // Synthesis mission validation logic
             document.getElementById('btn-synthesize-compound').addEventListener('click', () => {
-                const tokens = document.querySelectorAll('#dropped-elements-container div[data-symbol]');
-                let counts = {};
+                const temp = parseFloat(document.getElementById('slider-compound-temp').value);
+                const press = parseFloat(document.getElementById('slider-compound-press').value);
+                
+                // Đếm số lượng nguyên tố Fe, Si, O trên màn hình
+                const tokens = document.querySelectorAll('#dropped-elements-container .absolute');
+                let countFe = 0, countSi = 0, countO = 0;
                 tokens.forEach(t => {
-                    let sym = t.dataset.symbol;
-                    counts[sym] = (counts[sym] || 0) + 1;
+                    const sym = t.dataset.symbol;
+                    if (sym === 'Fe') countFe++;
+                    if (sym === 'Si') countSi++;
+                    if (sym === 'O') countO++;
                 });
 
-                const currentTemp = parseFloat(document.getElementById('slider-compound-temp').value);
-                const currentPress = parseFloat(document.getElementById('slider-compound-press').value);
-
-                // Mission 1: FeSiO3 -> Fe: 1, Si: 1, O: 3; Temp: 1000 - 1500°C; Press: 1.0 - 3.0 GPa
-                const feCount = counts['Fe'] || 0;
-                const siCount = counts['Si'] || 0;
-                const oCount = counts['O'] || 0;
-
-                const msgEl = document.getElementById('synthesize-result-msg');
-
-                if (feCount === 1 && siCount === 1 && oCount === 3) {
-                    if (currentTemp >= 1000 && currentTemp <= 1500 && currentPress >= 1.0 && currentPress <= 3.0) {
-                        msgEl.className = "text-[11px] text-emerald-400 font-bold text-center";
-                        msgEl.innerText = "🎉 Hoàn thành xuất sắc Nhiệm vụ 1! Tổng hợp thành công hợp chất FeSiO₃!";
-                        alert("🎉 Chúc mừng bạn đã tổng hợp thành công hợp chất FeSiO₃ ở áp suất và nhiệt độ chuẩn xác!");
-                    } else {
-                        msgEl.className = "text-[11px] text-orange-400 font-semibold text-center";
-                        msgEl.innerText = `⚠️ Đúng thành phần (FeSiO₃) nhưng áp suất (${currentPress} GPa) hoặc nhiệt độ (${currentTemp}°C) chưa nằm trong khoảng yêu cầu (1.0-3.0 GPa, 1000-1500°C)!`;
-                    }
+                if (countFe >= 1 && countSi >= 1 && countO >= 3 && press >= 1.0 && press <= 3.0 && temp >= 1000 && temp <= 2500) {
+                    alert("🎉 Phản ứng thành công! Đã tổng hợp thành công hợp chất FeSiO₃ dưới áp suất và nhiệt độ chuẩn xác!");
+                    document.getElementById('compound-builder-page').classList.add('hidden');
                 } else {
-                    msgEl.className = "text-[11px] text-rose-400 font-semibold text-center";
-                    msgEl.innerText = `❌ Sai số lượng nguyên tố! Đã có (Fe:${feCount}, Si:${siCount}, O:${oCount}). Yêu cầu: Fe:1, Si:1, O:3.`;
+                    alert(`❌ Phản ứng thất bại! Hãy kiểm tra lại:\n- Số lượng nguyên tố (cần ít nhất 1 Fe, 1 Si, 3 O).\n- Áp suất yêu cầu từ 1.0 đến 3.0 GPa (Hiện tại: ${press} GPa).\n- Nhiệt độ yêu cầu từ 1000 °C đến 2500 °C (Hiện tại: ${temp} °C).`);
                 }
             });
 
             const sliderCompTemp = document.getElementById('slider-compound-temp');
             const sliderCompPress = document.getElementById('slider-compound-press');
+            const valCompTemp = document.getElementById('val-compound-temp');
+            const valCompPress = document.getElementById('val-compound-press');
 
             sliderCompTemp.addEventListener('input', (e) => {
-                document.getElementById('val-compound-temp').innerText = `${Number(e.target.value).toLocaleString()} °C`;
+                valCompTemp.innerText = `${Number(e.target.value).toLocaleString()} °C`;
             });
-
             sliderCompPress.addEventListener('input', (e) => {
-                document.getElementById('val-compound-press').innerText = `${e.target.value} GPa`;
+                valCompPress.innerText = `${e.target.value} GPa`;
             });
 
-            // Search inputs for filtering lists
+            // Tìm kiếm nguyên tố trong bảng cấu thành hợp chất
             document.getElementById('compound-element-search').addEventListener('input', (e) => {
                 const keyword = e.target.value.toLowerCase();
-                const filtered = elementsData.filter(el => el.name.toLowerCase().includes(keyword) || el.symbol.toLowerCase().includes(keyword) || el.no.toString().includes(keyword));
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword) || 
+                    el.no.toString() === keyword
+                );
                 renderCompoundElementsList(filtered);
+            });
+
+            // Thanh tìm kiếm bảng tuần hoàn chính và phụ khác
+            document.getElementById('element-search-input').addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase();
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword) || 
+                    el.mass.toLowerCase().includes(keyword)
+                );
+                renderElementsList(filtered);
+            });
+
+            document.getElementById('build-element-search').addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase();
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword)
+                );
+                renderBuildElementsList(filtered);
+            });
+
+            document.getElementById('inner-element-search').addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase();
+                const filtered = elementsData.filter(el => 
+                    el.name.toLowerCase().includes(keyword) || 
+                    el.symbol.toLowerCase().includes(keyword)
+                );
+                renderInnerElementsList(filtered);
+            });
+
+            // Đóng/Mở bảng tuần hoàn chính
+            document.getElementById('btn-close-periodic').addEventListener('click', () => {
+                document.getElementById('periodic-table-panel').classList.add('hidden');
+                document.getElementById('periodic-toggle-btn').classList.remove('hidden');
+            });
+            document.getElementById('periodic-toggle-btn').addEventListener('click', () => {
+                document.getElementById('periodic-table-panel').classList.remove('hidden');
+                document.getElementById('periodic-toggle-btn').classList.add('hidden');
+            });
+
+            document.getElementById('btn-close-star-modal').addEventListener('click', () => {
+                document.getElementById('star-detail-modal').classList.add('hidden');
+            });
+            document.getElementById('btn-close-planet-modal').addEventListener('click', () => {
+                document.getElementById('planet-detail-modal').classList.add('hidden');
+            });
+
+            // Slider quỹ đạo chính
+            const sliderRx = document.getElementById('slider-rx');
+            const sliderRy = document.getElementById('slider-ry');
+            const sliderTilt = document.getElementById('slider-tilt');
+
+            sliderRx.addEventListener('input', (e) => {
+                document.getElementById('val-rx').innerText = e.target.value;
+                updateInteractiveOrbitShape(parseFloat(e.target.value), orbitRadiusY, planetTilt);
+            });
+            sliderRy.addEventListener('input', (e) => {
+                document.getElementById('val-ry').innerText = e.target.value;
+                updateInteractiveOrbitShape(orbitRadiusX, parseFloat(e.target.value), planetTilt);
+            });
+            sliderTilt.addEventListener('input', (e) => {
+                document.getElementById('val-tilt').innerText = `${e.target.value}°`;
+                updateInteractiveOrbitShape(orbitRadiusX, orbitRadiusY, parseFloat(e.target.value));
+            });
+
+            // Xoay / Phóng to thu nhỏ canvas 3D chính
+            const container = document.getElementById('canvas-container');
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - prevMouse.x;
+                const deltaY = e.clientY - prevMouse.y;
+                targetRot.y += deltaX * 0.008;
+                targetRot.x += deltaY * 0.008;
+                targetRot.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, targetRot.x));
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            container.addEventListener('wheel', (e) => {
+                targetCamDist += e.deltaY * 0.005;
+                targetCamDist = Math.max(6, Math.min(25, targetCamDist));
+            });
+
+            // Raycaster click chọn sao hoặc hành tinh
+            container.addEventListener('click', (e) => {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(scene.children, true);
+
+                if (intersects.length > 0) {
+                    const hit = intersects[0].object;
+                    if (hit.name === "SunMesh") {
+                        const s = starsData[currentSelectedIndex];
+                        document.getElementById('modal-star-name').innerText = s.name;
+                        document.getElementById('modal-star-rank').innerText = s.rank;
+                        document.getElementById('modal-star-temp').innerText = s.temp;
+                        document.getElementById('modal-star-mass').innerText = s.mass;
+                        document.getElementById('modal-star-radius').innerText = s.radius;
+                        document.getElementById('modal-star-dist').innerText = s.dist;
+                        document.getElementById('modal-star-desc').innerText = s.desc;
+                        document.getElementById('star-detail-modal').classList.remove('hidden');
+                        document.getElementById('planet-detail-modal').classList.add('hidden');
+                    } else if (hit.name === "PlanetMesh" || hit.parent?.name === "PlanetContainer") {
+                        if (isPageTwo) {
+                            document.getElementById('planet-detail-modal').classList.remove('hidden');
+                            document.getElementById('star-detail-modal').classList.add('hidden');
+                        }
+                    }
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
             });
         }
 
-        window.addEventListener('load', initApp);
-
+        let clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
-            if (starField) starField.rotation.y += 0.0002;
-            if (sunSphere) sunSphere.rotation.y += 0.001;
-            
+            const delta = clock.getDelta();
+
+            if (sunSphere) sunSphere.rotation.y += 0.002;
+            if (starField) starField.rotation.y += 0.0003;
+
+            if (orbitRing1 && orbitRing1.userData.dot) {
+                const time = Date.now() * 0.0008;
+                const r = orbitRing1.userData.radius;
+                orbitRing1.userData.dot.position.x = Math.cos(time) * r;
+                orbitRing1.userData.dot.position.z = Math.sin(time) * r;
+            }
+
             if (interactiveOrbitGroup) {
-                const container = interactiveOrbitGroup.getObjectByName("PlanetContainer");
-                if (container) {
-                    container.userData.angle = (container.userData.angle || 0) + 0.005;
-                    const angle = container.userData.angle;
-                    container.position.x = Math.cos(angle) * orbitRadiusX;
-                    container.position.y = Math.sin(angle) * orbitRadiusY;
-                    const pMesh = container.getObjectByName("PlanetMesh");
-                    if (pMesh) pMesh.rotation.y += 0.02;
+                const time = Date.now() * 0.0004;
+                const planetContainer = interactiveOrbitGroup.getObjectByName("PlanetContainer");
+                if (planetContainer) {
+                    const x = Math.cos(time) * orbitRadiusX;
+                    const y = Math.sin(time) * orbitRadiusY;
+                    planetContainer.position.set(x, y, 0);
+                    const planetMeshObj = planetContainer.getObjectByName("PlanetMesh");
+                    if (planetMeshObj) planetMeshObj.rotation.y += 0.01;
                 }
             }
 
+            starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.1;
+            starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.1;
+            
+            if (habZoneMesh) {
+                habZoneMesh.rotation.y = starGroup.rotation.y;
+                habZoneMesh.rotation.x = starGroup.rotation.x;
+            }
+            if (interactiveOrbitGroup) {
+                interactiveOrbitGroup.rotation.z = starGroup.rotation.y * 0.2;
+            }
+
+            camDist += (targetCamDist - camDist) * 0.1;
+            camera.position.z = camDist;
+
             renderer.render(scene, camera);
         }
+
+        window.onload = initApp;
     </script>
 </body>
 </html>
