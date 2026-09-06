@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>1Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -143,7 +143,7 @@
                 </div>
                 <div class="text-[11px] text-slate-300 flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-cyan-500 inline-block shadow-[0_0_8px_#06b6d4]"></span>
-                    <span>Vòng Lý Tưởng (Xanh): Vùng có thể có sự sống, nước lỏng tồn tại</span>
+                    <span>Vòng Xanh (Song song màn hình): Vùng sự sống ổn định tuyệt đối</span>
                 </div>
             </div>
         </div>
@@ -302,7 +302,8 @@
             const innerRadius = 6.2;
             const outerRadius = 9.5;
             const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 128);
-            geometry.rotateX(Math.PI / 2);
+            // Xoay vòng nằm song song hoàn toàn với màn hình (không nằm nghiêng theo starGroup)
+            // Thay vì xoay geometry.rotateX(Math.PI / 2), ta để nó hướng thẳng ra màn hình hoặc nằm phẳng theo mặt phẳng camera/scene gốc
 
             const canvas = document.createElement('canvas');
             canvas.width = 1024; canvas.height = 1024;
@@ -312,8 +313,8 @@
             const innerPx = 220, outerPx = 480;
 
             const gradZone = ctx.createRadialGradient(cx, cy, innerPx, cx, cy, outerPx);
-            gradZone.addColorStop(0, 'rgba(6, 182, 212, 0.9)');    // Vùng xanh lý tưởng
-            gradZone.addColorStop(0.7, 'rgba(6, 182, 212, 0.5)');  // Mờ dần ra ngoài
+            gradZone.addColorStop(0, 'rgba(6, 182, 212, 0.9)');    
+            gradZone.addColorStop(0.7, 'rgba(6, 182, 212, 0.5)');  
             gradZone.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
 
             ctx.fillStyle = gradZone;
@@ -325,12 +326,12 @@
                 map: zoneTexture,
                 side: THREE.DoubleSide,
                 transparent: true,
-                opacity: 0.95
+                opacity: 0.95,
+                depthWrite: false // Giúp vòng tròn hiển thị đè lên trên mượt mà, không bị vật thể bên trong che khuất góc nhìn xuyên qua
             });
 
             habZoneMesh = new THREE.Mesh(geometry, material);
-            habZoneMesh.rotation.x = 0.35;
-            habZoneMesh.rotation.z = 0.25;
+            // Đặt trực tiếp vào scene (không cho vào starGroup) để giữ cố định song song với màn hình, không bị nghiêng lệch theo góc xoay của chuột
             scene.add(habZoneMesh);
         }
 
@@ -375,7 +376,7 @@
                 const zoneLegend = document.getElementById('zone-legend');
                 zoneLegend.classList.remove('hidden');
                 document.getElementById('zone-system-name').innerText = `Hệ Sao: ${selectedStar.name} (${selectedStar.rank})`;
-                document.getElementById('instruction-text').innerText = `Khám phá vùng sinh thái quanh sao • Vòng biểu thị vùng đứng yên hoàn toàn`;
+                document.getElementById('instruction-text').innerText = `Vòng tròn xanh luôn song song tuyệt đối với màn hình`;
 
                 updateStarContent(currentSelectedIndex);
                 targetCamDist = 15;
@@ -525,6 +526,11 @@
                 const t = Date.now() * 0.002;
                 orbitRing1.userData.dot.position.x = Math.cos(t) * orbitRing1.userData.radius;
                 orbitRing1.userData.dot.position.z = Math.sin(t) * orbitRing1.userData.radius;
+            }
+
+            // Nếu vòng tròn sự sống tồn tại, ép nó luôn hướng góc nhìn vuông góc hoàn toàn (song song với màn hình camera)
+            if (habZoneMesh) {
+                habZoneMesh.quaternion.copy(camera.quaternion);
             }
 
             camDist += (targetCamDist - camDist) * 0.1;
