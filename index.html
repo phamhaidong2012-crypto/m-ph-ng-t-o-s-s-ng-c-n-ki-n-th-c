@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -169,6 +169,13 @@
                         <span class="text-slate-400">🌀 Độ lệch tâm quỹ đạo (e):</span>
                         <span id="real-eccentricity" class="font-bold text-purple-400">0.0167 (Gần tròn)</span>
                     </div>
+                </div>
+                
+                <!-- NÚT XÁC NHẬN ĐIỀU KIỆN SỰ SỐNG (20°C - 40°C) -->
+                <div class="pt-2">
+                    <button id="btn-confirm-zone" class="w-full font-bold text-xs py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700" disabled>
+                        <span>🔒 Chưa Đạt Điều Kiện Sự Sống (20°C - 40°C)</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -446,13 +453,25 @@
             document.getElementById('real-year-days').innerText = `${yearDays} Ngày`;
             const tempEl = document.getElementById('real-surface-temp');
             tempEl.innerText = `${surfTemp} °C`;
-            tempEl.className = `font-bold ${surfTemp >= 0 && surfTemp <= 50 ? 'text-rose-400' : 'text-blue-400'}`;
+            tempEl.className = `font-bold ${surfTemp >= 20 && surfTemp <= 40 ? 'text-emerald-400' : (surfTemp < 20 ? 'text-blue-400' : 'text-rose-400')}`;
 
             const waterEl = document.getElementById('real-water-status');
             waterEl.innerText = waterStatus;
             waterEl.className = `font-bold ${waterColor}`;
 
             document.getElementById('real-eccentricity').innerText = `${eccentricity} ${eccentricity < 0.05 ? '(Gần tròn)' : '(Elip rõ rệt)'}`;
+
+            // Kiểm tra điều kiện nhiệt độ từ 20°C đến 40°C để mở khóa nút Xác Nhận
+            const btnConfirm = document.getElementById('btn-confirm-zone');
+            if (surfTemp >= 20 && surfTemp <= 40) {
+                btnConfirm.disabled = false;
+                btnConfirm.className = "w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2";
+                btnConfirm.innerHTML = `<span>✅ Xác Nhận (Nhiệt độ hoàn hảo: ${surfTemp}°C)</span>`;
+            } else {
+                btnConfirm.disabled = true;
+                btnConfirm.className = "w-full font-bold text-xs py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700";
+                btnConfirm.innerHTML = `<span>🔒 Chưa Đạt Điều Kiện (Yêu cầu 20°C - 40°C, hiện tại ${surfTemp}°C)</span>`;
+            }
         }
 
         function createOrbit(radius, color, opacity) {
@@ -565,7 +584,7 @@
                     vy: Math.sin(angle) * speed,
                     alpha: 1,
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    size: Math.random() * 3 + 1.5
+                    size: Math.random() * 3 + 1
                 });
             }
         }
@@ -575,30 +594,34 @@
                 triggerFireworksAndRemoveSidebar();
             });
 
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'Shift') isShiftPressed = true;
-            });
-            window.addEventListener('keyup', (e) => {
-                if (e.key === 'Shift') isShiftPressed = false;
+            // Xử lý sự kiện nút xác nhận khi điều kiện nhiệt độ hợp lệ
+            document.getElementById('btn-confirm-zone').addEventListener('click', () => {
+                if(!document.getElementById('btn-confirm-zone').disabled) {
+                    alert("🌟 Tuyệt vời! Bạn đã xác nhận thành công vùng sự sống ổn định (nhiệt độ từ 20°C đến 40°C). Hành tinh đã sẵn sàng duy trì sự sống!");
+                }
             });
 
             const container = document.getElementById('canvas-container');
 
             container.addEventListener('mousedown', (e) => {
                 if (isPageTwo) {
-                    // Kiểm tra nếu click kéo vùng quỹ đạo
                     const mouse = new THREE.Vector2(
                         (e.clientX / window.innerWidth) * 2 - 1,
                         -(e.clientY / window.innerHeight) * 2 + 1
                     );
                     const raycaster = new THREE.Raycaster();
                     raycaster.setFromCamera(mouse, camera);
-                    
-                    // Kéo chỉnh hình dạng quỹ đạo trực tiếp
-                    isDraggingOrbit = true;
-                    dragStartPoint = { x: e.clientX, y: e.clientY };
-                    initialRx = orbitRadiusX;
-                    initialRy = orbitRadiusY;
+
+                    if (planetMesh) {
+                        const intersects = raycaster.intersectObject(planetMesh);
+                        if (intersects.length > 0) {
+                            isDraggingOrbit = true;
+                            dragStartPoint = { x: e.clientX, y: e.clientY };
+                            initialRx = orbitRadiusX;
+                            initialRy = orbitRadiusY;
+                            return;
+                        }
+                    }
                 }
 
                 isDragging = true;
@@ -606,31 +629,26 @@
             });
 
             window.addEventListener('mousemove', (e) => {
-                if (isDraggingOrbit && isPageTwo) {
+                if (isDraggingOrbit) {
                     const dx = (e.clientX - dragStartPoint.x) * 0.03;
                     const dy = (e.clientY - dragStartPoint.y) * 0.03;
 
-                    if (isShiftPressed) {
-                        // Nhấn Shift: Tăng giảm đồng đều cả Rx và Ry thành hình tròn phóng to / thu nhỏ
-                        const scaleDelta = dx - dy;
-                        let newR = Math.max(2.5, Math.min(12.5, initialRx + scaleDelta));
+                    if (e.shiftKey) {
+                        const newR = Math.max(2.0, Math.min(12.5, initialRx + dx));
                         updateInteractiveOrbitShape(newR, newR);
                     } else {
-                        // Kéo tự do tạo Elip
-                        let newRx = Math.max(2.5, Math.min(12.5, initialRx + dx));
-                        let newRy = Math.max(2.5, Math.min(12.5, initialRy - dy));
-                        updateInteractiveOrbitShape(newRx, newRy);
+                        updateInteractiveOrbitShape(initialRx + dx, initialRy - dy);
                     }
                     return;
                 }
 
                 if (!isDragging) return;
-                const deltaX = e.clientX - prevMouse.x;
-                const deltaY = e.clientY - prevMouse.y;
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
 
-                targetRot.y += deltaX * 0.008;
-                targetRot.x += deltaY * 0.008;
-                targetRot.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, targetRot.x));
+                targetRot.y += dx * 0.008;
+                targetRot.x += dy * 0.008;
+                targetRot.x = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, targetRot.x));
 
                 prevMouse = { x: e.clientX, y: e.clientY };
             });
@@ -641,9 +659,10 @@
             });
 
             container.addEventListener('wheel', (e) => {
+                e.preventDefault();
                 targetCamDist += e.deltaY * 0.005;
                 targetCamDist = Math.max(6, Math.min(25, targetCamDist));
-            });
+            }, { passive: false });
 
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
@@ -652,32 +671,39 @@
             });
         }
 
+        let clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
 
-            starGroup.rotation.y += 0.001;
-            if (starField) starField.rotation.y += 0.0002;
-
-            scene.rotation.y += (targetRot.y - scene.rotation.y) * 0.1;
-            scene.rotation.x += (targetRot.x - scene.rotation.x) * 0.1;
-
-            camDist += (targetCamDist - camDist) * 0.1;
+            camDist += (targetCamDist - camDist) * 0.05;
             camera.position.z = camDist;
 
-            if (orbitRing1 && !isPageTwo) {
-                orbitRing1.rotation.z += 0.005;
-                const dot = orbitRing1.userData.dot;
-                const r = orbitRing1.userData.radius;
-                const time = Date.now() * 0.001;
-                dot.position.x = Math.cos(time) * r;
-                dot.position.y = Math.sin(time) * r;
+            starGroup.rotation.y += (targetRot.y - starGroup.rotation.y) * 0.05;
+            starGroup.rotation.x += (targetRot.x - starGroup.rotation.x) * 0.05;
+
+            if (habZoneMesh) {
+                habZoneMesh.rotation.y += (targetRot.y - habZoneMesh.rotation.y) * 0.05;
+                habZoneMesh.rotation.x += (targetRot.x - habZoneMesh.rotation.x) * 0.05;
             }
 
-            // Hành tinh chạy vòng quanh quỹ đạo elip tương tác
-            if (isPageTwo && planetMesh) {
-                const time = Date.now() * 0.0008;
-                planetMesh.position.x = Math.cos(time) * orbitRadiusX;
-                planetMesh.position.y = Math.sin(time) * orbitRadiusY;
+            if (interactiveOrbitGroup) {
+                interactiveOrbitGroup.rotation.y += (targetRot.y - interactiveOrbitGroup.rotation.y) * 0.05;
+                interactiveOrbitGroup.rotation.x += (targetRot.x - interactiveOrbitGroup.rotation.x) * 0.05;
+            }
+
+            if (starField) starField.rotation.y -= 0.0005;
+
+            if (!isPageTwo && orbitRing1) {
+                const elapsedTime = clock.getElapsedTime();
+                const angle = elapsedTime * 0.5;
+                const x = Math.cos(angle) * orbitRing1.userData.radius;
+                const z = Math.sin(angle) * orbitRing1.userData.radius;
+                orbitRing1.userData.dot.position.set(x, 0, z);
+            } else if (isPageTwo && planetMesh) {
+                const elapsedTime = clock.getElapsedTime() * 0.4;
+                const x = Math.cos(elapsedTime) * orbitRadiusX;
+                const y = Math.sin(elapsedTime) * orbitRadiusY;
+                planetMesh.position.set(x, y, 0);
             }
 
             renderer.render(scene, camera);
