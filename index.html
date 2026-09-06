@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -308,7 +308,7 @@
         <div class="flex-1 flex gap-6 overflow-hidden">
             <!-- Cột trái: Bảng tuần hoàn nguyên tố để chọn/kéo ra -->
             <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col">
-                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Tuần Hoản (Chọn & Kéo Nguyên Tố)</h4>
+                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Tuần Hoản (Chọn & Triệu Hồi Nguyên Tố)</h4>
                 <div class="mb-3">
                     <input id="compound-element-search" type="text" placeholder="🔍 Tìm kiếm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
                 </div>
@@ -317,43 +317,45 @@
                 </div>
             </div>
 
-            <!-- Cột giữa: Không gian thao tác / hình tròn ghi kí hiệu nguyên tử -->
+            <!-- Cột giữa: Không gian thao tác / hình tròn ghi kí hiệu nguyên tử (Kéo thả, click triệu hồi, click vào mất) -->
             <div class="flex-1 glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative bg-black/50 overflow-hidden">
-                <div class="absolute top-4 left-4 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-cyan-300">
-                    Khu vực thả nguyên tố (Click vào nguyên tố bên trái để triệu hồi • Click vào hình tròn nguyên tố để xóa)
+                <div class="absolute top-4 left-4 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-cyan-300 z-10">
+                    💡 Click nguyên tố bên trái để triệu hồi • Click vào nguyên tố để xóa • Kéo để di chuyển tự do
                 </div>
-                <div id="dropped-elements-container" class="w-full h-full flex flex-wrap gap-4 items-center justify-center p-8 overflow-y-auto border-2 border-dashed border-slate-800 rounded-2xl">
-                    <span class="text-xs text-slate-500 italic">Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!</span>
+                <div id="dropped-elements-container" class="w-full h-full relative border-2 border-dashed border-slate-800 rounded-2xl overflow-hidden mt-8">
+                    <div id="drop-placeholder" class="absolute inset-0 flex items-center justify-center text-xs text-slate-500 italic pointer-events-none">
+                        Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!
+                    </div>
                 </div>
             </div>
 
-            <!-- Cột phải: Bảng nhiệm vụ & Bảng kéo chỉnh Áp suất & Nhiệt độ -->
+            <!-- Cột phải: Bảng Nhiệm Vụ & Bảng kéo chỉnh Áp suất & Nhiệt độ -->
             <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between overflow-y-auto">
                 <div class="space-y-4">
-                    <!-- Bảng Nhiệm Vụ Hợp Chất Mới Thêm Vào -->
-                    <div class="bg-slate-900/90 p-4 rounded-2xl border border-cyan-500/40 space-y-2 shadow-lg">
-                        <div class="flex items-center justify-between text-xs font-bold text-cyan-300 border-b border-slate-800 pb-2">
-                            <span>📋 Bảng Nhiệm Vụ Hợp Chất</span>
-                            <span id="mission-badge" class="text-[10px] bg-cyan-500/20 px-2 py-0.5 rounded text-cyan-300 border border-cyan-500/30">Nhiệm Vụ 1</span>
-                        </div>
-                        <div id="mission-content" class="text-xs text-slate-300 space-y-1.5">
-                            <div>• Hợp chất mục tiêu: <b id="m-name" class="text-cyan-400">FeSiO₃</b></div>
-                            <div>• Nguyên tố cần thả: <span id="m-reqs" class="text-amber-400 font-bold">1 Fe, 1 Si, 3 O</span></div>
-                            <div>• Áp suất yêu cầu: <span id="m-press" class="text-cyan-400 font-semibold">1.0 đến 3.0 GPa</span></div>
-                            <div>• Nhiệt độ yêu cầu: <span id="m-temp" class="text-orange-400 font-semibold">1,000°C đến 1,500°C</span></div>
+                    <!-- BẢNG NHIỆM VỤ -->
+                    <div class="bg-cyan-950/30 p-4 rounded-2xl border border-cyan-500/30 space-y-2">
+                        <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center justify-between">
+                            <span>📋 Bảng Nhiệm Vụ Hiện Tại</span>
+                            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/40 animate-pulse">Nhiệm Vụ 1</span>
+                        </h4>
+                        <div class="text-xs space-y-1 text-slate-300">
+                            <p class="font-bold text-white">Tạo hợp chất: <span class="text-cyan-400 font-mono">FeSiO₃</span> (Silicat Sắt)</p>
+                            <p class="text-[11px] text-slate-400">• Nguyên tố yêu cầu: 1x Fe, 1x Si, 3x O</p>
+                            <p class="text-[11px] text-slate-400">• Áp suất yêu cầu: <span class="text-cyan-300 font-semibold">1.0 GPa – 3.0 GPa</span></p>
+                            <p class="text-[11px] text-slate-400">• Nhiệt độ yêu cầu: <span class="text-orange-300 font-semibold">1,000 °C – 1,500 °C</span></p>
                         </div>
                     </div>
 
                     <h4 class="text-xs font-bold text-emerald-300 uppercase tracking-wider">🎛️ Điều Chỉnh Áp Suất & Nhiệt Độ</h4>
                     <div class="space-y-4 text-xs">
-                        <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-2">
                             <div class="flex justify-between text-slate-300">
                                 <span>🌡️ Nhiệt độ tổng hợp:</span>
                                 <span id="val-compound-temp" class="font-bold text-orange-400">1,200 °C</span>
                             </div>
                             <input id="slider-compound-temp" type="range" min="100" max="5000" step="50" value="1200" class="w-full accent-orange-400 cursor-pointer">
                         </div>
-                        <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-2">
                             <div class="flex justify-between text-slate-300">
                                 <span>⏲️ Áp suất môi trường:</span>
                                 <span id="val-compound-press" class="font-bold text-cyan-400">1.5 GPa</span>
@@ -363,12 +365,12 @@
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-800 space-y-3">
+                <div class="pt-4 border-t border-slate-800 space-y-3 mt-4">
                     <button id="btn-synthesize-compound" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all cursor-pointer">
-                        ✨ Tiến Hành Tổng Hợp Phản Ứng
+                        ✨ Tổng Hợp Hợp Chất (Kiểm Tra Nhiệm Vụ)
                     </button>
-                    <div class="text-[11px] text-slate-400 italic text-center">
-                        Triệu hồi đúng số lượng nguyên tố và chỉnh đúng thông số để hoàn thành nhiệm vụ!
+                    <div id="synthesize-result-msg" class="text-[11px] text-slate-400 italic text-center">
+                        Triệu hồi đủ nguyên tố và chỉnh đúng thông số để hoàn thành nhiệm vụ!
                     </div>
                 </div>
             </div>
@@ -564,7 +566,7 @@
         </div>
     </main>
 
-    <script>
+    <script[cite: 13]>
         const starsData = [
             { id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", desc: "Ngôi sao trung tâm hệ mặt trời.", lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực.", pros: "Bức xạ quang học lý tưởng.", cons: "Nguy cơ bão mặt trời." },
             { id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", desc: "Hệ sao lân cận có đĩa bụi sao.", lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V ổn định.", pros: "Tuổi thọ siêu dài.", cons: "Hoạt động từ tính trẻ." },
@@ -676,14 +678,6 @@
             {no: 94, symbol: "Pu", name: "Plutoni", mass: "[244]"}
         ];
 
-        // Dữ liệu danh sách nhiệm vụ hợp chất
-        const missions = [
-            { id: 1, name: "FeSiO₃", reqs: { "Fe": 1, "Si": 1, "O": 3 }, minTemp: 1000, maxTemp: 1500, minPress: 1.0, maxPress: 3.0 },
-            { id: 2, name: "MgSiO₃", reqs: { "Mg": 1, "Si": 1, "O": 3 }, minTemp: 1200, maxTemp: 1800, minPress: 2.0, maxPress: 5.0 },
-            { id: 3, name: "SiO₂", reqs: { "Si": 1, "O": 2 }, minTemp: 600, maxTemp: 1100, minPress: 0.5, maxPress: 2.0 }
-        ];
-        let currentMissionIdx = 0;
-
         let currentSelectedIndex = 0;
         let isPageTwo = false;
         let scene, camera, renderer, sunSphere, orbitRing1, starField, starGroup;
@@ -708,19 +702,8 @@
             renderBuildElementsList(elementsData);
             renderInnerElementsList(elementsData);
             renderCompoundElementsList(elementsData);
-            updateMissionUI();
             init3D();
             setupEventListeners();
-        }
-
-        function updateMissionUI() {
-            const m = missions[currentMissionIdx];
-            document.getElementById('mission-badge').innerText = `Nhiệm Vụ ${m.id} / ${missions.length}`;
-            document.getElementById('m-name').innerText = m.name;
-            let reqStr = Object.entries(m.reqs).map(([sym, qty]) => `${qty} ${sym}`).join(', ');
-            document.getElementById('m-reqs').innerText = reqStr;
-            document.getElementById('m-press').innerText = `${m.minPress} đến ${m.maxPress} GPa`;
-            document.getElementById('m-temp').innerText = `${m.minTemp.toLocaleString()}°C đến ${m.maxTemp.toLocaleString()}°C`;
         }
 
         function buildStarListUI() {
@@ -870,23 +853,69 @@
                 `;
                 row.addEventListener('click', () => {
                     const droppedContainer = document.getElementById('dropped-elements-container');
-                    if (droppedContainer.querySelector('span')) {
-                        droppedContainer.innerHTML = '';
-                    }
+                    const placeholder = document.getElementById('drop-placeholder');
+                    if (placeholder) placeholder.remove();
+
                     const token = document.createElement('div');
-                    token.className = "w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border-2 border-cyan-400/80 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.4)] cursor-pointer hover:scale-110 transition-transform animate-pulse";
-                    token.dataset.symbol = el.symbol; // Gán kí hiệu để kiểm tra nhiệm vụ
+                    token.className = "absolute w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border-2 border-cyan-400/80 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.4)] cursor-grab active:cursor-grabbing select-none";
+                    token.dataset.symbol = el.symbol;
+                    
+                    // Random initial position inside container
+                    const maxW = droppedContainer.clientWidth - 70;
+                    const maxH = droppedContainer.clientHeight - 70;
+                    const posX = Math.max(10, Math.random() * maxW);
+                    const posY = Math.max(10, Math.random() * maxH);
+                    token.style.left = `${posX}px`;
+                    token.style.top = `${posY}px`;
+
                     token.innerHTML = `
-                        <span class="text-sm font-black text-cyan-200">${el.symbol}</span>
-                        <span class="text-[9px] text-slate-300">${el.name}</span>
+                        <span class="text-sm font-black text-cyan-200 pointer-events-none">${el.symbol}</span>
+                        <span class="text-[9px] text-slate-300 pointer-events-none">${el.name}</span>
                     `;
-                    token.title = "Nhấn để xóa nguyên tố này";
-                    token.addEventListener('click', () => {
-                        token.remove();
-                        if (droppedContainer.children.length === 0) {
-                            droppedContainer.innerHTML = `<span class="text-xs text-slate-500 italic">Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!</span>`;
+
+                    // Dragging and clicking logic (Click to remove, drag to move)
+                    let isDraggingToken = false;
+                    let startX, startY;
+                    let hasMoved = false;
+
+                    token.addEventListener('pointerdown', (e) => {
+                        isDraggingToken = true;
+                        hasMoved = false;
+                        startX = e.clientX - token.offsetLeft;
+                        startY = e.clientY - token.offsetTop;
+                        token.setPointerCapture(e.pointerId);
+                        e.stopPropagation();
+                    });
+
+                    token.addEventListener('pointermove', (e) => {
+                        if (!isDraggingToken) return;
+                        const newX = e.clientX - startX;
+                        const newY = e.clientY - startY;
+                        if (Math.abs(newX - token.offsetLeft) > 3 || Math.abs(newY - token.offsetTop) > 3) {
+                            hasMoved = true;
+                        }
+                        token.style.left = `${Math.max(0, Math.min(droppedContainer.clientWidth - 64, newX))}px`;
+                        token.style.top = `${Math.max(0, Math.min(droppedContainer.clientHeight - 64, newY))}px`;
+                    });
+
+                    token.addEventListener('pointerup', (e) => {
+                        isDraggingToken = false;
+                        token.releasePointerCapture(e.pointerId);
+                        if (!hasMoved) {
+                            // Clicked without dragging -> remove element ("nhấn vào nguyên tố là nó mất")
+                            token.remove();
+                            if (droppedContainer.querySelectorAll('div[data-symbol]').length === 0) {
+                                if (!document.getElementById('drop-placeholder')) {
+                                    const ph = document.createElement('div');
+                                    ph.id = 'drop-placeholder';
+                                    ph.className = 'absolute inset-0 flex items-center justify-center text-xs text-slate-500 italic pointer-events-none';
+                                    ph.innerText = 'Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!';
+                                    droppedContainer.appendChild(ph);
+                                }
+                            }
                         }
                     });
+
                     droppedContainer.appendChild(token);
                 });
                 container.appendChild(row);
@@ -1477,61 +1506,37 @@
                 document.getElementById('compound-builder-page').classList.add('hidden');
             });
 
-            // LOGIC KIỂM TRA NHIỆM VỤ KHI NHẤN TỔNG HỢP
+            // Synthesis mission validation logic
             document.getElementById('btn-synthesize-compound').addEventListener('click', () => {
-                const mission = missions[currentMissionIdx];
-                const droppedTokens = document.querySelectorAll('#dropped-elements-container > div');
-                
-                // Đếm số lượng từng nguyên tố đang được thả
-                const currentCounts = {};
-                droppedTokens.forEach(token => {
-                    const sym = token.dataset.symbol;
-                    if (sym) {
-                        currentCounts[sym] = (currentCounts[sym] || 0) + 1;
-                    }
+                const tokens = document.querySelectorAll('#dropped-elements-container div[data-symbol]');
+                let counts = {};
+                tokens.forEach(t => {
+                    let sym = t.dataset.symbol;
+                    counts[sym] = (counts[sym] || 0) + 1;
                 });
 
                 const currentTemp = parseFloat(document.getElementById('slider-compound-temp').value);
                 const currentPress = parseFloat(document.getElementById('slider-compound-press').value);
 
-                // Kiểm tra điều kiện nguyên tố
-                let elementsMatch = true;
-                for (let [sym, reqQty] of Object.entries(mission.reqs)) {
-                    if ((currentCounts[sym] || 0) !== reqQty) {
-                        elementsMatch = false;
-                        break;
-                    }
-                }
-                // Kiểm tra xem có thừa nguyên tố nào khác không
-                for (let sym of Object.keys(currentCounts)) {
-                    if (!mission.reqs[sym]) {
-                        elementsMatch = false;
-                        break;
-                    }
-                }
+                // Mission 1: FeSiO3 -> Fe: 1, Si: 1, O: 3; Temp: 1000 - 1500°C; Press: 1.0 - 3.0 GPa
+                const feCount = counts['Fe'] || 0;
+                const siCount = counts['Si'] || 0;
+                const oCount = counts['O'] || 0;
 
-                const tempMatch = currentTemp >= mission.minTemp && currentTemp <= mission.maxTemp;
-                const pressMatch = currentPress >= mission.minPress && currentPress <= mission.maxPress;
+                const msgEl = document.getElementById('synthesize-result-msg');
 
-                if (elementsMatch && tempMatch && pressMatch) {
-                    alert(`🎉 Chúc mừng! Đã tổng hợp thành công hợp chất ${mission.name} ở Áp suất ${currentPress} GPa và Nhiệt độ ${currentTemp}°C!`);
-                    currentMissionIdx = (currentMissionIdx + 1) % missions.length;
-                    updateMissionUI();
-                    document.getElementById('dropped-elements-container').innerHTML = `<span class="text-xs text-slate-500 italic">Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn từ bảng bên trái!</span>`;
-                    document.getElementById('compound-builder-page').classList.add('hidden');
+                if (feCount === 1 && siCount === 1 && oCount === 3) {
+                    if (currentTemp >= 1000 && currentTemp <= 1500 && currentPress >= 1.0 && currentPress <= 3.0) {
+                        msgEl.className = "text-[11px] text-emerald-400 font-bold text-center";
+                        msgEl.innerText = "🎉 Hoàn thành xuất sắc Nhiệm vụ 1! Tổng hợp thành công hợp chất FeSiO₃!";
+                        alert("🎉 Chúc mừng bạn đã tổng hợp thành công hợp chất FeSiO₃ ở áp suất và nhiệt độ chuẩn xác!");
+                    } else {
+                        msgEl.className = "text-[11px] text-orange-400 font-semibold text-center";
+                        msgEl.innerText = `⚠️ Đúng thành phần (FeSiO₃) nhưng áp suất (${currentPress} GPa) hoặc nhiệt độ (${currentTemp}°C) chưa nằm trong khoảng yêu cầu (1.0-3.0 GPa, 1000-1500°C)!`;
+                    }
                 } else {
-                    let errMessage = `⚠️ Phản ứng thất bại!\n`;
-                    if (!elementsMatch) {
-                        let expected = Object.entries(mission.reqs).map(([s, q]) => `${q} ${s}`).join(', ');
-                        errMessage += `- Sai số lượng/loại nguyên tố (Cần chính xác: ${expected}).\n`;
-                    }
-                    if (!tempMatch) {
-                        errMessage += `- Nhiệt độ chưa đạt (Hiện tại: ${currentTemp}°C, yêu cầu: ${mission.minTemp}°C - ${mission.maxTemp}°C).\n`;
-                    }
-                    if (!pressMatch) {
-                        errMessage += `- Áp suất chưa đạt (Hiện tại: ${currentPress} GPa, yêu cầu: ${mission.minPress} - ${mission.maxPress} GPa).\n`;
-                    }
-                    alert(errMessage);
+                    msgEl.className = "text-[11px] text-rose-400 font-semibold text-center";
+                    msgEl.innerText = `❌ Sai số lượng nguyên tố! Đã có (Fe:${feCount}, Si:${siCount}, O:${oCount}). Yêu cầu: Fe:1, Si:1, O:3.`;
                 }
             });
 
@@ -1539,34 +1544,42 @@
             const sliderCompPress = document.getElementById('slider-compound-press');
 
             sliderCompTemp.addEventListener('input', (e) => {
-                document.getElementById('val-compound-temp').innerText = `${parseInt(e.target.value).toLocaleString()} °C`;
+                document.getElementById('val-compound-temp').innerText = `${Number(e.target.value).toLocaleString()} °C`;
             });
 
             sliderCompPress.addEventListener('input', (e) => {
                 document.getElementById('val-compound-press').innerText = `${e.target.value} GPa`;
             });
 
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+            // Search inputs for filtering lists
+            document.getElementById('compound-element-search').addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase();
+                const filtered = elementsData.filter(el => el.name.toLowerCase().includes(keyword) || el.symbol.toLowerCase().includes(keyword) || el.no.toString().includes(keyword));
+                renderCompoundElementsList(filtered);
             });
         }
 
+        window.addEventListener('load', initApp);
+
         function animate() {
             requestAnimationFrame(animate);
-
-            if (starGroup) starGroup.rotation.y += 0.001;
             if (starField) starField.rotation.y += 0.0002;
-
-            if (isPageTwo && interactiveOrbitGroup) {
-                interactiveOrbitGroup.rotation.z += 0.003;
+            if (sunSphere) sunSphere.rotation.y += 0.001;
+            
+            if (interactiveOrbitGroup) {
+                const container = interactiveOrbitGroup.getObjectByName("PlanetContainer");
+                if (container) {
+                    container.userData.angle = (container.userData.angle || 0) + 0.005;
+                    const angle = container.userData.angle;
+                    container.position.x = Math.cos(angle) * orbitRadiusX;
+                    container.position.y = Math.sin(angle) * orbitRadiusY;
+                    const pMesh = container.getObjectByName("PlanetMesh");
+                    if (pMesh) pMesh.rotation.y += 0.02;
+                }
             }
 
             renderer.render(scene, camera);
         }
-
-        window.onload = initApp;
     </script>
 </body>
 </html>
