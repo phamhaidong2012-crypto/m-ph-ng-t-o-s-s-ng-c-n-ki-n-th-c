@@ -1,118 +1,1355 @@
-import { PlanetLayer } from '../types';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá Hệ Sao & Gây Dựng Sự Sống 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #030712; font-family: 'Inter', sans-serif; user-select: none; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .glass-panel { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 3px; }
+        
+        .sidebar-transition {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+        }
 
-export const PLANET_LAYERS: PlanetLayer[] = [
-  {
-    id: 1,
-    name: "Lõi trong",
-    en: "Inner Core",
-    color: "#22d3ee",
-    caption: "Lõi trong: khối cầu Fe–Ni rắn do áp suất cực lớn (~330–360 GPa), nhiệt ~5,200 °C.",
-    tempSlider: { min: 100, max: 5000, step: 50, value: 1200 },
-    pressSlider: { min: 0.1, max: 50, step: 0.1, value: 1.5 },
-    requirements: [
-      { kind: 'element', label: 'Nguyên tử Sắt (Fe)', note: '≈ 80%' },
-      { kind: 'element', label: 'Nguyên tử Niken (Ni)', note: '≈ 15%' },
-      { kind: 'group', label: 'Hợp chất Silicat nặng (FeSiO₃, MgSiO₃...)' }
-    ],
-    tasks: [
-      { id: 1, formula: "FeSiO₃", name: "Sắt silicat", requirements: { Fe: 1, Si: 1, O: 3 }, tempMin: 900, tempMax: 1300, pressMin: 1.0, pressMax: 3.0 },
-      { id: 2, formula: "MgSiO₃", name: "Magie silicat", requirements: { Mg: 1, Si: 1, O: 3 }, tempMin: 800, tempMax: 1200, pressMin: 1.5, pressMax: 5.0 },
-      { id: 3, formula: "CaSiO₃", name: "Canxi silicat", requirements: { Ca: 1, Si: 1, O: 3 }, tempMin: 900, tempMax: 1400, pressMin: 1.0, pressMax: 4.0 },
-      { id: 4, formula: "Fe₂SiO₄", name: "Fayalit (silicat sắt)", requirements: { Fe: 2, Si: 1, O: 4 }, tempMin: 1000, tempMax: 1500, pressMin: 2.0, pressMax: 6.0 },
-      { id: 5, formula: "Mg₂SiO₄", name: "Forsterit (silicat magie)", requirements: { Mg: 2, Si: 1, O: 4 }, tempMin: 1100, tempMax: 1600, pressMin: 2.0, pressMax: 8.0 }
-    ]
-  },
-  {
-    id: 2,
-    name: "Lõi ngoài",
-    en: "Outer Core",
-    color: "#f59e0b",
-    caption: "Lõi ngoài: hợp kim Fe–Ni lỏng pha nguyên tố nhẹ (S, O, Si, C) — nguồn sinh từ trường bảo vệ sinh quyển.",
-    tempSlider: { min: 500, max: 6000, step: 50, value: 1500 },
-    pressSlider: { min: 0.1, max: 60, step: 0.1, value: 10 },
-    requirements: [
-      { kind: 'element', label: 'Nguyên tử Sắt (Fe)', note: '≈ 85%' },
-      { kind: 'element', label: 'Nguyên tử Niken (Ni)', note: '≈ 5%' },
-      { kind: 'element', label: 'Nguyên tử Lưu huỳnh (S)', note: '≈ 2%' },
-      { kind: 'crafted', formula: 'FeSiO₃', label: 'Sắt silicat FeSiO₃ (đã tổng hợp ở lõi trong)' },
-      { kind: 'group', label: 'Hợp kim & hợp chất lõi ngoài (FeS, FeO, FeSi, Fe₃C, FeNi₃)' }
-    ],
-    tasks: [
-      { id: 201, formula: "FeS", name: "Troilit (sunfua sắt)", requirements: { Fe: 1, S: 1 }, tempMin: 1200, tempMax: 1600, pressMin: 5.0, pressMax: 20.0 },
-      { id: 202, formula: "FeO", name: "Wüstit (oxit sắt II)", requirements: { Fe: 1, O: 1 }, tempMin: 1300, tempMax: 1800, pressMin: 8.0, pressMax: 25.0 },
-      { id: 203, formula: "FeSi", name: "Sắt silicide", requirements: { Fe: 1, Si: 1 }, tempMin: 1400, tempMax: 1900, pressMin: 15.0, pressMax: 35.0 },
-      { id: 204, formula: "Fe₃C", name: "Cohenit (cacbua sắt)", requirements: { Fe: 3, C: 1 }, tempMin: 1200, tempMax: 1700, pressMin: 10.0, pressMax: 40.0 },
-      { id: 205, formula: "FeNi₃", name: "Tetrataenit (hợp kim sắt–niken)", requirements: { Fe: 1, Ni: 3 }, tempMin: 1000, tempMax: 1500, pressMin: 5.0, pressMax: 25.0 }
-    ]
-  },
-  {
-    id: 3,
-    name: "Mantle dưới",
-    en: "Lower Mantle",
-    color: "#f97316",
-    caption: "Mantle dưới: bridgmanit (MgSiO₃) + ferropericlas, áp suất 24–135 GPa, chảy dẻo rất chậm.",
-    tempSlider: { min: 500, max: 4000, step: 50, value: 1600 },
-    pressSlider: { min: 0.1, max: 200, step: 0.1, value: 25 },
-    requirements: [
-      { kind: 'element', label: 'Nguyên tử Oxi (O)', note: '≈ 44%' },
-      { kind: 'element', label: 'Nguyên tử Magie (Mg)', note: '≈ 23%' },
-      { kind: 'element', label: 'Nguyên tử Silic (Si)', note: '≈ 21%' },
-      { kind: 'crafted', formula: 'MgSiO₃', label: 'Bridgmanit MgSiO₃ (đã tổng hợp ở lõi trong)' },
-      { kind: 'crafted', formula: 'CaSiO₃', label: 'Davemaoit CaSiO₃ (đã tổng hợp ở lõi trong)' },
-      { kind: 'group', label: 'Oxit & khoáng áp suất cao (MgO, SiO₂, Al₂O₃, (Mg,Fe)O, pv-MgSiO₃)' }
-    ],
-    tasks: [
-      { id: 301, formula: "MgO", name: "Periclas (oxit magie)", requirements: { Mg: 1, O: 1 }, tempMin: 1500, tempMax: 2200, pressMin: 20.0, pressMax: 60.0 },
-      { id: 302, formula: "SiO₂", name: "Stishovit (thạch anh áp suất cao)", requirements: { Si: 1, O: 2 }, tempMin: 1200, tempMax: 1800, pressMin: 9.0, pressMax: 50.0 },
-      { id: 303, formula: "Al₂O₃", name: "Corundum (oxit nhôm)", requirements: { Al: 2, O: 3 }, tempMin: 1400, tempMax: 2000, pressMin: 10.0, pressMax: 50.0 },
-      { id: 304, formula: "(Mg,Fe)O", name: "Ferropericlas", requirements: { MgO: 1, FeO: 1 }, tempMin: 1600, tempMax: 2300, pressMin: 25.0, pressMax: 80.0 },
-      { id: 305, formula: "pv-MgSiO₃", name: "Hậu-perovskit (post-perovskite)", requirements: { MgO: 1, "SiO₂": 1 }, tempMin: 2300, tempMax: 2700, pressMin: 120.0, pressMax: 160.0 }
-    ]
-  },
-  {
-    id: 4,
-    name: "Quyển mềm",
-    en: "Asthenosphere",
-    color: "#a855f7",
-    caption: "Quyển mềm: peridotit dẻo nhớt (olivin + pyroxen + garnet), có pha nóng chảy một phần và nước.",
-    tempSlider: { min: 100, max: 2500, step: 25, value: 1200 },
-    pressSlider: { min: 0.1, max: 20, step: 0.1, value: 2.0 },
-    requirements: [
-      { kind: 'element', label: 'Nguyên tử Oxi (O)', note: '≈ 44%' },
-      { kind: 'element', label: 'Nguyên tử Hidro (H)', note: 'pha nước' },
-      { kind: 'crafted', formula: 'Mg₂SiO₄', label: 'Olivin forsterit Mg₂SiO₄ (đã tổng hợp)' },
-      { kind: 'crafted', formula: 'Fe₂SiO₄', label: 'Olivin fayalit Fe₂SiO₄ (đã tổng hợp)' },
-      { kind: 'group', label: 'Pyroxen – garnet & pha nóng chảy (diopsit, jadeit, pyrop, H₂O, enstatit)' }
-    ],
-    tasks: [
-      { id: 401, formula: "CaMgSi₂O₆", name: "Diopsit (clinopyroxen)", requirements: { Ca: 1, Mg: 1, Si: 2, O: 6 }, tempMin: 1200, tempMax: 1500, pressMin: 1.0, pressMax: 3.0 },
-      { id: 402, formula: "NaAlSi₂O₆", name: "Jadeit (pyroxen natri)", requirements: { Na: 1, Al: 1, Si: 2, O: 6 }, tempMin: 600, tempMax: 1000, pressMin: 1.5, pressMax: 3.0 },
-      { id: 403, formula: "Mg₃Al₂Si₃O₁₂", name: "Pyrop (garnet magie)", requirements: { MgO: 3, "Al₂O₃": 1, "SiO₂": 3 }, tempMin: 1000, tempMax: 1400, pressMin: 2.0, pressMax: 6.0 },
-      { id: 404, formula: "H₂O", name: "Nước trong pha nóng chảy", requirements: { H: 2, O: 1 }, tempMin: 300, tempMax: 800, pressMin: 0.5, pressMax: 3.0 },
-      { id: 405, formula: "Mg₂Si₂O₆", name: "Enstatit (orthopyroxen)", requirements: { MgO: 2, "SiO₂": 2 }, tempMin: 900, tempMax: 1400, pressMin: 1.0, pressMax: 5.0 }
-    ]
-  },
-  {
-    id: 5,
-    name: "Thạch quyển",
-    en: "Lithosphere",
-    color: "#10b981",
-    caption: "Thạch quyển: vỏ rắn giàu fenspat – thạch anh, nhiệt độ thấp, áp suất < 1.5 GPa hình thành lục địa đầu tiên.",
-    tempSlider: { min: 50, max: 1600, step: 25, value: 600 },
-    pressSlider: { min: 0.1, max: 5, step: 0.1, value: 0.5 },
-    requirements: [
-      { kind: 'element', label: 'Nguyên tử Kali (K) & Natri (Na)', note: 'fenspat kiềm' },
-      { kind: 'element', label: 'Nguyên tử Canxi (Ca)', note: '≈ 4%' },
-      { kind: 'crafted', formula: 'SiO₂', label: 'Thạch anh SiO₂ (đã tổng hợp ở mantle dưới)' },
-      { kind: 'crafted', formula: 'Al₂O₃', label: 'Corundum Al₂O₃ (đã tổng hợp ở mantle dưới)' },
-      { kind: 'group', label: 'Fenspat & khoáng vỏ (orthoclas, albit, anorthit, canxit, hematit)' }
-    ],
-    tasks: [
-      { id: 501, formula: "KAlSi₃O₈", name: "Orthoclas (fenspat kali)", requirements: { K: 1, Al: 1, Si: 3, O: 8 }, tempMin: 700, tempMax: 1100, pressMin: 0.2, pressMax: 1.0 },
-      { id: 502, formula: "NaAlSi₃O₈", name: "Albit (fenspat natri)", requirements: { Na: 1, Al: 1, Si: 3, O: 8 }, tempMin: 700, tempMax: 1100, pressMin: 0.3, pressMax: 1.2 },
-      { id: 503, formula: "CaAl₂Si₂O₈", name: "Anorthit (fenspat canxi)", requirements: { Ca: 1, Al: 2, Si: 2, O: 8 }, tempMin: 1100, tempMax: 1500, pressMin: 0.5, pressMax: 1.5 },
-      { id: 504, formula: "CaCO₃", name: "Canxit (đá vôi)", requirements: { Ca: 1, C: 1, O: 3 }, tempMin: 100, tempMax: 600, pressMin: 0.1, pressMax: 0.5 },
-      { id: 505, formula: "Fe₂O₃", name: "Hematit (oxit sắt III)", requirements: { FeO: 2, O: 1 }, tempMin: 500, tempMax: 900, pressMin: 0.1, pressMax: 1.0 }
-    ]
-  }
-];
+        #fireworks-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        .congrats-modal {
+            animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ===== HỆ THỐNG NHIỆM VỤ KIẾN TẠO HỢP CHẤT ===== */
+        .compound-task-card { transition: all 0.25s ease; }
+        .compound-task-card.task-active {
+            border-color: rgba(34, 211, 238, 0.65);
+            box-shadow: 0 0 18px rgba(34, 211, 238, 0.10);
+        }
+        .compound-task-card.task-complete {
+            border-color: rgba(16, 185, 129, 0.70);
+            background: rgba(6, 78, 59, 0.20);
+        }
+        .compound-token {
+            position: relative;
+            user-select: none;
+            touch-action: none;
+        }
+        .compound-token.dragging { opacity: 0.55; transform: scale(0.92); }
+        #dropped-elements-container.has-elements {
+            align-content: flex-start;
+            justify-content: flex-start;
+        }
+
+        /* ===== CHỈNH ÁP SUẤT CHI TIẾT + NÚT CHẾ TẠO ===== */
+        .cond-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: rgba(2, 6, 23, 0.65);
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+            transition: all 0.25s ease;
+        }
+        .cond-chip.cond-ok {
+            border-color: rgba(16, 185, 129, 0.65);
+            background: rgba(6, 78, 59, 0.35);
+            color: #6ee7b7;
+        }
+        .cond-chip.cond-bad {
+            border-color: rgba(244, 63, 94, 0.45);
+            background: rgba(76, 5, 25, 0.30);
+            color: #fda4af;
+        }
+
+        .step-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(2, 6, 23, 0.8);
+            color: #e2e8f0;
+            font-weight: 900;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .step-btn:hover { border-color: rgba(34, 211, 238, 0.7); color: #67e8f9; }
+        .step-btn:active { transform: scale(0.92); }
+
+        .num-input {
+            width: 74px;
+            background: rgba(2, 6, 23, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 8px;
+            padding: 4px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #e2e8f0;
+            text-align: center;
+            outline: none;
+        }
+        .num-input:focus { border-color: rgba(34, 211, 238, 0.75); }
+
+        .range-hint {
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .range-hint > span {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, rgba(16,185,129,0.65), rgba(34,211,238,0.65));
+            border-radius: 999px;
+        }
+        .range-hint > i {
+            position: absolute;
+            top: -3px;
+            width: 2px;
+            height: 12px;
+            background: #fbbf24;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
+        }
+
+        .craft-btn {
+            transition: all 0.3s ease;
+            letter-spacing: 0.06em;
+        }
+        .craft-btn.craft-locked {
+            background: #1e293b;
+            color: #64748b;
+            border: 1px solid #334155;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+        }
+        .craft-btn.craft-ready {
+            background: linear-gradient(90deg, #f59e0b, #10b981, #22d3ee);
+            background-size: 200% 100%;
+            color: #020617;
+            border: 1px solid rgba(251, 191, 36, 0.7);
+            cursor: pointer;
+            animation: craftGlow 1.8s ease-in-out infinite, craftShift 3s linear infinite;
+        }
+        .craft-btn.craft-done {
+            background: linear-gradient(90deg, #fbbf24, #10b981);
+            color: #020617;
+            border: 1px solid rgba(16, 185, 129, 0.6);
+            cursor: default;
+        }
+        @keyframes craftGlow {
+            0%, 100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.45); }
+            50% { box-shadow: 0 0 28px rgba(34, 211, 238, 0.85); }
+        }
+        @keyframes craftShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .crafted-item {
+            animation: craftedPop 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes craftedPop {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .compound-token.crafting {
+            animation: craftMerge 0.75s ease-in forwards;
+        }
+
+        /* ===== HỆ THỐNG 5 TẦNG HÀNH TINH ===== */
+        .layer-step-unlocked {
+            opacity: 1 !important;
+            cursor: pointer !important;
+            border-color: rgba(34, 211, 238, 0.6) !important;
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.18);
+        }
+        .layer-step-unlocked:hover { background: rgba(34, 211, 238, 0.10); }
+        .layer-step-done {
+            opacity: 1 !important;
+            cursor: pointer !important;
+            border-color: rgba(16, 185, 129, 0.65) !important;
+            background: rgba(6, 78, 59, 0.22) !important;
+        }
+
+        .layer-sphere {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, rgba(148,163,184,0.20), rgba(2,6,23,0.95) 70%);
+            box-shadow: inset 0 0 40px rgba(34,211,238,0.20), 0 0 60px rgba(34,211,238,0.12);
+            animation: layerSpin 22s linear infinite;
+        }
+        @keyframes layerSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .layer-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .layer-ring.ring-active {
+            border-color: rgba(251, 191, 36, 0.95);
+            box-shadow: 0 0 22px rgba(251, 191, 36, 0.55), inset 0 0 22px rgba(251, 191, 36, 0.25);
+            background: rgba(251, 191, 36, 0.08);
+        }
+        .layer-ring.ring-done {
+            border-color: rgba(16, 185, 129, 0.85);
+            background: rgba(16, 185, 129, 0.07);
+        }
+
+        .crafted-source-chip {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        .crafted-source-chip:hover {
+            border-color: rgba(16, 185, 129, 0.8);
+            transform: translateY(-1px);
+        }
+        @keyframes craftMerge {
+            0% { transform: scale(1); opacity: 1; }
+            60% { transform: scale(1.25); opacity: 0.9; filter: brightness(1.8); }
+            100% { transform: scale(0.1); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen overflow-hidden flex relative">
+
+    <canvas id="fireworks-canvas"></canvas>
+
+    <div id="congrats-overlay" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_50px_rgba(34,211,238,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🎉⭐✨</div>
+            <h2 id="congrats-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Chúc Mừng Bạn!</h2>
+            <p id="congrats-desc" class="text-sm text-slate-300 mb-4">Bạn đã chọn ngôi sao này thành công.</p>
+            <div class="px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 inline-block animate-pulse">
+                Đang chuyển sang không gian 3D vùng sinh thái...
+            </div>
+        </div>
+    </div>
+
+    <div id="success-overlay" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center hidden pointer-events-auto">
+        <div class="congrats-modal glass-panel p-8 rounded-3xl border border-emerald-500/50 shadow-[0_0_50px_rgba(16,185,129,0.3)] text-center max-w-md mx-4">
+            <div class="text-5xl mb-3">🌍🌿✨</div>
+            <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">Thiết Lập Sự Sống Thành Công!</h2>
+            <p class="text-sm text-slate-300 mb-4">Quỹ đạo và nhiệt độ đã đạt chuẩn tối ưu cho sự sống phát triển.</p>
+            <div class="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 inline-block">
+                Đã lưu cấu hình hành tinh!
+            </div>
+        </div>
+    </div>
+
+    <div id="periodic-toggle-btn" class="absolute top-6 left-6 z-50 hidden w-12 h-12 glass-panel rounded-2xl flex items-center justify-center border border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)] cursor-pointer hover:bg-cyan-500/20 transition-all pointer-events-auto group" title="Mở Bảng Tuần Hoản">
+        <span class="text-cyan-400 text-lg font-black group-hover:scale-110 transition-transform">🧪</span>
+    </div>
+
+    <div id="periodic-table-panel" class="absolute top-6 left-6 z-50 hidden w-[450px] glass-panel rounded-3xl p-5 shadow-2xl border border-slate-800 pointer-events-auto">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                <h3 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Bảng Tuần Hoản Nguyên Tố (1-94)</h3>
+            </div>
+            <button id="btn-close-periodic" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <input id="element-search-input" type="text" placeholder="🔍 Tìm kiếm theo tên, kí hiệu hoặc khối lượng..." class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all">
+        </div>
+
+        <div class="flex gap-3 h-[370px]">
+            <div id="elements-list-container" class="w-1/2 overflow-y-auto space-y-1.5 pr-1"></div>
+            <div class="w-1/2 bg-black rounded-2xl p-4 border border-slate-900 flex flex-col justify-center items-center text-center">
+                <div id="element-detail-display" class="space-y-2">
+                    <span class="text-xs text-slate-500">Chọn một nguyên tố bên trái để xem</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="star-detail-modal" class="absolute top-6 left-6 z-50 hidden w-80 glass-panel rounded-3xl p-5 shadow-2xl border border-cyan-500/40 pointer-events-auto transition-all">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+                <span id="modal-star-dot" class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                <h3 id="modal-star-name" class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Tên Ngôi Sao</h3>
+            </div>
+            <button id="btn-close-star-modal" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="space-y-2.5 text-xs">
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Hạng quang phổ:</span>
+                <span id="modal-star-rank" class="font-bold text-cyan-400">G2V</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Nhiệt độ:</span>
+                <span id="modal-star-temp" class="font-bold text-orange-400">~5,500 °C</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Khối lượng:</span>
+                <span id="modal-star-mass" class="font-bold text-blue-400">~1.989 kg</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Bán kính:</span>
+                <span id="modal-star-radius" class="font-bold text-emerald-400">696,340 km</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Khoảng cách:</span>
+                <span id="modal-star-dist" class="font-bold text-purple-400">149.6 triệu km</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-slate-400 block mb-1">Mô tả chi tiết:</span>
+                <span id="modal-star-desc" class="text-slate-200 italic text-[11px]">Đang cập nhật...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="planet-detail-modal" class="absolute top-6 left-6 z-50 hidden w-80 glass-panel rounded-3xl p-5 shadow-2xl border border-emerald-500/40 pointer-events-auto transition-all">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block shadow-[0_0_8px_#10b981]"></span>
+                <h3 class="text-sm font-bold tracking-wider text-emerald-300 uppercase">Thông Tin Hành Tinh Sự Sống</h3>
+            </div>
+            <button id="btn-close-planet-modal" class="w-7 h-7 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-xs transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="space-y-2.5 text-xs">
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Độ nghiêng trục (Nghiêng):</span>
+                <span id="modal-planet-tilt" class="font-bold text-amber-400">23.5°</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Chu kỳ năm (Ngày):</span>
+                <span id="modal-planet-days" class="font-bold text-cyan-400">365 Ngày</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between">
+                <span class="text-slate-400">Nhiệt độ bề mặt:</span>
+                <span id="modal-planet-temp" class="font-bold text-rose-400">15.0 °C</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-slate-400 block mb-1">Trạng thái sinh thái:</span>
+                <span id="modal-planet-status" class="text-emerald-300 font-semibold text-[11px]">Đang phát triển ổn định, nước lỏng dồi dào.</span>
+            </div>
+            <div class="pt-2">
+                <button id="btn-build-planet" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
+                    <span>🌍 Gây Dựng Hành Tinh</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="build-planet-page" class="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-xl hidden flex pointer-events-auto">
+        <button id="btn-close-build-page" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-lg transition-all cursor-pointer z-50 shadow-lg" title="Quay lại hệ sao">
+            ✕
+        </button>
+
+        <div class="w-[420px] h-full p-6 flex flex-col justify-between border-r border-slate-800/80 bg-slate-900/40">
+            <div class="flex items-center space-x-2.5 pb-3 border-b border-slate-800">
+                <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                <h3 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Ô Tuần Hoản - Nguyên Tố Kiến Tạo</h3>
+            </div>
+            
+            <div class="my-4">
+                <input id="build-element-search" type="text" placeholder="🔍 Tìm nguyên tố cấu tạo..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all">
+            </div>
+
+            <div id="build-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+
+            <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-400 italic text-center">
+                Chọn nguyên tố để cấu thành hành tinh trong suốt bên cạnh!
+            </div>
+        </div>
+
+        <div class="flex-1 relative flex items-center justify-center">
+            <div id="transparent-planet-container" class="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
+            
+            <div class="absolute right-12 top-1/2 -translate-y-1/2 z-20 w-80 glass-panel p-6 rounded-3xl border border-cyan-500/30 shadow-2xl pointer-events-auto space-y-4">
+                <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
+                    <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]"></span>
+                    <h3 class="text-sm font-bold text-cyan-300 uppercase">Tiến Trình Kiến Tạo</h3>
+                </div>
+                <div class="space-y-3 text-xs text-slate-300">
+                    <div id="step-inner-core" data-layer="1" class="p-3 rounded-xl bg-slate-900/80 border border-cyan-500/60 flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-all shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+                        <span>1. Lõi trong:</span>
+                        <span id="badge-layer-1" class="text-cyan-400 font-bold bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/30">Mở khóa 🔓</span>
+                    </div>
+                    <div id="step-layer-2" data-layer="2" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                        <span>2. Lõi ngoài:</span>
+                        <span id="badge-layer-2" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                    </div>
+                    <div id="step-layer-3" data-layer="3" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                        <span>3. Mantle dưới:</span>
+                        <span id="badge-layer-3" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                    </div>
+                    <div id="step-layer-4" data-layer="4" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                        <span>4. Quyển mềm:</span>
+                        <span id="badge-layer-4" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                    </div>
+                    <div id="step-layer-5" data-layer="5" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-50 cursor-not-allowed">
+                        <span>5. Thạch quyển:</span>
+                        <span id="badge-layer-5" class="text-slate-400 font-semibold bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Khóa 🔒</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="inner-core-modal" class="absolute inset-12 z-50 glass-panel rounded-3xl p-6 border border-cyan-500/40 shadow-2xl hidden flex flex-col pointer-events-auto bg-slate-950/95 backdrop-blur-2xl">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+            <div class="flex items-center space-x-2.5">
+                <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                <h3 class="text-base font-bold text-cyan-300 uppercase">Cấu Tạo Lõi Trong (Inner Core)</h3>
+            </div>
+            <button id="btn-close-inner-core-modal" class="w-8 h-8 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-sm transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="flex-1 flex gap-6 overflow-hidden">
+            <div class="w-1/3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Nguyên Tố Hóa Học</h4>
+                <div class="mb-3">
+                    <input id="inner-element-search" type="text" placeholder="🔍 Tìm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+                </div>
+                <div id="inner-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+            </div>
+
+            <div class="flex-1 glass-panel rounded-2xl border border-slate-800 relative flex items-center justify-center overflow-hidden bg-black/40">
+                <div id="inner-transparent-sphere-container" class="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
+                <div class="absolute bottom-4 left-4 z-10 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-[11px] text-cyan-300">
+                    Khối cầu trong suốt - Lõi trong hành tinh
+                </div>
+            </div>
+
+            <div class="w-1/3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-emerald-300 mb-3 uppercase tracking-wider">📋 Danh Sách Chất Cần Cấu Thành</h4>
+                <div class="space-y-3 flex-1 overflow-y-auto pr-1 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                        <span class="text-slate-300 font-medium">✓ Nguyên tử Sắt (Fe)</span>
+                        <span class="text-cyan-400 font-bold bg-cyan-500/20 px-2.5 py-1 rounded border border-cyan-500/30 text-[10px]">Yêu cầu: 80%</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                        <span class="text-slate-300 font-medium">✓ Nguyên tử Niken (Ni)</span>
+                        <span class="text-cyan-400 font-bold bg-cyan-500/20 px-2.5 py-1 rounded border border-cyan-500/30 text-[10px]">Yêu cầu: 15%</span>
+                    </div>
+                    <div id="btn-open-compound-builder" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/60 flex items-center justify-between cursor-pointer transition-all group">
+                        <span class="text-slate-300 font-medium group-hover:text-cyan-300 transition-colors">Hợp chất Silicat nặng (FeSiO₃, MgSiO₃...) ➔</span>
+                        <span class="text-amber-400 font-bold bg-amber-500/20 px-2.5 py-1 rounded border border-amber-500/30 text-[10px]">Chưa tích 🔓</span>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 italic text-center">
+                    Nhấn vào mục chưa tích để mở trang kiến tạo nguyên tố & điều chỉnh áp suất!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="layer-build-modal" class="absolute inset-12 z-50 glass-panel rounded-3xl p-6 border border-cyan-500/40 shadow-2xl hidden flex flex-col pointer-events-auto bg-slate-950/95 backdrop-blur-2xl">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+            <div class="flex items-center space-x-2.5">
+                <span id="layer-modal-dot" class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                <h3 id="layer-modal-title" class="text-base font-bold text-cyan-300 uppercase">Cấu Tạo Tầng</h3>
+                <span id="layer-modal-progress" class="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 px-2 py-1 rounded-full border border-cyan-500/20">0/5</span>
+            </div>
+            <button id="btn-close-layer-modal" class="w-8 h-8 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-sm transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div class="flex-1 flex gap-6 overflow-hidden">
+            <div class="w-1/3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Nguyên Tố Hóa Học</h4>
+                <div class="mb-3">
+                    <input id="layer-element-search" type="text" placeholder="🔍 Tìm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+                </div>
+                <div id="layer-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+            </div>
+
+            <div class="flex-1 glass-panel rounded-2xl border border-slate-800 relative flex flex-col items-center justify-center overflow-hidden bg-black/40">
+                <div id="layer-sphere" class="layer-sphere">
+                    <div class="layer-ring" data-ring="5" style="width:250px;height:250px"></div>
+                    <div class="layer-ring" data-ring="4" style="width:200px;height:200px"></div>
+                    <div class="layer-ring" data-ring="3" style="width:150px;height:150px"></div>
+                    <div class="layer-ring" data-ring="2" style="width:100px;height:100px"></div>
+                    <div class="layer-ring" data-ring="1" style="width:56px;height:56px"></div>
+                </div>
+                <div id="layer-sphere-caption" class="mt-5 text-[11px] text-cyan-300 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-center max-w-[80%]">
+                    Cấu trúc phân tầng hành tinh
+                </div>
+            </div>
+
+            <div class="w-1/3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-emerald-300 mb-3 uppercase tracking-wider">📋 Danh Sách Chất Cần Cấu Thành</h4>
+                <div id="layer-requirement-list" class="space-y-3 flex-1 overflow-y-auto pr-1 text-xs"></div>
+                <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 italic text-center">
+                    Mục có dấu ✓ là nguyên tử đơn hoặc chất đã tổng hợp. Nhấn vào mục chưa tích để tổng hợp tiếp!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="compound-builder-page" class="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-2xl hidden flex flex-col pointer-events-auto p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+            <div class="flex items-center space-x-3">
+                <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                <h3 class="text-lg font-bold text-cyan-300 uppercase">Trang Kiến Tạo Hợp Chất & Điều Chỉnh Áp Suất - Nhiệt Độ</h3>
+                <span id="compound-layer-badge" class="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/25">Tầng 1 — Lõi trong</span>
+            </div>
+            <button id="btn-close-compound-page" class="w-9 h-9 rounded-full bg-slate-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-base transition-all cursor-pointer">
+                ✕
+            </button>
+        </div>
+
+        <div class="flex-1 flex gap-6 overflow-hidden">
+            <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col">
+                <h4 class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-wider">🧪 Bảng Tuần Hoản (Chọn & Kéo Nguyên Tố)</h4>
+                <div class="mb-3">
+                    <input id="compound-element-search" type="text" placeholder="🔍 Tìm kiếm nguyên tố..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60">
+                </div>
+                <div id="compound-crafted-source" class="mb-3 hidden">
+                    <div class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider mb-2">♻️ Hợp chất đã tổng hợp (dùng làm nguyên liệu)</div>
+                    <div id="compound-crafted-source-list" class="flex flex-wrap gap-1.5"></div>
+                </div>
+                <div id="compound-elements-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+            </div>
+
+            <div class="flex-1 glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative bg-black/50 overflow-hidden">
+                <div class="absolute top-4 left-4 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-cyan-300">
+                    Khu vực thả nguyên tố (Click vào nguyên tố bên trái hoặc kéo vào đây)
+                </div>
+                <div id="dropped-elements-container" class="w-full h-full relative flex flex-wrap gap-4 items-center justify-center p-8 overflow-y-auto border-2 border-dashed border-slate-800 rounded-2xl">
+                    <span class="drop-placeholder text-xs text-slate-500 italic">Chưa có nguyên tố nào được đưa vào không gian kiến tạo. Hãy chọn hoặc kéo từ bảng bên trái!</span>
+                </div>
+            </div>
+
+            <div class="w-1/3 glass-panel p-5 rounded-3xl border border-slate-800 flex flex-col justify-between overflow-y-auto">
+                <div class="mb-4 bg-slate-950/80 p-4 rounded-2xl border border-amber-500/25">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                        <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider">📋 Nhiệm Vụ Tổng Hợp</h4>
+                        <span id="compound-task-counter" class="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 px-2 py-1 rounded-full border border-cyan-500/20">1/5</span>
+                    </div>
+                    <div id="compound-task-list" class="space-y-2 max-h-[210px] overflow-y-auto pr-1"></div>
+                    <div id="compound-task-status" class="mt-3 text-[10px] text-slate-400 text-center">
+                        Kéo đúng số lượng nguyên tố vào vùng giữa, sau đó chỉnh áp suất và nhiệt độ theo nhiệm vụ.
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-emerald-300 mb-4 uppercase tracking-wider">🎛️ Điều Chỉnh Áp Suất & Nhiệt Độ Môi Trường</h4>
+                    <div class="space-y-6 text-xs">
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between text-slate-300">
+                                <span>🌡️ Nhiệt độ tổng hợp:</span>
+                                <span id="val-compound-temp" class="font-bold text-orange-400">1,200 °C</span>
+                            </div>
+                            <input id="slider-compound-temp" type="range" min="100" max="5000" step="50" value="1200" class="w-full accent-orange-400 cursor-pointer">
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between text-slate-300">
+                                <span>⏲️ Áp suất môi trường:</span>
+                                <span id="val-compound-press" class="font-bold text-cyan-400">1.5 GPa</span>
+                            </div>
+                            <input id="slider-compound-press" type="range" min="0.1" max="50.0" step="0.1" value="1.5" class="w-full accent-cyan-400 cursor-pointer">
+                        </div>
+
+                        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">🎚️ Tinh chỉnh chính xác</span>
+                                <span id="fine-target-label" class="text-[9px] text-slate-500">Mục tiêu: --</span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] text-orange-300 font-bold">🌡️ Nhiệt độ</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" id="btn-temp-minus" class="step-btn">−</button>
+                                    <input id="input-compound-temp" type="number" min="100" max="5000" step="50" value="1200" class="num-input">
+                                    <button type="button" id="btn-temp-plus" class="step-btn">+</button>
+                                </div>
+                            </div>
+                            <div class="range-hint" id="hint-temp"><span style="left:0;width:0"></span><i style="left:0"></i></div>
+
+                            <div class="flex items-center justify-between gap-2 pt-1">
+                                <span class="text-[10px] text-cyan-300 font-bold">⏲️ Áp suất</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" id="btn-press-minus" class="step-btn">−</button>
+                                    <input id="input-compound-press" type="number" min="0.1" max="50" step="0.1" value="1.5" class="num-input">
+                                    <button type="button" id="btn-press-plus" class="step-btn">+</button>
+                                </div>
+                            </div>
+                            <div class="range-hint" id="hint-press"><span style="left:0;width:0"></span><i style="left:0"></i></div>
+
+                            <div class="grid grid-cols-3 gap-1.5 pt-1">
+                                <div id="cond-comp" class="cond-chip">🧪 <span>Thành phần</span></div>
+                                <div id="cond-temp" class="cond-chip">🌡️ <span>Nhiệt độ</span></div>
+                                <div id="cond-press" class="cond-chip">⏲️ <span>Áp suất</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800 space-y-3">
+                    <button id="btn-synthesize-compound" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-300/40 transition-all cursor-pointer">
+                        ✨ Tổng Hợp Hợp Chất Silicat Nặng
+                    </button>
+                    <button id="btn-craft-compound" disabled class="craft-btn craft-locked w-full font-black text-xs py-3.5 px-4 rounded-xl uppercase">
+                        🔒 Chế Tạo — Chưa Đủ Điều Kiện
+                    </button>
+                    <div id="craft-hint" class="text-[10px] text-slate-500 text-center">
+                        Nút CHẾ TẠO chỉ sáng khi đủ nguyên tố + đúng nhiệt độ + đúng áp suất.
+                    </div>
+
+                    <div class="bg-slate-950/70 rounded-2xl border border-slate-800 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">📦 Kho hợp chất đã chế tạo</span>
+                            <span id="crafted-counter" class="text-[9px] font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/25">0/5</span>
+                        </div>
+                        <div id="crafted-inventory" class="flex flex-wrap gap-1.5">
+                            <span class="text-[9px] text-slate-500 italic">Chưa chế tạo được hợp chất nào.</span>
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-slate-400 italic text-center">
+                        Điều chỉnh thông số phù hợp để hoàn tất cấu thành lõi hành tinh!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside id="sidebar" class="sidebar-transition absolute top-6 left-6 bottom-6 w-80 z-50 pointer-events-auto glass-panel rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800">
+        <div>
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_10px_#22d3ee]"></span>
+                    <h1 class="text-sm font-bold tracking-wider text-cyan-300 uppercase">Hệ Thống 11 Ngôi Sao</h1>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Bấm vào sao trong danh sách để chọn:</p>
+            
+            <div id="star-list" class="space-y-2 max-h-[calc(100vh-270px)] overflow-y-auto pr-1"></div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800">
+            <button id="btn-select" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs py-3.5 px-4 rounded-2xl shadow-lg shadow-cyan-500/25 border border-cyan-300/40 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2">
+                <span>⭐ Chọn Ngôi Sao Này</span>
+            </button>
+            <div class="mt-2.5 text-center text-[10px] text-slate-500">
+                Bấm để xem pháo hoa & chuyển không gian 3D
+            </div>
+        </div>
+    </aside>
+
+    <main class="w-full h-full relative flex flex-col justify-between pointer-events-none">
+        <header id="main-header" class="absolute top-6 right-8 z-20 pointer-events-none text-right transition-all">
+            <div class="inline-block glass-panel px-5 py-3 rounded-2xl border border-slate-800 shadow-xl max-w-sm pointer-events-auto">
+                <h2 id="star-title" class="text-base font-bold tracking-tight text-white">Mặt Trời (G2V Star)</h2>
+                <p id="star-subtitle" class="text-xs text-cyan-400 mt-0.5">Ngôi sao trung tâm hệ mặt trời của chúng ta.</p>
+            </div>
+        </header>
+
+        <div id="metrics-panel" class="absolute top-28 right-8 z-20 pointer-events-none transition-all">
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl grid grid-cols-2 gap-3 w-88 pointer-events-auto">
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-orange-400 text-[11px] font-semibold mb-1">
+                        <span>🌡️</span>
+                        <span>Nhiệt Độ</span>
+                    </div>
+                    <div id="metric-temp" class="text-sm font-bold text-slate-100">~5,500 °C</div>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-blue-400 text-[11px] font-semibold mb-1">
+                        <span>⚖️</span>
+                        <span>Khối Lượng</span>
+                    </div>
+                    <div id="metric-mass" class="text-sm font-bold text-slate-100">~1.989 × 10³⁰ kg</div>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-emerald-400 text-[11px] font-semibold mb-1">
+                        <span>⚪</span>
+                        <span>Bán Kính</span>
+                    </div>
+                    <div id="metric-radius" class="text-sm font-bold text-slate-100">696,340 km</div>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                    <div class="flex items-center space-x-1.5 text-purple-400 text-[11px] font-semibold mb-1">
+                        <span>🌌</span>
+                        <span>Khoảng Cách</span>
+                    </div>
+                    <div id="metric-dist" class="text-sm font-bold text-slate-100">149.6 triệu km</div>
+                </div>
+                <div class="col-span-2 bg-gradient-to-r from-slate-900/80 to-cyan-950/40 p-3 rounded-xl border border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center space-x-1.5 text-cyan-300 text-[11px] font-bold">
+                            <span>🧬</span>
+                            <span>Xác Suất Sự Sống Tiềm Năng</span>
+                        </div>
+                        <div id="metric-life-val" class="text-xs font-black text-cyan-400">88.5%</div>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden p-0.5 border border-slate-700 mb-1">
+                        <div id="metric-life-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 88.5%"></div>
+                    </div>
+                    <div id="metric-life-desc" class="text-[10px] text-slate-400 italic">Đặc tính quang phổ G2V chuẩn mực.</div>
+                </div>
+                <div class="col-span-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80 space-y-1.5">
+                    <div class="text-[11px] flex items-start space-x-1.5">
+                        <span class="text-emerald-400 font-bold shrink-0">🟢 Ưu:</span>
+                        <span id="metric-pros" class="text-slate-300 text-[10px] leading-tight">Bức xạ lý tưởng, tuổi thọ dài.</span>
+                    </div>
+                    <div class="text-[11px] flex items-start space-x-1.5">
+                        <span class="text-rose-400 font-bold shrink-0">🔴 Nhược:</span>
+                        <span id="metric-cons" class="text-slate-300 text-[10px] leading-tight">Có nguy cơ bùng phát lóa mặt trời.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="zone-legend" class="absolute top-6 left-6 z-20 pointer-events-none hidden space-y-3 w-88 max-h-[calc(100vh-48px)] overflow-y-auto pr-1">
+            <div class="glass-panel px-5 py-4 rounded-2xl border border-slate-800 shadow-xl space-y-2 pointer-events-auto">
+                <div class="text-xs font-bold text-cyan-300 flex items-center space-x-2">
+                    <span id="zone-system-name" class="uppercase tracking-wider">Hệ Sao: Mặt Trời</span>
+                </div>
+                <div class="text-[11px] text-slate-300 flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-cyan-500 inline-block shadow-[0_0_8px_#06b6d4]"></span>
+                    <span>Vùng Xanh: Đứng yên • Xoay chuột phóng to • Click vào Sao hoặc Hành tinh để xem thông số!</span>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 pointer-events-auto">
+                <div class="text-xs font-bold text-cyan-400 flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span>🎛️ ĐIỀU CHỈNH QUỸ ĐẠO & HÀNH TINH</span>
+                    <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30">Interactive</span>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-300 mb-1">
+                            <span>Bán trục ngang quỹ đạo (Rx):</span>
+                            <span id="val-rx" class="font-bold text-cyan-400">7.5</span>
+                        </div>
+                        <input id="slider-rx" type="range" min="2.0" max="12.5" step="0.1" value="7.5" class="w-full accent-cyan-400 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-300 mb-1">
+                            <span>Bán trục dọc quỹ đạo (Ry):</span>
+                            <span id="val-ry" class="font-bold text-cyan-400">5.0</span>
+                        </div>
+                        <input id="slider-ry" type="range" min="2.0" max="12.5" step="0.1" value="5.0" class="w-full accent-cyan-400 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-300 mb-1">
+                            <span>Độ nghiêng trục hành tinh (Tilt):</span>
+                            <span id="val-tilt" class="font-bold text-amber-400">23.5°</span>
+                        </div>
+                        <input id="slider-tilt" type="range" min="0" max="85" step="0.5" value="23.5" class="w-full accent-amber-400 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 pointer-events-auto">
+                <div class="text-xs font-bold text-cyan-400 flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span>📊 CHỈ SỐ QUỸ ĐẠO & ĐỊA HÌNH THỜI GIAN THỰC</span>
+                    <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30 animate-pulse">Live</span>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">📅 Chu kỳ năm (Quỹ đạo):</span>
+                        <span id="real-year-days" class="font-bold text-amber-400">365.25 Ngày</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">🌡️ Nhiệt độ bề mặt TB:</span>
+                        <span id="real-surface-temp" class="font-bold text-rose-400">15.0 °C</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">💧 Khả năng có nước lỏng:</span>
+                        <span id="real-water-status" class="font-bold text-emerald-400">Tối Ưu (Ổn định)</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <span class="text-slate-400">🌀 Độ lệch tâm quỹ đạo (e):</span>
+                        <span id="real-eccentricity" class="font-bold text-purple-400">0.0167 (Gần tròn)</span>
+                    </div>
+                </div>
+                
+                <div class="pt-2">
+                    <button id="btn-confirm-zone" class="w-full font-bold text-xs py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-not-allowed bg-slate-800 text-slate-500 border border-slate-700" disabled>
+                        <span>🔒 Chưa Đạt Điều Kiện Sự Sống (20°C - 40°C)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing pointer-events-auto"></div>
+
+        <div class="absolute bottom-6 right-8 z-20 pointer-events-none">
+            <div class="flex items-center space-x-2 text-xs bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-full text-slate-300 shadow-lg backdrop-blur-md pointer-events-auto">
+                <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span id="instruction-text">Kéo chuột để xoay • Cuộn để phóng to • Click vào Sao/Hành tinh xem thông tin</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const starsData = [
+            { id: 0, name: "Mặt Trời", rank: "G2V", temp: "~5,500 °C", mass: "~1.989 × 10³⁰ kg", radius: "696,340 km", dist: "149.6 triệu km", color: "#ef4444", desc: "Ngôi sao trung tâm hệ mặt trời.", lifeProb: 88.5, lifeDesc: "Quang phổ G2V chuẩn mực.", pros: "Bức xạ quang học lý tưởng.", cons: "Nguy cơ bão mặt trời." },
+            { id: 1, name: "Epsilon Eridani", rank: "K2V", temp: "~4,800 °C", mass: "~1.631 × 10³⁰ kg", radius: "735,000 km", dist: "10.5 năm ánh sáng", color: "#fbbf24", desc: "Hệ sao lân cận có đĩa bụi sao.", lifeProb: 84.0, lifeDesc: "Sao lùn cam K2V ổn định.", pros: "Tuổi thọ siêu dài.", cons: "Hoạt động từ tính trẻ." },
+            { id: 2, name: "Sigma Draconis", rank: "K0V", temp: "~5,290 °C", mass: "~1.810 × 10³⁰ kg", radius: "540,000 km", dist: "18.8 năm ánh sáng", color: "#f59e0b", desc: "Ngôi sao dạng lùn cam ổn định.", lifeProb: 86.2, lifeDesc: "Độ sáng cực kỳ đều đặn.", pros: "Cực kỳ ổn định quang phổ.", cons: "Vùng sống hẹp hơn." },
+            { id: 3, name: "Alpha Centauri B", rank: "K1V", temp: "~5,260 °C", mass: "~1.790 × 10³⁰ kg", radius: "593,000 km", dist: "4.37 năm ánh sáng", color: "#d97706", desc: "Thành viên hệ ba gần nhất.", lifeProb: 81.5, lifeDesc: "Bức xạ nhiệt đều đặn.", pros: "Khoảng cách cực gần.", cons: "Nhiễu động hệ sao đôi/ba." },
+            { id: 4, name: "61 Cygni A", rank: "K5V", temp: "~4,350 °C", mass: "~1.392 × 10³⁰ kg", radius: "465,000 km", dist: "11.4 năm ánh sáng", color: "#ea580c", desc: "Chuyển động riêng lớn.", lifeProb: 75.3, lifeDesc: "Nhiệt độ bề mặt thấp hơn.", pros: "Tỏa nhiệt thời gian cực dài.", cons: "Năng lượng bức xạ thấp." },
+            { id: 5, name: "70 Ophiuchi A", rank: "K0V", temp: "~5,250 °C", mass: "~1.810 × 10³⁰ kg", radius: "570,000 km", dist: "16.6 năm ánh sáng", color: "#f97316", desc: "Hệ sao đôi quang phổ.", lifeProb: 78.9, lifeDesc: "Quang phổ K0V gần giống Mặt Trời.", pros: "Duy trì nước lỏng tốt.", cons: "Khí hậu dễ biến động." },
+            { id: 6, name: "HD 219134", rank: "K3V", temp: "~4,690 °C", mass: "~1.571 × 10³⁰ kg", radius: "600,000 km", dist: "21.3 năm ánh sáng", color: "#fb923c", desc: "Sao lùn chứa hành tinh đá.", lifeProb: 82.7, lifeDesc: "Bức xạ hồng ngoại hài hòa.", pros: "Đã phát hiện hành tinh đá.", cons: "Tia X dao động." },
+            { id: 7, name: "Epsilon Indi", rank: "K5V", temp: "~4,620 °C", mass: "~1.452 × 10³⁰ kg", radius: "480,000 km", dist: "11.8 năm ánh sáng", color: "#fdba74", desc: "Tốc độ dịch chuyển cao.", lifeProb: 77.0, lifeDesc: "Hoạt động bề mặt ôn hòa.", pros: "Gần và gió sao nhẹ.", cons: "Độ kim loại thấp hơn." },
+            { id: 8, name: "107 Piscium", rank: "K1V", temp: "~5,150 °C", mass: "~1.691 × 10³⁰ kg", radius: "610,000 km", dist: "24.4 năm ánh sáng", color: "#fde047", desc: "Tương đồng mặt trời trẻ.", lifeProb: 83.4, lifeDesc: "Chỉ số kim loại cao.", pros: "Lõi hành tinh vững chắc.", cons: "Khoảng cách khá xa." },
+            { id: 9, name: "TW Piscis Austrini", rank: "K4V", temp: "~4,500 °C", mass: "~1.492 × 10³⁰ kg", radius: "500,000 km", dist: "24.9 năm ánh sáng", color: "#facc15", desc: "Cụm sao lân cận.", lifeProb: 74.1, lifeDesc: "Phát xạ tia X trung bình.", pros: "Tiến hóa chậm, an toàn.", cons: "Năng lượng phát ra yếu." },
+            { id: 10, name: "Groombridge 1618", rank: "K8V", temp: "~4,000 °C", mass: "~1.193 × 10³⁰ kg", radius: "420,000 km", dist: "15.9 năm ánh sáng", color: "#ca8a04", desc: "Sao lùn cam hoạt động từ tính.", lifeProb: 69.5, lifeDesc: "Nhiệt độ sao thấp.", pros: "Rất bền bỉ, tuổi thọ cao.", cons: "Dễ đóng băng bề mặt." }
+        ];
+
+        const elementsData = [
+            {no: 1, symbol: "H", name: "Hidro", mass: "1.008"},
+            {no: 2, symbol: "He", name: "Heli", mass: "4.003"},
+            {no: 6, symbol: "C", name: "Cacbon", mass: "12.011"},
+            {no: 7, symbol: "N", name: "Nitơ", mass: "14.007"},
+            {no: 8, symbol: "O", name: "Oxi", mass: "15.999"},
+            {no: 11, symbol: "Na", name: "Natri", mass: "22.990"},
+            {no: 12, symbol: "Mg", name: "Magie", mass: "24.305"},
+            {no: 14, symbol: "Si", name: "Silic", mass: "28.085"},
+            {no: 15, symbol: "P", name: "Photpho", mass: "30.974"},
+            {no: 16, symbol: "S", name: "Lưu huỳnh", mass: "32.06"},
+            {no: 20, symbol: "Ca", name: "Canxi", mass: "40.078"},
+            {no: 26, symbol: "Fe", name: "Sắt", mass: "55.845"},
+            {no: 28, symbol: "Ni", name: "Niken", mass: "58.693"}
+        ];
+
+        let currentSelectedIndex = 0;
+        let isPageTwo = false;
+        let scene, camera, renderer, sunSphere, starField;
+        let habZoneMesh = null;
+        let interactiveOrbitGroup = null;
+        let planetMesh = null;
+        
+        let orbitRadiusX = 7.5; 
+        let orbitRadiusY = 5.0; 
+        let planetTilt = 23.5;
+
+        let isDragging = false, prevMouse = {x:0, y:0}, camDist = 13, targetCamDist = 13;
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        let buildScene, buildCamera, buildRenderer, transparentPlanetMesh;
+        let innerCoreScene, innerCoreCamera, innerCoreRenderer, innerCoreMesh;
+
+        function initApp() {
+            buildStarListUI();
+            renderElementsList(elementsData);
+            renderBuildElementsList(elementsData);
+            renderInnerElementsList(elementsData);
+            renderCompoundElementsList(elementsData);
+            init3D();
+            setupEventListeners();
+        }
+
+        function buildStarListUI() {
+            const listContainer = document.getElementById('star-list');
+            listContainer.innerHTML = '';
+            
+            starsData.forEach((star, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between pointer-events-auto ${idx === currentSelectedIndex ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-200 shadow-md shadow-cyan-500/10' : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/80 hover:border-slate-700'}`;
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${star.color}; box-shadow: 0 0 8px ${star.color}"></span>
+                        <div>
+                            <span class="font-bold text-xs block">${star.name}</span>
+                            <span class="text-[10px] text-slate-400">Hạng ${star.rank} • <span class="text-cyan-400 font-bold">${star.lifeProb}%</span></span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold ${idx === currentSelectedIndex ? 'text-cyan-400' : 'text-slate-500'}">${idx === currentSelectedIndex ? '●' : '○'}</span>
+                `;
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    currentSelectedIndex = idx;
+                    buildStarListUI();
+                    updateStarContent(currentSelectedIndex);
+                });
+                listContainer.appendChild(item);
+            });
+        }
+
+        function renderElementsList(dataToRender) {
+            const container = document.getElementById('elements-list-container');
+            container.innerHTML = '';
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center text-[10px] border border-cyan-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                            <span class="text-[10px] text-slate-400 block">Khối lượng: ${el.mass}</span>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-cyan-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
+                `;
+                row.addEventListener('click', () => {
+                    document.getElementById('element-detail-display').innerHTML = `
+                        <div class="w-14 h-14 mx-auto rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 text-xl font-black mb-2 shadow-[0_0_15px_rgba(34,211,238,0.3)]">${el.symbol}</div>
+                        <h4 class="text-sm font-bold text-white">${el.name} (Số hiệu: ${el.no})</h4>
+                        <p class="text-xs text-slate-400 mt-1">Nguyên tử khối: <span class="text-cyan-400 font-semibold">${el.mass} đvC</span></p>
+                    `;
+                });
+                container.appendChild(row);
+            });
+        }
+
+        function renderBuildElementsList(dataToRender) {
+            const container = document.getElementById('build-elements-list');
+            container.innerHTML = '';
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-emerald-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center text-[10px] border border-emerald-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                            <span class="text-[10px] text-slate-400 block">Khối lượng: ${el.mass}</span>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-emerald-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
+                `;
+                row.addEventListener('click', () => {
+                    if (transparentPlanetMesh) {
+                        transparentPlanetMesh.material.color.setHSL(Math.random(), 0.8, 0.6);
+                    }
+                });
+                container.appendChild(row);
+            });
+        }
+
+        function renderInnerElementsList(dataToRender) {
+            const container = document.getElementById('inner-elements-list');
+            container.innerHTML = '';
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center text-[10px] border border-cyan-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                            <span class="text-[10px] text-slate-400 block">Khối lượng: ${el.mass}</span>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-cyan-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        const compoundTasks = [
+            { id: 1, formula: "FeSiO₃", name: "Sắt silicat", requirements: { Fe: 1, Si: 1, O: 3 }, tempMin: 900, tempMax: 1300, pressMin: 1.0, pressMax: 3.0 },
+            { id: 2, formula: "MgSiO₃", name: "Magie silicat", requirements: { Mg: 1, Si: 1, O: 3 }, tempMin: 800, tempMax: 1200, pressMin: 1.5, pressMax: 5.0 },
+            { id: 3, formula: "CaSiO₃", name: "Canxi silicat", requirements: { Ca: 1, Si: 1, O: 3 }, tempMin: 900, tempMax: 1400, pressMin: 1.0, pressMax: 4.0 }
+        ];
+        let currentCompoundTaskIndex = 0;
+        let craftedFlags = {};
+
+        function renderCompoundTasks() {
+            const list = document.getElementById('compound-task-list');
+            const counter = document.getElementById('compound-task-counter');
+            if (!list || !counter) return;
+            list.innerHTML = '';
+            compoundTasks.forEach((task, index) => {
+                const card = document.createElement('div');
+                const active = index === currentCompoundTaskIndex;
+                const complete = !!craftedFlags[task.id];
+                card.className = `compound-task-card p-3 rounded-xl border ${complete ? 'task-complete' : active ? 'task-active bg-slate-900/90' : 'bg-slate-900/60 border-slate-800'}`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-6 h-6 shrink-0 rounded-lg ${complete ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/15 text-amber-300'} flex items-center justify-center text-[10px] font-black border border-current/20">${index + 1}</span>
+                            <div class="min-w-0">
+                                <div class="font-black text-[11px] ${active ? 'text-cyan-300' : 'text-slate-200'}">${task.formula} — ${task.name}</div>
+                            </div>
+                        </div>
+                        <span class="text-[9px] font-bold ${complete ? 'text-emerald-300' : active ? 'text-cyan-300' : 'text-slate-500'} shrink-0">${complete ? '✓ XONG' : active ? 'ĐANG LÀM' : 'CHỜ'}</span>
+                    </div>
+                `;
+                if (!complete) {
+                    card.addEventListener('click', () => {
+                        currentCompoundTaskIndex = index;
+                        renderCompoundTasks();
+                        updateCompoundReactionStatus();
+                    });
+                }
+                list.appendChild(card);
+            });
+            counter.innerText = `${compoundTasks.filter(t => craftedFlags[t.id]).length}/${compoundTasks.length}`;
+        }
+
+        function renderCompoundElementsList(dataToRender) {
+            const container = document.getElementById('compound-elements-list');
+            if (!container) return;
+            container.innerHTML = '';
+            dataToRender.forEach(el => {
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 cursor-pointer transition-all flex items-center justify-between text-xs";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center text-[10px] border border-cyan-500/20">${el.no}</span>
+                        <div>
+                            <span class="font-bold text-slate-200">${el.name}</span>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-cyan-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">${el.symbol}</span>
+                `;
+                row.addEventListener('click', () => {
+                    addCompoundToken(el);
+                });
+                container.appendChild(row);
+            });
+        }
+
+        function addCompoundToken(el) {
+            const droppedContainer = document.getElementById('dropped-elements-container');
+            const placeholder = droppedContainer.querySelector('.drop-placeholder');
+            if (placeholder) placeholder.remove();
+
+            const token = document.createElement('div');
+            token.className = "compound-token w-14 h-14 rounded-full bg-cyan-500/20 border border-cyan-400 flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform";
+            token.dataset.symbol = el.symbol;
+            token.innerHTML = `<span class="text-xs font-black text-cyan-200">${el.symbol}</span>`;
+            token.addEventListener('click', () => {
+                token.remove();
+                if (droppedContainer.children.length === 0) {
+                    droppedContainer.innerHTML = `<span class="drop-placeholder text-xs text-slate-500 italic">Chưa có nguyên tố nào.</span>`;
+                }
+                updateCompoundReactionStatus();
+            });
+            droppedContainer.appendChild(token);
+            updateCompoundReactionStatus();
+        }
+
+        function getCompoundTaskCounts() {
+            const counts = {};
+            document.querySelectorAll('#dropped-elements-container .compound-token').forEach(token => {
+                const symbol = token.dataset.symbol;
+                counts[symbol] = (counts[symbol] || 0) + 1;
+            });
+            return counts;
+        }
+
+        function updateCompoundReactionStatus() {
+            const task = compoundTasks[currentCompoundTaskIndex];
+            if (!task) return;
+            const counts = getCompoundTaskCounts();
+            const tempVal = parseFloat(document.getElementById('slider-compound-temp').value);
+            const pressVal = parseFloat(document.getElementById('slider-compound-press').value);
+
+            let compOk = true;
+            for (let [sym, reqCount] of Object.entries(task.requirements)) {
+                if ((counts[sym] || 0) < reqCount) { compOk = false; break; }
+            }
+
+            const tempOk = tempVal >= task.tempMin && tempVal <= task.tempMax;
+            const pressOk = pressVal >= task.pressMin && pressVal <= task.pressMax;
+
+            const craftBtn = document.getElementById('btn-craft-compound');
+            if (compOk && tempOk && pressOk) {
+                craftBtn.disabled = false;
+                craftBtn.className = "craft-btn craft-ready w-full font-black text-xs py-3.5 px-4 rounded-xl uppercase";
+                craftBtn.innerText = `✨ CHẾ TẠO NGAY: ${task.formula}`;
+            } else {
+                craftBtn.disabled = true;
+                craftBtn.className = "craft-btn craft-locked w-full font-black text-xs py-3.5 px-4 rounded-xl uppercase";
+                craftBtn.innerText = "🔒 Chế Tạo — Chưa Đủ Điều Kiện";
+            }
+        }
+
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+            const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+            scene.add(pointLight);
+
+            const starGeo = new THREE.BufferGeometry();
+            const starCount = 1500;
+            const starPos = new Float32Array(starCount * 3);
+            for(let i=0; i<starCount*3; i+=3) {
+                starPos[i] = (Math.random() - 0.5) * 300;
+                starPos[i+1] = (Math.random() - 0.5) * 300;
+                starPos[i+2] = (Math.random() - 0.5) * 300;
+            }
+            starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+            starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.7}));
+            scene.add(starField);
+
+            updateStar3D(0);
+            camera.position.set(0, 4, 13);
+            camera.lookAt(0, 0, 0);
+
+            animate3D();
+        }
+
+        function updateStar3D(idx) {
+            if (sunSphere) scene.remove(sunSphere);
+            if (habZoneMesh) scene.remove(habZoneMesh);
+            if (interactiveOrbitGroup) scene.remove(interactiveOrbitGroup);
+
+            const star = starsData[idx];
+            const colorHex = star.color;
+
+            const sunGeo = new THREE.SphereGeometry(1.8, 32, 32);
+            const sunMat = new THREE.MeshBasicMaterial({ color: colorHex });
+            sunSphere = new THREE.Mesh(sunGeo, sunMat);
+            scene.add(sunSphere);
+
+            interactiveOrbitGroup = new THREE.Group();
+            scene.add(interactiveOrbitGroup);
+
+            const planetGeo = new THREE.SphereGeometry(0.5, 32, 32);
+            const planetMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
+            planetMesh = new THREE.Mesh(planetGeo, planetMat);
+            planetMesh.position.set(orbitRadiusX, 0, 0);
+            interactiveOrbitGroup.add(planetMesh);
+
+            const curve = new THREE.EllipseCurve(0, 0, orbitRadiusX, orbitRadiusY, 0, 2 * Math.PI, false, 0);
+            const points = curve.getPoints(100);
+            const orbitGeo = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, 0, p.y)));
+            const orbitMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.4 });
+            habZoneMesh = new THREE.Line(orbitGeo, orbitMat);
+            habZoneMesh.rotation.x = Math.PI / 2;
+            scene.add(habZoneMesh);
+        }
+
+        function updateStarContent(idx) {
+            const star = starsData[idx];
+            document.getElementById('star-title').innerText = `${star.name} (${star.rank} Star)`;
+            document.getElementById('star-subtitle').innerText = star.desc;
+            document.getElementById('metric-temp').innerText = star.temp;
+            document.getElementById('metric-mass').innerText = star.mass;
+            document.getElementById('metric-radius').innerText = star.radius;
+            document.getElementById('metric-dist').innerText = star.dist;
+            document.getElementById('metric-life-val').innerText = star.lifeProb + '%';
+            document.getElementById('metric-life-bar').style.width = star.lifeProb + '%';
+            document.getElementById('metric-life-desc').innerText = star.lifeDesc;
+            document.getElementById('metric-pros').innerText = star.pros;
+            document.getElementById('metric-cons').innerText = star.cons;
+            updateStar3D(idx);
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            if (starField) starField.rotation.y += 0.0003;
+            if (interactiveOrbitGroup) interactiveOrbitGroup.rotation.y += 0.005;
+            
+            camera.position.z += (targetCamDist - camera.position.z) * 0.08;
+            renderer.render(scene, camera);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('btn-select').addEventListener('click', () => {
+                document.getElementById('congrats-overlay').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('congrats-overlay').classList.add('hidden');
+                    document.getElementById('sidebar').classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('main-header').classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('metrics-panel').classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('zone-legend').classList.remove('hidden');
+                    document.getElementById('periodic-toggle-btn').classList.remove('hidden');
+                    isPageTwo = true;
+                }, 1500);
+            });
+
+            document.getElementById('periodic-toggle-btn').addEventListener('click', () => {
+                document.getElementById('periodic-table-panel').classList.toggle('hidden');
+            });
+            document.getElementById('btn-close-periodic').addEventListener('click', () => {
+                document.getElementById('periodic-table-panel').classList.add('hidden');
+            });
+
+            document.getElementById('slider-rx').addEventListener('input', (e) => {
+                orbitRadiusX = parseFloat(e.target.value);
+                document.getElementById('val-rx').innerText = orbitRadiusX;
+                updateStar3D(currentSelectedIndex);
+            });
+            document.getElementById('slider-ry').addEventListener('input', (e) => {
+                orbitRadiusY = parseFloat(e.target.value);
+                document.getElementById('val-ry').innerText = orbitRadiusY;
+                updateStar3D(currentSelectedIndex);
+            });
+            document.getElementById('slider-tilt').addEventListener('input', (e) => {
+                planetTilt = parseFloat(e.target.value);
+                document.getElementById('val-tilt').innerText = planetTilt + '°';
+            });
+
+            // Click raycasting to open modals
+            window.addEventListener('click', (e) => {
+                if (!isPageTwo) return;
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(scene.children, true);
+                if (intersects.length > 0) {
+                    const hit = intersects[0].object;
+                    if (hit === sunSphere) {
+                        const star = starsData[currentSelectedIndex];
+                        document.getElementById('modal-star-name').innerText = star.name;
+                        document.getElementById('modal-star-rank').innerText = star.rank;
+                        document.getElementById('modal-star-temp').innerText = star.temp;
+                        document.getElementById('modal-star-mass').innerText = star.mass;
+                        document.getElementById('modal-star-radius').innerText = star.radius;
+                        document.getElementById('modal-star-dist').innerText = star.dist;
+                        document.getElementById('modal-star-desc').innerText = star.desc;
+                        document.getElementById('star-detail-modal').classList.remove('hidden');
+                    } else if (planetMesh && hit === planetMesh) {
+                        document.getElementById('planet-detail-modal').classList.remove('hidden');
+                    }
+                }
+            });
+
+            document.getElementById('btn-close-star-modal').addEventListener('click', () => {
+                document.getElementById('star-detail-modal').classList.add('hidden');
+            });
+            document.getElementById('btn-close-planet-modal').addEventListener('click', () => {
+                document.getElementById('planet-detail-modal').classList.add('hidden');
+            });
+
+            document.getElementById('btn-build-planet').addEventListener('click', () => {
+                document.getElementById('planet-detail-modal').classList.add('hidden');
+                document.getElementById('build-planet-page').classList.remove('hidden');
+                initBuildPlanetScene();
+            });
+
+            document.getElementById('btn-close-build-page').addEventListener('click', () => {
+                document.getElementById('build-planet-page').classList.add('hidden');
+            });
+
+            document.getElementById('step-inner-core').addEventListener('click', () => {
+                document.getElementById('inner-core-modal').classList.remove('hidden');
+                initInnerCoreScene();
+            });
+            document.getElementById('btn-close-inner-core-modal').addEventListener('click', () => {
+                document.getElementById('inner-core-modal').classList.add('hidden');
+            });
+
+            document.getElementById('btn-open-compound-builder').addEventListener('click', () => {
+                document.getElementById('compound-builder-page').classList.remove('hidden');
+                renderCompoundTasks();
+                updateCompoundReactionStatus();
+            });
+            document.getElementById('btn-close-compound-page').addEventListener('click', () => {
+                document.getElementById('compound-builder-page').classList.add('hidden');
+            });
+
+            document.getElementById('slider-compound-temp').addEventListener('input', (e) => {
+                const val = e.target.value;
+                document.getElementById('val-compound-temp').innerText = parseInt(val).toLocaleString() + ' °C';
+                document.getElementById('input-compound-temp').value = val;
+                updateCompoundReactionStatus();
+            });
+            document.getElementById('slider-compound-press').addEventListener('input', (e) => {
+                const val = e.target.value;
+                document.getElementById('val-compound-press').innerText = parseFloat(val).toFixed(1) + ' GPa';
+                document.getElementById('input-compound-press').value = val;
+                updateCompoundReactionStatus();
+            });
+
+            document.getElementById('btn-craft-compound').addEventListener('click', () => {
+                const task = compoundTasks[currentCompoundTaskIndex];
+                if (!task) return;
+                craftedFlags[task.id] = true;
+                renderCompoundTasks();
+
+                const inventory = document.getElementById('crafted-inventory');
+                if (inventory.querySelector('.italic')) inventory.innerHTML = '';
+                const chip = document.createElement('div');
+                chip.className = "crafted-item px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold";
+                chip.innerText = `✓ ${task.formula}`;
+                inventory.appendChild(chip);
+
+                document.getElementById('compound-builder-page').classList.add('hidden');
+            });
+        }
+
+        function initBuildPlanetScene() {
+            const container = document.getElementById('transparent-planet-container');
+            container.innerHTML = '';
+            buildScene = new THREE.Scene();
+            buildCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            buildRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            buildRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(buildRenderer.domElement);
+
+            buildScene.add(new THREE.AmbientLight(0xffffff, 1));
+            const sphereGeo = new THREE.SphereGeometry(2, 32, 32);
+            const sphereMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2, transparent: true, opacity: 0.35, wireframe: true });
+            transparentPlanetMesh = new THREE.Mesh(sphereGeo, sphereMat);
+            buildScene.add(transparentPlanetMesh);
+
+            buildCamera.position.z = 6;
+            function animateBuild() {
+                requestAnimationFrame(animateBuild);
+                transparentPlanetMesh.rotation.y += 0.005;
+                buildRenderer.render(buildScene, buildCamera);
+            }
+            animateBuild();
+        }
+
+        function initInnerCoreScene() {
+            const container = document.getElementById('inner-transparent-sphere-container');
+            container.innerHTML = '';
+            innerCoreScene = new THREE.Scene();
+            innerCoreCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            innerCoreRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            innerCoreRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(innerCoreRenderer.domElement);
+
+            innerCoreScene.add(new THREE.AmbientLight(0xffffff, 1));
+            const sphereGeo = new THREE.SphereGeometry(1.8, 32, 32);
+            const sphereMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3, transparent: true, opacity: 0.45, wireframe: true });
+            innerCoreMesh = new THREE.Mesh(sphereGeo, sphereMat);
+            innerCoreScene.add(innerCoreMesh);
+
+            innerCoreCamera.position.z = 5;
+            function animateInner() {
+                requestAnimationFrame(animateInner);
+                innerCoreMesh.rotation.y += 0.008;
+                innerCoreRenderer.render(innerCoreScene, innerCoreCamera);
+            }
+            animateInner();
+        }
+
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>
