@@ -3622,5 +3622,374 @@
 
         window.addEventListener('load', setupLifePlanetSystem);
     </script>
+
+    <!-- ================================================================
+         BỔ SUNG TIẾP: TRÌNH KIẾN TẠO PHÂN TỬ SỰ SỐNG
+         CHỈ THÊM CODE — KHÔNG XÓA/SỬA PHẦN PHÍA TRƯỚC.
+         Đây là mô phỏng game trừu tượng, không phải quy trình phòng thí nghiệm.
+         ================================================================ -->
+    <style>
+        .life-molecule-editor {
+            display:grid;
+            grid-template-columns:180px minmax(280px,1fr) 180px;
+            gap:12px;
+            min-height:330px;
+        }
+        .life-mol-panel {
+            background:rgba(2,6,23,.68);
+            border:1px solid rgba(148,163,184,.16);
+            border-radius:16px;
+            padding:10px;
+        }
+        .life-atom-palette {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:7px;
+        }
+        .life-atom-btn {
+            border:1px solid rgba(148,163,184,.20);
+            background:rgba(15,23,42,.85);
+            border-radius:11px;
+            padding:8px 5px;
+            cursor:pointer;
+            transition:.2s ease;
+            text-align:center;
+        }
+        .life-atom-btn:hover { transform:translateY(-2px); border-color:rgba(251,146,60,.7); }
+        .life-atom-btn.selected { border-color:rgba(34,211,238,.8); background:rgba(8,145,178,.14); }
+        .life-molecule-stage {
+            position:relative;
+            min-height:330px;
+            overflow:hidden;
+            border:1px dashed rgba(34,211,238,.25);
+            border-radius:18px;
+            background:
+                radial-gradient(circle at 50% 50%,rgba(14,165,233,.08),transparent 42%),
+                radial-gradient(circle at 20% 20%,rgba(249,115,22,.07),transparent 30%),
+                rgba(0,0,0,.35);
+        }
+        #life-molecule-svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+        .life-atom-node { cursor:grab; }
+        .life-atom-node:active { cursor:grabbing; }
+        .life-atom-circle { stroke-width:2; filter:drop-shadow(0 0 7px rgba(34,211,238,.28)); }
+        .life-bond-line { stroke:rgba(103,232,249,.9); stroke-width:4; stroke-linecap:round; filter:drop-shadow(0 0 5px rgba(34,211,238,.35)); }
+        .life-bond-line.double { stroke-width:7; opacity:.78; }
+        .life-atom-label { fill:#e2e8f0; font-size:12px; font-weight:900; pointer-events:none; text-anchor:middle; dominant-baseline:middle; }
+        .life-editor-control { width:100%; accent-color:#f97316; }
+        .life-shape-btn {
+            width:100%; padding:7px 8px; margin-top:6px; border-radius:10px;
+            background:rgba(15,23,42,.85); border:1px solid rgba(148,163,184,.18);
+            color:#cbd5e1; font-size:10px; font-weight:800; cursor:pointer;
+        }
+        .life-shape-btn.active { border-color:rgba(249,115,22,.7); color:#fed7aa; background:rgba(124,45,18,.22); }
+        .life-structure-chip { display:inline-flex; align-items:center; gap:4px; margin:2px; padding:5px 7px; border-radius:9px; font-size:9px; font-weight:800; background:rgba(8,145,178,.12); border:1px solid rgba(34,211,238,.25); color:#a5f3fc; }
+        .life-check-row { display:flex; justify-content:space-between; gap:7px; align-items:center; padding:6px 7px; border-radius:9px; background:rgba(15,23,42,.65); border:1px solid rgba(148,163,184,.12); margin-top:5px; font-size:9px; }
+        .life-check-ok { color:#6ee7b7; }
+        .life-check-bad { color:#fbbf24; }
+        @media(max-width:1050px){ .life-molecule-editor{grid-template-columns:1fr;} .life-molecule-stage{min-height:300px;} }
+    </style>
+
+    <script>
+        /* ================================================================
+           TRÌNH KIẾN TẠO PHÂN TỬ — GAMEPLAY
+           ================================================================ */
+        const LIFE_MOLECULE_ATOMS = [
+            {id:'C', name:'Cacbon', symbol:'C', mass:12.011, cls:'text-slate-100'},
+            {id:'H', name:'Hidro', symbol:'H', mass:1.008, cls:'text-white'},
+            {id:'O', name:'Oxi', symbol:'O', mass:15.999, cls:'text-red-300'},
+            {id:'N', name:'Nitơ', symbol:'N', mass:14.007, cls:'text-blue-300'},
+            {id:'P', name:'Photpho', symbol:'P', mass:30.974, cls:'text-amber-300'},
+            {id:'S', name:'Lưu huỳnh', symbol:'S', mass:32.06, cls:'text-yellow-300'}
+        ];
+
+        const LIFE_MOLECULE_RECIPES = [
+            {id:'PROT-1', name:'Protein 1 — Cấu trúc', formula:'C-H-O-N', atoms:{C:2,H:4,O:1,N:1}, bonds:3, shape:'chain', tilt:25},
+            {id:'PROT-2', name:'Protein 2 — Xúc tác mô phỏng', formula:'C-H-O-N-S', atoms:{C:2,H:5,O:2,N:1,S:1}, bonds:4, shape:'bent', tilt:40},
+            {id:'PROT-3', name:'Protein 3 — Màng mô phỏng', formula:'C-H-O-N-P', atoms:{C:3,H:5,O:2,N:1,P:1}, bonds:4, shape:'ring', tilt:55},
+            {id:'PROT-4', name:'Protein 4 — Vận chuyển mô phỏng', formula:'C-H-O-N', atoms:{C:3,H:6,O:2,N:1}, bonds:5, shape:'fold', tilt:70}
+        ];
+
+        const LIFE_EVOLUTION_EXTRA_TASKS = [
+            {id:'life-membrane', title:'Nhiệm vụ 3', name:'Tạo màng tế bào mô phỏng', description:'Từ các cấu phần trừu tượng, hình thành lớp màng bao quanh sinh vật đơn bào.', requirements:{'CELL':1}, result:'MEMBRANE', resultName:'Màng tế bào mô phỏng', formula:'Sinh vật đơn bào → Màng tế bào'},
+            {id:'life-metabolism', title:'Nhiệm vụ 4', name:'Kích hoạt mạng lưới chuyển hóa mô phỏng', description:'Ghép các protein chức năng và màng để tạo một hệ chuyển hóa đơn giản.', requirements:{'PROT-1':1,'PROT-2':1,'PROT-3':1,'MEMBRANE':1}, result:'METABOLISM', resultName:'Hệ chuyển hóa mô phỏng', formula:'Protein 1 + Protein 2 + Protein 3 + Màng → Hệ chuyển hóa'},
+            {id:'life-colony', title:'Nhiệm vụ 5', name:'Hình thành quần thể tế bào sơ khai', description:'Nhiều sinh vật đơn bào mô phỏng liên kết thành một quần thể ổn định trên hành tinh.', requirements:{'CELL':2,'PROT-4':1,'METABOLISM':1}, result:'COLONY', resultName:'Quần thể tế bào sơ khai', formula:'2× Sinh vật đơn bào + Protein 4 + Hệ chuyển hóa → Quần thể'}
+        ];
+
+        LIFE_TASKS.push(...LIFE_EVOLUTION_EXTRA_TASKS);
+        LIFE_TASKS.forEach(t => { if (!(t.id in lifeState.completed)) lifeState.completed[t.id] = false; });
+        lifeState.products.MEMBRANE = false;
+        lifeState.products.METABOLISM = false;
+        lifeState.products.COLONY = false;
+
+        const lifeMoleculeState = {
+            atoms:[], bonds:[], selectedAtomType:'C', selectedNode:null,
+            rotation:0, tilt:25, shape:'chain', editingProtein:0
+        };
+
+        function lifeTaskIndexById(id){ return LIFE_TASKS.findIndex(t => t.id === id); }
+        function lifeHasProduct(id){ return !!lifeState.products[id]; }
+        function lifeHaveResource(id){
+            if (id.startsWith('PROT-')) return !!lifeState.proteins[id];
+            if (id === 'VIRUS') return !!lifeState.products.VIRUS;
+            if (id === 'CELL') return !!lifeState.products.CELL;
+            return lifeHasProduct(id);
+        }
+
+        function lifeRecipeCounts(){
+            const counts = {};
+            lifeMoleculeState.atoms.forEach(a => counts[a.element] = (counts[a.element] || 0) + 1);
+            return counts;
+        }
+
+        function lifeRecipeCorrect(recipe){
+            const actual = lifeRecipeCounts();
+            const keys = new Set([...Object.keys(actual), ...Object.keys(recipe.atoms)]);
+            for (const k of keys) if ((actual[k]||0) !== (recipe.atoms[k]||0)) return false;
+            if (lifeMoleculeState.bonds.length !== recipe.bonds) return false;
+            if (lifeMoleculeState.shape !== recipe.shape) return false;
+            return Math.abs(lifeMoleculeState.tilt - recipe.tilt) <= 3;
+        }
+
+        function lifeAtomPositionForShape(index, total, shape){
+            const cx=50, cy=51;
+            if(shape==='chain') return {x:18 + index*(64/Math.max(1,total-1)), y:cy + Math.sin(index*1.2)*10};
+            if(shape==='bent') { const t=index/Math.max(1,total-1); return {x:22+t*56,y:70-Math.sin(t*Math.PI)*38}; }
+            if(shape==='ring') { const a=(index/total)*Math.PI*2-Math.PI/2; return {x:cx+30*Math.cos(a),y:cy+30*Math.sin(a)}; }
+            const a=(index/Math.max(1,total-1))*Math.PI*2; return {x:cx+36*Math.cos(a)*.75,y:cy+28*Math.sin(a)};
+        }
+
+        function lifeRebuildDefaultAtoms(){
+            const recipe=LIFE_MOLECULE_RECIPES[lifeMoleculeState.editingProtein];
+            lifeMoleculeState.atoms=[];
+            Object.entries(recipe.atoms).forEach(([element,count])=>{
+                for(let i=0;i<count;i++) lifeMoleculeState.atoms.push({id:'n'+Date.now()+Math.random(),element,x:50,y:50});
+            });
+            lifeMoleculeState.bonds=[];
+            for(let i=0;i<recipe.bonds;i++) lifeMoleculeState.bonds.push({a:i%lifeMoleculeState.atoms.length,b:(i+1)%lifeMoleculeState.atoms.length});
+            lifeMoleculeState.shape=recipe.shape;
+            lifeMoleculeState.tilt=recipe.tilt;
+            lifeMoleculeState.rotation=0;
+            lifeArrangeAtoms();
+        }
+
+        function lifeArrangeAtoms(){
+            const total=lifeMoleculeState.atoms.length;
+            lifeMoleculeState.atoms.forEach((atom,i)=>{
+                const p=lifeAtomPositionForShape(i,total,lifeMoleculeState.shape);
+                atom.x=p.x; atom.y=p.y;
+            });
+        }
+
+        function lifeClearMolecule(){ lifeMoleculeState.atoms=[]; lifeMoleculeState.bonds=[]; lifeMoleculeState.selectedNode=null; renderLifeMoleculeEditor(); }
+
+        function lifeAddAtom(element){
+            if(lifeMoleculeState.atoms.length>=18) return;
+            lifeMoleculeState.atoms.push({id:'n'+Date.now()+Math.random(),element,x:50,y:50});
+            lifeArrangeAtoms();
+            renderLifeMoleculeEditor();
+        }
+
+        function lifeToggleBond(a,b){
+            if(a===b) return;
+            const existing=lifeMoleculeState.bonds.findIndex(x=>(x.a===a&&x.b===b)||(x.a===b&&x.b===a));
+            if(existing>=0) lifeMoleculeState.bonds.splice(existing,1);
+            else if(lifeMoleculeState.bonds.length<30) lifeMoleculeState.bonds.push({a,b});
+            renderLifeMoleculeEditor();
+        }
+
+        function lifeCycleProtein(){
+            lifeMoleculeState.editingProtein=(lifeMoleculeState.editingProtein+1)%LIFE_MOLECULE_RECIPES.length;
+            lifeRebuildDefaultAtoms();
+            renderLifeMoleculeEditor();
+        }
+
+        function renderLifeMoleculeEditor(){
+            const panel=document.getElementById('life-protein-panel');
+            if(!panel) return;
+            const recipe=LIFE_MOLECULE_RECIPES[lifeMoleculeState.editingProtein];
+            const counts=lifeRecipeCounts();
+            const exactAtoms=Object.keys(recipe.atoms).every(k=>(counts[k]||0)===recipe.atoms[k]) && Object.keys(counts).every(k=>recipe.atoms[k]!==undefined);
+            const bondOK=lifeMoleculeState.bonds.length===recipe.bonds;
+            const shapeOK=lifeMoleculeState.shape===recipe.shape;
+            const tiltOK=Math.abs(lifeMoleculeState.tilt-recipe.tilt)<=3;
+            const allOK=exactAtoms&&bondOK&&shapeOK&&tiltOK;
+
+            panel.innerHTML=`
+                <div class="life-molecule-editor">
+                    <div class="life-mol-panel">
+                        <div class="text-[9px] font-black text-orange-300 uppercase mb-2">⚛️ Nguyên tố / nguyên tử</div>
+                        <div class="life-atom-palette">
+                            ${LIFE_MOLECULE_ATOMS.map(a=>`<button type="button" class="life-atom-btn ${lifeMoleculeState.selectedAtomType===a.id?'selected':''}" data-life-atom="${a.id}">
+                                <div class="text-sm font-black ${a.cls}">${a.symbol}</div><div class="text-[7px] text-slate-500">${a.name}</div>
+                            </button>`).join('')}
+                        </div>
+                        <button type="button" id="life-add-atom" class="w-full mt-2 rounded-xl bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-[9px] font-black py-2">＋ Thêm nguyên tử</button>
+                        <button type="button" id="life-cycle-protein" class="w-full mt-2 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-300 text-[9px] font-black py-2">🔄 Đổi protein</button>
+                        <button type="button" id="life-clear-molecule" class="w-full mt-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[9px] font-black py-2">🗑️ Xóa cấu trúc</button>
+                    </div>
+                    <div class="life-mol-panel life-molecule-stage">
+                        <div class="absolute top-2 left-2 right-2 z-10 flex items-center justify-between gap-2">
+                            <span class="life-badge text-orange-300 bg-orange-500/10 border-orange-500/20">${recipe.name}</span>
+                            <span class="life-badge text-cyan-300 bg-cyan-500/10 border-cyan-500/20">${recipe.formula}</span>
+                        </div>
+                        <svg id="life-molecule-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <g id="life-molecule-group" transform="rotate(${lifeMoleculeState.rotation} 50 50)">
+                                ${lifeMoleculeState.bonds.map(b=>{
+                                    const a=lifeMoleculeState.atoms[b.a],c=lifeMoleculeState.atoms[b.b];
+                                    if(!a||!c) return '';
+                                    return `<line class="life-bond-line" x1="${a.x}" y1="${a.y}" x2="${c.x}" y2="${c.y}" />`;
+                                }).join('')}
+                                ${lifeMoleculeState.atoms.map((a,i)=>`<g class="life-atom-node" data-life-node="${i}" transform="translate(${a.x} ${a.y})">
+                                    <circle class="life-atom-circle" r="5.5" fill="rgba(8,145,178,.45)" stroke="${a.element==='O'?'#fda4af':a.element==='N'?'#93c5fd':a.element==='S'?'#fde047':a.element==='P'?'#fbbf24':'#67e8f9'}"></circle>
+                                    <text class="life-atom-label" x="0" y="0">${a.element}</text>
+                                </g>`).join('')}
+                            </g>
+                        </svg>
+                        <div class="absolute bottom-2 left-2 right-2 text-center text-[8px] text-slate-500">Kéo nguyên tử để đổi hình dạng • Click nguyên tử A rồi nguyên tử B để tạo/xóa liên kết</div>
+                    </div>
+                    <div class="life-mol-panel overflow-y-auto">
+                        <div class="text-[9px] font-black text-cyan-300 uppercase mb-2">🎛️ Hình dạng & độ nghiêng</div>
+                        <div class="text-[8px] text-slate-500">Hình dạng mục tiêu</div>
+                        <button class="life-shape-btn ${lifeMoleculeState.shape==='chain'?'active':''}" data-life-shape="chain">⛓️ Chuỗi</button>
+                        <button class="life-shape-btn ${lifeMoleculeState.shape==='bent'?'active':''}" data-life-shape="bent">〽️ Gấp khúc</button>
+                        <button class="life-shape-btn ${lifeMoleculeState.shape==='ring'?'active':''}" data-life-shape="ring">⭕ Vòng</button>
+                        <button class="life-shape-btn ${lifeMoleculeState.shape==='fold'?'active':''}" data-life-shape="fold">🌀 Gấp cuộn</button>
+                        <div class="mt-3 text-[8px] text-slate-500">Độ nghiêng: <span class="text-amber-300 font-black">${lifeMoleculeState.tilt.toFixed(0)}°</span></div>
+                        <input id="life-tilt-slider" class="life-editor-control" type="range" min="0" max="90" step="1" value="${lifeMoleculeState.tilt}">
+                        <div class="mt-2 text-[8px] text-slate-500">Xoay mô hình: <span class="text-cyan-300 font-black">${lifeMoleculeState.rotation.toFixed(0)}°</span></div>
+                        <input id="life-rotation-slider" class="life-editor-control" type="range" min="0" max="360" step="1" value="${lifeMoleculeState.rotation}">
+                        <div class="mt-3 text-[8px] text-slate-500">Kiểm tra nhiệm vụ</div>
+                        <div class="life-check-row"><span>Nguyên tử</span><b class="${exactAtoms?'life-check-ok':'life-check-bad'}">${exactAtoms?'✓ Đúng':'✕ Sai'}</b></div>
+                        <div class="life-check-row"><span>Liên kết</span><b class="${bondOK?'life-check-ok':'life-check-bad'}">${lifeMoleculeState.bonds.length}/${recipe.bonds}</b></div>
+                        <div class="life-check-row"><span>Hình dạng</span><b class="${shapeOK?'life-check-ok':'life-check-bad'}">${shapeOK?'✓ Đúng':'✕ Sai'}</b></div>
+                        <div class="life-check-row"><span>Độ nghiêng</span><b class="${tiltOK?'life-check-ok':'life-check-bad'}">${tiltOK?'✓ Đúng':'✕ Sai'}</b></div>
+                        <div class="mt-2 p-2 rounded-xl bg-slate-950/70 border border-slate-800 text-[8px] text-center ${allOK?'text-emerald-300':'text-slate-500'}">${allOK?'✨ Cấu trúc đạt yêu cầu!':'Điều chỉnh đến khi tất cả điều kiện sáng.'}</div>
+                    </div>
+                </div>
+                <div class="mt-3 rounded-xl bg-slate-950/70 border border-slate-800 p-3">
+                    <div class="flex items-center justify-between mb-2"><span class="text-[9px] font-black text-slate-300 uppercase">🧩 Bộ protein đang xây</span><span class="life-badge text-cyan-300 bg-cyan-500/10 border-cyan-500/20">${lifeMoleculeState.editingProtein+1}/4</span></div>
+                    <div class="flex flex-wrap gap-1">${LIFE_MOLECULE_RECIPES.map((r,i)=>`<button type="button" data-life-protein="${i}" class="life-structure-chip ${i===lifeMoleculeState.editingProtein?'border-orange-400/70 text-orange-200':''}">${lifeState.proteins[r.id]?'✓ ':''}${r.name.split(' — ')[0]}</button>`).join('')}</div>
+                </div>`;
+
+            panel.querySelectorAll('[data-life-atom]').forEach(btn=>btn.addEventListener('click',()=>{lifeMoleculeState.selectedAtomType=btn.dataset.lifeAtom;renderLifeMoleculeEditor();}));
+            const add=document.getElementById('life-add-atom'); if(add) add.onclick=()=>lifeAddAtom(lifeMoleculeState.selectedAtomType);
+            const cycle=document.getElementById('life-cycle-protein'); if(cycle) cycle.onclick=lifeCycleProtein;
+            const clear=document.getElementById('life-clear-molecule'); if(clear) clear.onclick=lifeClearMolecule;
+            panel.querySelectorAll('[data-life-shape]').forEach(btn=>btn.addEventListener('click',()=>{lifeMoleculeState.shape=btn.dataset.lifeShape;lifeArrangeAtoms();renderLifeMoleculeEditor();}));
+            panel.querySelectorAll('[data-life-protein]').forEach(btn=>btn.addEventListener('click',()=>{lifeMoleculeState.editingProtein=parseInt(btn.dataset.lifeProtein);lifeRebuildDefaultAtoms();renderLifeMoleculeEditor();}));
+            const tilt=document.getElementById('life-tilt-slider'); if(tilt) tilt.oninput=()=>{lifeMoleculeState.tilt=parseFloat(tilt.value);renderLifeMoleculeEditor();};
+            const rotation=document.getElementById('life-rotation-slider'); if(rotation) rotation.oninput=()=>{lifeMoleculeState.rotation=parseFloat(rotation.value);renderLifeMoleculeEditor();};
+            panel.querySelectorAll('[data-life-node]').forEach(node=>node.addEventListener('click',e=>{e.stopPropagation();const idx=parseInt(node.dataset.lifeNode);if(lifeMoleculeState.selectedNode===null){lifeMoleculeState.selectedNode=idx;node.querySelector('circle').setAttribute('stroke','#f59e0b');}else{lifeToggleBond(lifeMoleculeState.selectedNode,idx);lifeMoleculeState.selectedNode=null;}}));
+        }
+
+        function lifeSelectedResourceCorrectForTask(task){
+            const actual={};
+            lifeState.selected.forEach(id=>actual[id]=(actual[id]||0)+1);
+            const keys=new Set([...Object.keys(actual),...Object.keys(task.requirements)]);
+            for(const k of keys) if((actual[k]||0)!==(task.requirements[k]||0)) return false;
+            return true;
+        }
+
+        function renderLifeResourcesForEvolution(task){
+            const list=document.getElementById('life-resource-list');
+            if(!list) return;
+            const ids=Object.keys(task.requirements);
+            list.innerHTML=ids.map(id=>{
+                const label=id==='CELL'?'Sinh vật đơn bào':id==='VIRUS'?'Virus mô phỏng':id==='MEMBRANE'?'Màng tế bào mô phỏng':id==='METABOLISM'?'Hệ chuyển hóa mô phỏng':id;
+                const have=lifeHaveResource(id);
+                const selected=countLifeSelected(id);
+                return `<button type="button" class="life-protein-token ${selected?'selected':''} ${have?'':'opacity-40'}" data-life-resource="${id}" ${have?'':'disabled'}>
+                    <span><b class="text-[10px] text-slate-200">${label}</b><small class="block text-[8px] text-slate-500">${have?'Có trong kho':'Chưa có'}</small></span>
+                    <span class="life-badge text-cyan-300 bg-cyan-500/10 border-cyan-500/25">${selected}/${task.requirements[id]}</span>
+                </button>`;
+            }).join('');
+            list.querySelectorAll('[data-life-resource]').forEach(btn=>btn.addEventListener('click',()=>addLifeResource(btn.dataset.lifeResource)));
+        }
+
+        const originalRenderLifeTasks = renderLifeTasks;
+        renderLifeTasks = function(){
+            const list=document.getElementById('life-task-list'); const counter=document.getElementById('life-task-counter');
+            if(!list||!counter) return;
+            list.innerHTML='';
+            LIFE_TASKS.forEach((task,index)=>{
+                const done=!!lifeState.completed[task.id], active=!done&&index===lifeState.currentTask;
+                const card=document.createElement('div');
+                card.className=`life-task-card rounded-2xl p-4 ${done?'done':active?'active':''}`;
+                card.innerHTML=`<div class="flex items-center justify-between gap-2 mb-2"><span class="text-[10px] font-black ${done?'text-emerald-300':active?'text-orange-300':'text-slate-400'}">${task.title}</span><span class="life-badge ${done?'text-emerald-300 bg-emerald-500/10 border-emerald-500/25':active?'text-orange-300 bg-orange-500/10 border-orange-500/25':'text-slate-500 bg-slate-800 border-slate-700'}">${done?'Hoàn thành ✓':active?'Đang làm':'Chờ'}</span></div><div class="text-xs font-bold text-slate-200 leading-relaxed">${task.name}</div><div class="text-[9px] text-slate-500 mt-2 leading-relaxed">${task.description}</div>`;
+                if(!done) card.onclick=()=>{lifeState.currentTask=index;lifeState.selected=[];renderLifeTasks();renderLifeLab();};
+                list.appendChild(card);
+            });
+            const doneCount=LIFE_TASKS.filter(t=>lifeState.completed[t.id]).length;
+            counter.innerText=`${doneCount}/${LIFE_TASKS.length}`;
+        };
+
+        renderLifeLab = function(){
+            const task=currentLifeTask();
+            const proteinTask=task.id==='life-protein-virus';
+            const singleCellTask=task.id==='life-single-cell';
+            const hasMoleculeEditor=proteinTask;
+            const title=document.getElementById('life-lab-title');
+            const subtitle=document.getElementById('life-lab-subtitle');
+            if(title) title.innerText=hasMoleculeEditor?'🧪 Phòng kiến tạo protein — liên kết & hình dạng':'🧬 Trung tâm ghép cấu phần sự sống';
+            if(subtitle) subtitle.innerText=hasMoleculeEditor?'Chọn nguyên tố, sắp xếp nguyên tử, tạo liên kết, chỉnh hình dạng và độ nghiêng theo mẫu mô phỏng.':task.description;
+            const panel=document.getElementById('life-protein-panel');
+            if(hasMoleculeEditor){
+                renderLifeMoleculeEditor();
+            } else {
+                if(panel) panel.innerHTML=`<div class="text-[10px] text-slate-500 mb-2">Kho cấu phần có thể ghép</div><div id="life-resource-list" class="grid grid-cols-1 gap-2"></div><div class="text-[10px] text-slate-500 mt-4 mb-1">Thành phần đã chọn</div><div id="life-combo-slot" class="life-combo-slot"></div><div id="life-equation" class="mt-3 rounded-xl bg-slate-950/70 border border-slate-800 p-3 text-[10px] text-slate-400 text-center">${task.formula}</div>`;
+                renderLifeResourcesForEvolution(task);
+                renderLifeCombo();
+            }
+            const correct=proteinTask?LIFE_MOLECULE_RECIPES.some((r,i)=>i===lifeMoleculeState.editingProtein&&lifeRecipeCorrect(r)):lifeSelectedResourceCorrectForTask(task);
+            const status=document.getElementById('life-lab-status'),btn=document.getElementById('btn-life-craft'),hint=document.getElementById('life-craft-hint');
+            if(!btn||!status||!hint) return;
+            if(lifeState.completed[task.id]){status.innerText='Hoàn thành ✓';status.className='life-badge text-emerald-300 bg-emerald-500/10 border-emerald-500/25';btn.disabled=true;btn.className='life-craft-btn done w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase';btn.innerText=`🏆 ${task.resultName}`;hint.innerHTML='<span class="text-emerald-300">Nhiệm vụ này đã hoàn tất.</span>';return;}
+            if(correct){status.innerText='Sẵn sàng';status.className='life-badge text-emerald-300 bg-emerald-500/10 border-emerald-500/25';btn.disabled=false;btn.className='life-craft-btn ready w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase';btn.innerText=proteinTask?'🧬 Chốt Protein & Tạo Virus Mô Phỏng':singleCellTask?'🦠 Tạo Sinh Vật Đơn Bào':'✨ Tạo Sản Phẩm';hint.innerHTML='<span class="text-emerald-300 font-bold">Đủ điều kiện — nút tạo đã sáng.</span>';}else{status.innerText='Đang thiếu';status.className='life-badge text-amber-300 bg-amber-500/10 border-amber-500/20';btn.disabled=true;btn.className='life-craft-btn locked w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase';btn.innerText='🔒 Chưa đủ điều kiện';hint.innerHTML=proteinTask?'Cần đúng nguyên tử + số liên kết + hình dạng + độ nghiêng của protein đang chọn.':`Cần đúng bộ cấu phần: ${task.formula}`;}
+        };
+
+        craftCurrentLifeTask = function(){
+            const task=currentLifeTask();
+            const proteinTask=task.id==='life-protein-virus';
+            const correct=proteinTask?lifeRecipeCorrect(LIFE_MOLECULE_RECIPES[lifeMoleculeState.editingProtein]):lifeSelectedResourceCorrectForTask(task);
+            if(!task||lifeState.completed[task.id]||!correct){renderLifeLab();return;}
+            const btn=document.getElementById('btn-life-craft'); if(btn){btn.disabled=true;btn.innerText='⚗️ Đang mô phỏng cấu trúc...';}
+            setTimeout(()=>{
+                lifeState.completed[task.id]=true;
+                if(task.id==='life-protein-virus'){
+                    const recipe=LIFE_MOLECULE_RECIPES[lifeMoleculeState.editingProtein];
+                    lifeState.proteins[recipe.id]=true;
+                    const allProteins=LIFE_MOLECULE_RECIPES.every(r=>lifeState.proteins[r.id]);
+                    if(allProteins){lifeState.products.VIRUS=true;lifeToast('🧬 Bộ protein đã hoàn tất!','Đã hình thành Virus mô phỏng trong hệ thống game. Nhiệm vụ 2 đã mở.',true);lifeState.currentTask=1;}
+                    else{lifeToast('🧩 Protein đã tạo!','Protein này đã được lưu vào kho. Hãy tiếp tục tạo các protein còn lại.',true);lifeState.currentTask=0;lifeMoleculeState.editingProtein=(lifeMoleculeState.editingProtein+1)%LIFE_MOLECULE_RECIPES.length;lifeRebuildDefaultAtoms();}
+                }else if(task.id==='life-single-cell'){
+                    lifeState.products.CELL=true;lifeToast('🦠 Sinh vật đơn bào đã hình thành!','Một tế bào mô phỏng đầu tiên đã xuất hiện trong đại dương nguyên thủy.',true);document.getElementById('life-planet-description').innerText='Sinh vật đơn bào mô phỏng đã xuất hiện trong đại dương nguyên thủy của hành tinh.';lifeState.currentTask=2;
+                }else{
+                    lifeState.products[task.result]=true;
+                    lifeToast('✨ Giai đoạn mới hoàn tất!',`${task.resultName} đã được mở khóa trong mô phỏng.`,true);
+                    const next=LIFE_TASKS.findIndex((t,i)=>i>lifeState.currentTask&&!lifeState.completed[t.id]);
+                    lifeState.currentTask=next>=0?next:lifeState.currentTask;
+                }
+                lifeState.selected=[];renderLifeTasks();renderLifeLab();
+            },850);
+        };
+
+        /* Khi mở trang, nạp sẵn protein 1 để người chơi thấy cấu trúc và có thể tự chỉnh. */
+        const originalOpenLifePlanetPage=openLifePlanetPage;
+        openLifePlanetPage=function(){
+            originalOpenLifePlanetPage();
+            lifeMoleculeState.editingProtein=0;
+            lifeRebuildDefaultAtoms();
+            renderLifeTasks();
+            renderLifeLab();
+        };
+
+        window.addEventListener('load',()=>{
+            lifeMoleculeState.editingProtein=0;
+            lifeRebuildDefaultAtoms();
+            renderLifeTasks();
+            renderLifeLab();
+        });
+    </script>
+
 </body>
 </html>
