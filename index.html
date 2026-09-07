@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
+    <title>2Khám Phá Hệ Sao & Vùng Sự Sống 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -3053,6 +3053,574 @@
             setupCompoundFineTuneAndCraft();
             setupPlanetLayerSystem();
         });
+    </script>
+
+
+    <!-- ================================================================
+         BỔ SUNG: GIAI ĐOẠN SỰ SỐNG HÀNH TINH
+         Không sửa/xóa code phía trước — chỉ thêm hệ thống mới.
+         ================================================================ -->
+    <style>
+        #life-planet-page {
+            background:
+                radial-gradient(circle at 50% 48%, rgba(251,146,60,.08), transparent 35%),
+                rgba(2,6,23,.97);
+        }
+        .life-task-card {
+            transition: all .25s ease;
+            border: 1px solid rgba(148,163,184,.16);
+            background: rgba(15,23,42,.72);
+        }
+        .life-task-card.active {
+            border-color: rgba(251,146,60,.65);
+            box-shadow: 0 0 22px rgba(251,146,60,.12);
+        }
+        .life-task-card.done {
+            border-color: rgba(16,185,129,.65);
+            background: rgba(6,78,59,.20);
+        }
+        .life-resource {
+            cursor: pointer;
+            transition: all .2s ease;
+            user-select: none;
+        }
+        .life-resource:hover {
+            transform: translateY(-2px);
+            border-color: rgba(251,146,60,.7);
+        }
+        .life-resource.selected {
+            border-color: rgba(34,211,238,.8);
+            background: rgba(8,145,178,.16);
+            box-shadow: 0 0 15px rgba(34,211,238,.14);
+        }
+        .life-craft-btn {
+            transition: all .25s ease;
+        }
+        .life-craft-btn.locked {
+            background: #1e293b;
+            color: #64748b;
+            border-color: #334155;
+            cursor: not-allowed;
+        }
+        .life-craft-btn.ready {
+            background: linear-gradient(90deg,#f97316,#f59e0b,#10b981);
+            color: #020617;
+            border-color: rgba(251,146,60,.75);
+            cursor: pointer;
+            box-shadow: 0 0 22px rgba(249,115,22,.24);
+            animation: lifeCraftGlow 1.8s ease-in-out infinite;
+        }
+        .life-craft-btn.done {
+            background: linear-gradient(90deg,#10b981,#22d3ee);
+            color: #020617;
+            border-color: rgba(16,185,129,.7);
+            cursor: default;
+        }
+        @keyframes lifeCraftGlow {
+            0%,100% { box-shadow: 0 0 12px rgba(249,115,22,.25); }
+            50% { box-shadow: 0 0 28px rgba(16,185,129,.45); }
+        }
+        .life-water {
+            position:absolute;
+            inset:0;
+            border-radius:50%;
+            background:
+                radial-gradient(circle at 34% 28%, rgba(125,211,252,.40), rgba(14,116,144,.22) 35%, rgba(3,105,161,.32) 70%, rgba(2,30,41,.9) 100%);
+            box-shadow: inset -22px -28px 45px rgba(0,0,0,.42), inset 12px 10px 30px rgba(186,230,253,.13), 0 0 65px rgba(14,165,233,.20);
+        }
+        .life-land-cluster {
+            position:absolute;
+            left:50%;
+            top:50%;
+            width:145px;
+            height:110px;
+            transform:translate(-48%,-44%) rotate(-9deg);
+            border-radius:52% 48% 45% 55% / 45% 54% 46% 55%;
+            background:
+                radial-gradient(circle at 28% 34%, #fdba74 0 8%, transparent 9%),
+                radial-gradient(circle at 68% 27%, #fb923c 0 10%, transparent 11%),
+                radial-gradient(circle at 48% 70%, #ea580c 0 12%, transparent 13%),
+                linear-gradient(145deg,#fdba74,#f97316 48%,#c2410c);
+            box-shadow: 0 7px 22px rgba(124,45,18,.45), inset 10px 7px 15px rgba(255,255,255,.10);
+            animation: landFloat 5s ease-in-out infinite;
+        }
+        .life-land-cluster::before,
+        .life-land-cluster::after {
+            content:"";
+            position:absolute;
+            border-radius:50%;
+            background:linear-gradient(145deg,#fb923c,#c2410c);
+        }
+        .life-land-cluster::before { width:58px;height:45px;left:-28px;top:28px;transform:rotate(25deg); }
+        .life-land-cluster::after { width:55px;height:42px;right:-22px;bottom:4px;transform:rotate(-22deg); }
+        @keyframes landFloat {
+            0%,100% { margin-top:0; }
+            50% { margin-top:-5px; }
+        }
+        .life-orbit-glow {
+            position:absolute;
+            width:390px;
+            height:390px;
+            border-radius:50%;
+            border:1px solid rgba(56,189,248,.13);
+            box-shadow:0 0 35px rgba(14,165,233,.06);
+            animation: lifeOrbitSpin 18s linear infinite;
+        }
+        @keyframes lifeOrbitSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .life-protein-token {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:8px;
+            padding:9px 10px;
+            border-radius:12px;
+            background:rgba(15,23,42,.88);
+            border:1px solid rgba(148,163,184,.18);
+            cursor:pointer;
+            transition:.2s ease;
+        }
+        .life-protein-token:hover { border-color:rgba(34,211,238,.6); transform:translateX(2px); }
+        .life-protein-token.used { opacity:.45; pointer-events:none; }
+        .life-combo-slot {
+            min-height:74px;
+            border:2px dashed rgba(148,163,184,.22);
+            border-radius:16px;
+            padding:10px;
+            display:flex;
+            flex-wrap:wrap;
+            align-content:flex-start;
+            gap:7px;
+            background:rgba(2,6,23,.45);
+        }
+        .life-mini-pill {
+            padding:5px 8px;
+            border-radius:9px;
+            font-size:10px;
+            font-weight:800;
+            color:#a5f3fc;
+            background:rgba(8,145,178,.15);
+            border:1px solid rgba(34,211,238,.30);
+        }
+        .life-badge {
+            padding:4px 8px;
+            border-radius:999px;
+            font-size:9px;
+            font-weight:800;
+            border:1px solid rgba(148,163,184,.20);
+        }
+        @media (max-width: 1100px) {
+            #life-planet-page .life-grid { grid-template-columns: 1fr !important; overflow-y:auto; }
+            #life-planet-page .life-planet-column { min-height:360px; }
+        }
+    </style>
+
+    <div id="life-planet-page" class="absolute inset-0 z-[80] hidden flex flex-col pointer-events-auto p-5 md:p-6 overflow-hidden">
+        <button id="btn-close-life-page" class="absolute top-5 right-5 w-10 h-10 rounded-full bg-slate-900/90 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center font-bold text-lg transition-all cursor-pointer z-[90]" title="Quay lại trang gây dựng hành tinh">✕</button>
+
+        <div class="flex items-center gap-3 pb-4 border-b border-slate-800 pr-14 shrink-0">
+            <span class="w-3.5 h-3.5 rounded-full bg-orange-400 inline-block shadow-[0_0_12px_#fb923c]"></span>
+            <div>
+                <h2 class="text-lg font-black text-orange-300 uppercase tracking-wider">🧬 Sự Sống Hành Tinh</h2>
+                <p class="text-[11px] text-slate-400">Giai đoạn tiến hóa sau khi hoàn thành toàn bộ 5 tầng cấu tạo hành tinh.</p>
+            </div>
+            <span id="life-stage-badge" class="ml-auto text-[10px] font-bold text-emerald-300 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/25">5/5 tầng hoàn tất</span>
+        </div>
+
+        <div class="life-grid flex-1 grid grid-cols-[330px_minmax(330px,1fr)_390px] gap-5 pt-5 overflow-hidden">
+            <!-- NHIỆM VỤ -->
+            <div class="glass-panel rounded-3xl border border-amber-500/25 p-5 flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                    <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider">📋 Nhiệm Vụ Sự Sống</h3>
+                    <span id="life-task-counter" class="life-badge text-cyan-300 bg-cyan-500/10 border-cyan-500/20">1/2</span>
+                </div>
+                <div id="life-task-list" class="space-y-3 overflow-y-auto pr-1"></div>
+                <div class="mt-auto pt-4 border-t border-slate-800 text-[10px] text-slate-500 text-center leading-relaxed">
+                    Đây là mô phỏng kiến tạo sự sống trong game. Các bước sinh học được biểu diễn bằng tài nguyên trừu tượng, không phải quy trình phòng thí nghiệm.
+                </div>
+            </div>
+
+            <!-- HÀNH TINH -->
+            <div class="life-planet-column glass-panel rounded-3xl border border-cyan-500/25 relative flex flex-col items-center justify-center overflow-hidden bg-black/35">
+                <div class="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 text-[10px] text-cyan-300">🌊 Đại dương nguyên thủy • 🟠 Cụm đất liền</div>
+                <div id="life-planet-stage" class="relative w-[360px] h-[360px] max-w-[75vw] max-h-[55vh]">
+                    <div class="life-orbit-glow"></div>
+                    <div class="life-water"></div>
+                    <div class="life-land-cluster"></div>
+                    <div class="absolute inset-0 rounded-full pointer-events-none" style="box-shadow:inset 18px 12px 35px rgba(255,255,255,.08), inset -25px -20px 45px rgba(0,0,0,.45);"></div>
+                </div>
+                <div class="mt-4 text-center z-10 px-5">
+                    <div class="text-sm font-black text-orange-300">Hành tinh tiền-sinh học</div>
+                    <div id="life-planet-description" class="text-[10px] text-slate-400 mt-1">Phần lớn bề mặt là nước, vật chất đất liền màu cam tập trung thành một vùng lớn.</div>
+                </div>
+            </div>
+
+            <!-- PHÒNG THÍ NGHIỆM MÔ PHỎNG -->
+            <div class="glass-panel rounded-3xl border border-cyan-500/25 p-5 flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                    <div>
+                        <h3 id="life-lab-title" class="text-xs font-black text-cyan-300 uppercase tracking-wider">🧪 Tổng hợp protein cơ bản</h3>
+                        <p id="life-lab-subtitle" class="text-[9px] text-slate-500 mt-1">Chọn đúng các tài nguyên mô phỏng cho nhiệm vụ hiện tại.</p>
+                    </div>
+                    <span id="life-lab-status" class="life-badge text-amber-300 bg-amber-500/10 border-amber-500/20">Đang chờ</span>
+                </div>
+
+                <div id="life-protein-panel" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                    <div class="text-[10px] text-slate-500 mb-1">Tài nguyên phân tử mô phỏng</div>
+                    <div id="life-resource-list" class="grid grid-cols-2 gap-2"></div>
+                    <div class="text-[10px] text-slate-500 mt-4 mb-1">Thành phần đã chọn</div>
+                    <div id="life-combo-slot" class="life-combo-slot">
+                        <span class="text-[9px] text-slate-600 italic">Chọn tài nguyên bên trên để đưa vào vùng tổng hợp.</span>
+                    </div>
+                    <div id="life-equation" class="mt-3 rounded-xl bg-slate-950/70 border border-slate-800 p-3 text-[10px] text-slate-400 text-center">Chưa đủ thành phần.</div>
+                </div>
+
+                <div class="pt-4 mt-3 border-t border-slate-800 space-y-2">
+                    <button id="btn-life-craft" class="life-craft-btn locked w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase" disabled>🔒 Chưa đủ điều kiện</button>
+                    <div id="life-craft-hint" class="text-[9px] text-slate-500 text-center">Hoàn thành đúng yêu cầu của nhiệm vụ để mở nút tạo.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ================================================================
+           BỔ SUNG: LOGIC GIAI ĐOẠN SỰ SỐNG HÀNH TINH
+           Tất cả đều độc lập với hệ thống 5 tầng hiện có.
+           ================================================================ */
+        const LIFE_TASKS = [
+            {
+                id: 'life-protein-virus',
+                title: 'Nhiệm vụ 1',
+                name: 'Tổng hợp protein cơ bản → tạo virus mô phỏng',
+                description: 'Ghép các tài nguyên phân tử trừu tượng để tạo một số protein cơ bản. Khi đủ bộ protein, mở khóa sản phẩm Virus mô phỏng.',
+                requirements: { 'AA-A': 1, 'AA-B': 1, 'AA-C': 1, 'AA-D': 1 },
+                result: 'VIRUS',
+                resultName: 'Virus mô phỏng',
+                formula: 'AA-A + AA-B + AA-C + AA-D → Protein cơ bản → Virus mô phỏng'
+            },
+            {
+                id: 'life-single-cell',
+                title: 'Nhiệm vụ 2',
+                name: 'Ghép nhiều protein → sinh vật đơn bào',
+                description: 'Sử dụng bộ protein đã tạo cùng các thành phần mô phỏng để hình thành sinh vật đơn bào đầu tiên của hành tinh.',
+                requirements: { 'PROT-1': 1, 'PROT-2': 1, 'PROT-3': 1, 'PROT-4': 1, 'VIRUS': 1 },
+                result: 'CELL',
+                resultName: 'Sinh vật đơn bào',
+                formula: 'Protein 1 + Protein 2 + Protein 3 + Protein 4 + Virus mô phỏng → Sinh vật đơn bào'
+            }
+        ];
+
+        const LIFE_RESOURCES = [
+            { id:'AA-A', label:'Amino A', short:'A', type:'Nguyên liệu' },
+            { id:'AA-B', label:'Amino B', short:'B', type:'Nguyên liệu' },
+            { id:'AA-C', label:'Amino C', short:'C', type:'Nguyên liệu' },
+            { id:'AA-D', label:'Amino D', short:'D', type:'Nguyên liệu' },
+            { id:'PROT-1', label:'Protein 1', short:'P1', type:'Protein' },
+            { id:'PROT-2', label:'Protein 2', short:'P2', type:'Protein' },
+            { id:'PROT-3', label:'Protein 3', short:'P3', type:'Protein' },
+            { id:'PROT-4', label:'Protein 4', short:'P4', type:'Protein' },
+            { id:'VIRUS', label:'Virus mô phỏng', short:'V', type:'Sản phẩm' }
+        ];
+
+        const lifeState = {
+            initialized: false,
+            currentTask: 0,
+            selected: [],
+            completed: { 'life-protein-virus': false, 'life-single-cell': false },
+            products: { 'VIRUS': false, 'CELL': false },
+            proteins: { 'PROT-1': false, 'PROT-2': false, 'PROT-3': false, 'PROT-4': false }
+        };
+
+        function allFivePlanetLayersCompletedForLife() {
+            return typeof PLANET_LAYERS !== 'undefined' && PLANET_LAYERS.length === 5 && PLANET_LAYERS.every(layer => isLayerComplete(layer));
+        }
+
+        function updateBuildPlanetToLifeButton() {
+            const btn = document.getElementById('btn-build-planet');
+            if (!btn) return;
+            if (allFivePlanetLayersCompletedForLife()) {
+                btn.innerHTML = '<span>🧬 Sự Sống Hành Tinh</span>';
+                btn.title = 'Mở giai đoạn tiến hóa sự sống';
+                btn.dataset.lifeReady = '1';
+                btn.className = 'w-full bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-500 hover:from-orange-400 hover:to-emerald-400 text-slate-950 font-black text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-orange-500/25 border border-orange-300/50 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center space-x-2';
+            } else {
+                btn.innerHTML = '<span>🌍 Gây Dựng Hành Tinh</span>';
+                btn.dataset.lifeReady = '0';
+            }
+        }
+
+        function renderLifeTasks() {
+            const list = document.getElementById('life-task-list');
+            const counter = document.getElementById('life-task-counter');
+            if (!list || !counter) return;
+            list.innerHTML = '';
+
+            LIFE_TASKS.forEach((task, index) => {
+                const done = lifeState.completed[task.id];
+                const active = !done && index === lifeState.currentTask;
+                const card = document.createElement('div');
+                card.className = `life-task-card rounded-2xl p-4 ${done ? 'done' : active ? 'active' : ''}`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="text-[10px] font-black ${done ? 'text-emerald-300' : active ? 'text-orange-300' : 'text-slate-400'}">${task.title}</span>
+                        <span class="life-badge ${done ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/25' : active ? 'text-orange-300 bg-orange-500/10 border-orange-500/25' : 'text-slate-500 bg-slate-800 border-slate-700'}">${done ? 'Hoàn thành ✓' : active ? 'Đang làm' : 'Chờ'}</span>
+                    </div>
+                    <div class="text-xs font-bold text-slate-200 leading-relaxed">${task.name}</div>
+                    <div class="text-[9px] text-slate-500 mt-2 leading-relaxed">${task.description}</div>
+                `;
+                if (!done) {
+                    card.addEventListener('click', () => {
+                        lifeState.currentTask = index;
+                        lifeState.selected = [];
+                        renderLifeTasks();
+                        renderLifeLab();
+                    });
+                }
+                list.appendChild(card);
+            });
+
+            const doneCount = LIFE_TASKS.filter(t => lifeState.completed[t.id]).length;
+            counter.innerText = `${Math.min(doneCount + 1, 2)}/2`;
+        }
+
+        function currentLifeTask() {
+            return LIFE_TASKS[lifeState.currentTask] || LIFE_TASKS[0];
+        }
+
+        function availableLifeResources() {
+            const task = currentLifeTask();
+            return LIFE_RESOURCES.filter(resource => {
+                if (!task.requirements[resource.id]) return false;
+                if (resource.id === 'VIRUS' && !lifeState.products.VIRUS) return false;
+                return true;
+            });
+        }
+
+        function countLifeSelected(id) {
+            return lifeState.selected.filter(x => x === id).length;
+        }
+
+        function isLifeSelectionCorrect() {
+            const task = currentLifeTask();
+            const actual = {};
+            lifeState.selected.forEach(id => actual[id] = (actual[id] || 0) + 1);
+            const keys = new Set([...Object.keys(task.requirements), ...Object.keys(actual)]);
+            for (const key of keys) {
+                if ((actual[key] || 0) !== (task.requirements[key] || 0)) return false;
+            }
+            return true;
+        }
+
+        function renderLifeResources() {
+            const list = document.getElementById('life-resource-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            availableLifeResources().forEach(resource => {
+                const selectedCount = countLifeSelected(resource.id);
+                const alreadyProduct = resource.id === 'VIRUS' && lifeState.products.VIRUS;
+                const div = document.createElement('div');
+                div.className = `life-protein-token ${selectedCount > 0 ? 'selected' : ''} ${alreadyProduct ? 'used' : ''}`;
+                div.innerHTML = `
+                    <div>
+                        <div class="text-[10px] font-black text-slate-200">${resource.short} • ${resource.label}</div>
+                        <div class="text-[8px] text-slate-500">${resource.type}</div>
+                    </div>
+                    <span class="life-badge ${selectedCount ? 'text-cyan-300 bg-cyan-500/10 border-cyan-500/25' : 'text-slate-500 bg-slate-900 border-slate-800'}">${selectedCount}/${currentLifeTask().requirements[resource.id] || 0}</span>
+                `;
+                if (!alreadyProduct) {
+                    div.addEventListener('click', () => addLifeResource(resource.id));
+                }
+                list.appendChild(div);
+            });
+        }
+
+        function addLifeResource(id) {
+            const task = currentLifeTask();
+            const max = task.requirements[id] || 0;
+            if (!max) return;
+            if (countLifeSelected(id) >= max) return;
+            if (id === 'VIRUS' && !lifeState.products.VIRUS) return;
+            lifeState.selected.push(id);
+            renderLifeLab();
+        }
+
+        function removeLifeResource(id) {
+            const index = lifeState.selected.lastIndexOf(id);
+            if (index !== -1) lifeState.selected.splice(index, 1);
+            renderLifeLab();
+        }
+
+        function renderLifeCombo() {
+            const slot = document.getElementById('life-combo-slot');
+            if (!slot) return;
+            slot.innerHTML = '';
+            if (!lifeState.selected.length) {
+                slot.innerHTML = '<span class="text-[9px] text-slate-600 italic">Chọn tài nguyên bên trên để đưa vào vùng tổng hợp.</span>';
+                return;
+            }
+            lifeState.selected.forEach(id => {
+                const resource = LIFE_RESOURCES.find(r => r.id === id);
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.className = 'life-mini-pill hover:border-rose-400/60 hover:text-rose-300 transition-all';
+                pill.innerText = `${resource ? resource.short : id} ×`;
+                pill.title = 'Nhấn để bỏ thành phần này';
+                pill.addEventListener('click', () => removeLifeResource(id));
+                slot.appendChild(pill);
+            });
+        }
+
+        function renderLifeLab() {
+            const task = currentLifeTask();
+            const title = document.getElementById('life-lab-title');
+            const subtitle = document.getElementById('life-lab-subtitle');
+            const equation = document.getElementById('life-equation');
+            if (title) title.innerText = task.id === 'life-protein-virus' ? '🧪 Tổng hợp protein cơ bản' : '🧬 Ghép protein → sinh vật đơn bào';
+            if (subtitle) subtitle.innerText = task.description;
+            renderLifeResources();
+            renderLifeCombo();
+
+            const correct = isLifeSelectionCorrect();
+            if (equation) {
+                equation.innerHTML = correct
+                    ? `✅ <span class="text-emerald-300 font-bold">Đủ bộ thành phần.</span> ${task.formula}`
+                    : `🧪 ${task.formula}<br><span class="text-slate-500">Đang chọn: ${lifeState.selected.length} thành phần</span>`;
+            }
+
+            const status = document.getElementById('life-lab-status');
+            const btn = document.getElementById('btn-life-craft');
+            const hint = document.getElementById('life-craft-hint');
+            if (!btn || !status || !hint) return;
+
+            if (lifeState.completed[task.id]) {
+                status.innerText = 'Hoàn thành ✓';
+                status.className = 'life-badge text-emerald-300 bg-emerald-500/10 border-emerald-500/25';
+                btn.disabled = true;
+                btn.className = 'life-craft-btn done w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase';
+                btn.innerText = `🏆 ${task.resultName}`;
+                hint.innerHTML = '<span class="text-emerald-300">Nhiệm vụ này đã hoàn tất.</span>';
+                return;
+            }
+
+            if (correct) {
+                status.innerText = 'Sẵn sàng';
+                status.className = 'life-badge text-emerald-300 bg-emerald-500/10 border-emerald-500/25';
+                btn.disabled = false;
+                btn.className = 'life-craft-btn ready w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase';
+                btn.innerText = task.id === 'life-protein-virus' ? '🧬 Tạo Virus Mô Phỏng' : '🦠 Tạo Sinh Vật Đơn Bào';
+                hint.innerHTML = '<span class="text-emerald-300 font-bold">Đủ thành phần — có thể tiến hành mô phỏng.</span>';
+            } else {
+                status.innerText = 'Đang thiếu';
+                status.className = 'life-badge text-amber-300 bg-amber-500/10 border-amber-500/20';
+                btn.disabled = true;
+                btn.className = 'life-craft-btn locked w-full font-black text-xs py-3.5 px-4 rounded-xl border uppercase';
+                btn.innerText = '🔒 Chưa đủ thành phần';
+                const missing = Object.entries(task.requirements).map(([id, need]) => {
+                    const have = countLifeSelected(id);
+                    return have < need ? `${id} ${have}/${need}` : null;
+                }).filter(Boolean);
+                hint.innerHTML = `Còn thiếu: <span class="text-amber-300">${missing.join(' • ') || 'kiểm tra lại bộ thành phần'}</span>`;
+            }
+        }
+
+        function lifeToast(title, description, good = true) {
+            const page = document.getElementById('life-planet-page');
+            if (!page) return;
+            const toast = document.createElement('div');
+            toast.className = `congrats-modal absolute left-1/2 top-24 -translate-x-1/2 z-[95] glass-panel px-7 py-4 rounded-2xl border ${good ? 'border-emerald-400/70' : 'border-amber-400/70'} shadow-2xl text-center pointer-events-none`;
+            toast.innerHTML = `
+                <div class="text-base font-black ${good ? 'text-emerald-300' : 'text-amber-300'}">${title}</div>
+                <div class="text-[10px] text-slate-300 mt-1">${description}</div>
+            `;
+            page.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function craftCurrentLifeTask() {
+            const task = currentLifeTask();
+            if (!task || lifeState.completed[task.id] || !isLifeSelectionCorrect()) {
+                renderLifeLab();
+                return;
+            }
+
+            const btn = document.getElementById('btn-life-craft');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⚗️ Đang mô phỏng...';
+            }
+
+            setTimeout(() => {
+                lifeState.completed[task.id] = true;
+                if (task.result === 'VIRUS') {
+                    lifeState.products.VIRUS = true;
+                    lifeState.proteins['PROT-1'] = true;
+                    lifeState.proteins['PROT-2'] = true;
+                    lifeState.proteins['PROT-3'] = true;
+                    lifeState.proteins['PROT-4'] = true;
+                    lifeToast('🧬 Protein cơ bản đã hoàn tất!', 'Bộ protein mô phỏng đã được hình thành và tạo ra Virus mô phỏng. Nhiệm vụ 2 đã mở.', true);
+                    lifeState.currentTask = 1;
+                } else {
+                    lifeState.products.CELL = true;
+                    lifeToast('🦠 Sinh vật đơn bào đã hình thành!', 'Hành tinh đã bước sang giai đoạn sự sống đơn bào trong mô phỏng.', true);
+                    document.getElementById('life-planet-description').innerText = 'Sự sống đơn bào đã xuất hiện trong đại dương nguyên thủy của hành tinh.';
+                }
+                lifeState.selected = [];
+                renderLifeTasks();
+                renderLifeLab();
+            }, 850);
+        }
+
+        function openLifePlanetPage() {
+            if (!allFivePlanetLayersCompletedForLife()) {
+                lifeToast('🔒 Chưa mở khóa', 'Hãy hoàn thành đủ 5 tầng hành tinh trước khi bước vào giai đoạn sự sống.', false);
+                return;
+            }
+            const page = document.getElementById('life-planet-page');
+            if (!page) return;
+            page.classList.remove('hidden');
+            lifeState.selected = [];
+            const firstIncomplete = LIFE_TASKS.findIndex(t => !lifeState.completed[t.id]);
+            lifeState.currentTask = firstIncomplete === -1 ? 1 : firstIncomplete;
+            renderLifeTasks();
+            renderLifeLab();
+        }
+
+        function setupLifePlanetSystem() {
+            if (lifeState.initialized) return;
+            lifeState.initialized = true;
+
+            const buildBtn = document.getElementById('btn-build-planet');
+            if (buildBtn) {
+                /* Capture chạy trước listener cũ, nhưng chỉ chặn khi 5 tầng đã hoàn tất. */
+                buildBtn.addEventListener('click', (e) => {
+                    if (allFivePlanetLayersCompletedForLife()) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        document.getElementById('build-planet-page').classList.add('hidden');
+                        document.getElementById('planet-detail-modal').classList.add('hidden');
+                        openLifePlanetPage();
+                    }
+                }, true);
+            }
+
+            const closeBtn = document.getElementById('btn-close-life-page');
+            if (closeBtn) closeBtn.addEventListener('click', () => {
+                document.getElementById('life-planet-page').classList.add('hidden');
+            });
+
+            const craftBtn = document.getElementById('btn-life-craft');
+            if (craftBtn) craftBtn.addEventListener('click', craftCurrentLifeTask);
+
+            renderLifeTasks();
+            renderLifeLab();
+            updateBuildPlanetToLifeButton();
+
+            /* Theo dõi tiến trình 5 tầng để đổi nút ngay sau khi tầng cuối hoàn thành. */
+            setInterval(updateBuildPlanetToLifeButton, 250);
+        }
+
+        window.addEventListener('load', setupLifePlanetSystem);
     </script>
 </body>
 </html>
